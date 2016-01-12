@@ -1,14 +1,14 @@
 CFLAGS += -Wall -nostdinc -I../include
 
-OBJS = string.o cstring.o wstring.o
+OBJS = ctype.o string.o c_string.o w_string.o c_ctype.o w_ctype.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-c%.o: w_%.c
+c_%.o: w_%.c
 	$(CC) $(CFLAGS) -D__W="'c'" -c -o $@ $<
 
-w%.o: w_%.c
+w_%.o: w_%.c
 	$(CC) $(CFLAGS) -D__W="'w'" -c -o $@ $<
 
 all: libc.a

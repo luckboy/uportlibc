@@ -23,19 +23,20 @@
 #define _UPORTLIBC_W_STRING_H
 
 #include <stddef.h>
+#undef __W_UNDEF
 #include <uportlibc/w_name.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-__W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_INT c, size_t count);
+__W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_CHAR_INT c, size_t count);
 int __W_MEM_NAME(cmp)(__W_CONST_VOID_PTR str1, __W_CONST_VOID_PTR str2, size_t count);
 __W_VOID_PTR __W_MEM_NAME(cpy)(__W_VOID_PTR dst, __W_CONST_VOID_PTR src, size_t count);
 __W_VOID_PTR __W_MEM_NAME(move)(__W_VOID_PTR dst, __W_CONST_VOID_PTR src, size_t count);
-__W_VOID_PTR __W_MEM_NAME(set)(__W_VOID_PTR str, __W_INT c, size_t count);
+__W_VOID_PTR __W_MEM_NAME(set)(__W_VOID_PTR str, __W_CHAR_INT c, size_t count);
 __W_CHAR_PTR __W_STR_NAME(cat)(__W_CHAR_PTR str1, __W_CONST_CHAR_PTR str2);
-__W_CHAR_PTR __W_STR_NAME(chr)(__W_CONST_CHAR_PTR str, __W_INT c);
+__W_CHAR_PTR __W_STR_NAME(chr)(__W_CONST_CHAR_PTR str, __W_CHAR_INT c);
 int __W_STR_NAME(cmp)(__W_CONST_CHAR_PTR str1, __W_CONST_CHAR_PTR str2);
 int __W_STR_NAME(coll)(__W_CONST_CHAR_PTR str1, __W_CONST_CHAR_PTR str2);
 __W_CHAR_PTR __W_STR_NAME(cpy)(__W_CHAR_PTR dst, __W_CONST_CHAR_PTR src);
@@ -45,7 +46,7 @@ __W_CHAR_PTR __W_STR_NAME(ncat)(__W_CHAR_PTR str1, __W_CONST_CHAR_PTR str2, size
 int __W_STR_NAME(ncmp)(__W_CONST_CHAR_PTR str1, __W_CONST_CHAR_PTR str2, size_t count);
 __W_CHAR_PTR __W_STR_NAME(ncpy)(__W_CHAR_PTR dst, __W_CONST_CHAR_PTR src, size_t count);
 __W_CHAR_PTR __W_STR_NAME(pbrk)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR accept);
-__W_CHAR_PTR __W_STR_NAME(rchr)(__W_CONST_CHAR_PTR str, __W_INT c);
+__W_CHAR_PTR __W_STR_NAME(rchr)(__W_CONST_CHAR_PTR str, __W_CHAR_INT c);
 size_t __W_STR_NAME(spn)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR accept);
 __W_CHAR_PTR __W_STR_NAME(str)(__W_CONST_CHAR_PTR str1, __W_CONST_CHAR_PTR str2);
 __W_CHAR_PTR __W_STRTOK_R(__W_CHAR_PTR str, __W_CONST_CHAR_PTR delim, __W_CHAR_PTR *ptr_ptr);

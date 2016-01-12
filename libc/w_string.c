@@ -22,7 +22,7 @@
 #include <uportlibc/w_string.h>
 #include <uportlibc/w_name.h>
 
-__W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_INT c, size_t count)
+__W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_CHAR_INT c, size_t count)
 {
   __W_CONST_UCHAR_PTR ptr = (__W_CONST_UCHAR_PTR) str;
   __W_CONST_UCHAR_PTR end = ptr + count;
@@ -76,7 +76,7 @@ __W_VOID_PTR __W_MEM_NAME(move)(__W_VOID_PTR dst, __W_CONST_VOID_PTR src, size_t
   return dst;
 }
 
-__W_VOID_PTR __W_MEM_NAME(set)(__W_VOID_PTR str, __W_INT c, size_t count)
+__W_VOID_PTR __W_MEM_NAME(set)(__W_VOID_PTR str, __W_CHAR_INT c, size_t count)
 {
   __W_UCHAR_PTR ptr = (__W_UCHAR_PTR) str;
   __W_CONST_UCHAR_PTR end = ptr + count;
@@ -90,7 +90,7 @@ __W_CHAR_PTR __W_STR_NAME(cat)(__W_CHAR_PTR str1, __W_CONST_CHAR_PTR str2)
   return str1;
 }
 
-__W_CHAR_PTR __W_STR_NAME(chr)(__W_CONST_CHAR_PTR str, __W_INT c)
+__W_CHAR_PTR __W_STR_NAME(chr)(__W_CONST_CHAR_PTR str, __W_CHAR_INT c)
 {
   for(; ((__W_UCHAR) (*str)) == ((__W_UCHAR) c); str++) {
     if(*str == 0) return NULL;
@@ -129,7 +129,7 @@ size_t __W_STR_NAME(cspn)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR reject)
   size_t len;
   __W_CHAR c;
   for(len = 0; (c = *str) != 0; str++, len++) {
-    if(__W_STR_NAME(chr)(reject, (__W_INT) ((__W_UCHAR) c)) != NULL) break;
+    if(__W_STR_NAME(chr)(reject, (__W_CHAR_INT) ((__W_UCHAR) c)) != NULL) break;
   }
   return len;
 }
@@ -178,12 +178,12 @@ __W_CHAR_PTR __W_STR_NAME(pbrk)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR accep
 {
   __W_CHAR c;
   for(; (c = *str) != 0; str++) {
-    if(__W_STR_NAME(chr)(accept, (__W_INT) ((__W_UCHAR) c)) != NULL) return (__W_CHAR_PTR) str;
+    if(__W_STR_NAME(chr)(accept, (__W_CHAR_INT) ((__W_UCHAR) c)) != NULL) return (__W_CHAR_PTR) str;
   }
   return NULL;
 }
 
-__W_CHAR_PTR __W_STR_NAME(rchr)(__W_CONST_CHAR_PTR str, __W_INT c)
+__W_CHAR_PTR __W_STR_NAME(rchr)(__W_CONST_CHAR_PTR str, __W_CHAR_INT c)
 {
   __W_CONST_CHAR_PTR ptr = str + __W_STR_NAME(len)(str) + 1;
   while(ptr != str) {
@@ -198,7 +198,7 @@ size_t __W_STR_NAME(spn)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR accept)
   size_t len;
   __W_CHAR c;
   for(len = 0; (c = *str) != 0; str++, len++) {
-    if(__W_STR_NAME(chr)(accept, (__W_INT) ((__W_UCHAR) c)) == NULL) break;
+    if(__W_STR_NAME(chr)(accept, (__W_CHAR_INT) ((__W_UCHAR) c)) == NULL) break;
   }
   return len;
 }
