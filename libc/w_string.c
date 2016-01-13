@@ -19,7 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#define __W W
 #include <uportlibc/w_string.h>
+#define __W W
 #include <uportlibc/w_name.h>
 
 __W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_CHAR_INT c, size_t count)

@@ -19,7 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#define __W W
 #include <uportlibc/w_ctype.h>
+#define __W W
 #include <uportlibc/w_name.h>
 #if __W == 'w'
 #include "wctype_table.h"
