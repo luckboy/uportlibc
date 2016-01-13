@@ -1,6 +1,6 @@
 CFLAGS += -Wall -nostdinc -I../include
 
-OBJS = ctype.o string.o c_string.o w_string.o c_ctype.o w_ctype.o
+OBJS = ctype.o string.o wctype.o c_ctype.o w_ctype.o c_string.o w_string.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<

@@ -19,39 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCTYPE_TABLE_H
-#define _WCTYPE_TABLE_H
+#ifndef _WCTYPE_H
+#define _WCTYPE_H
 
-#include <stddef.h>
+#define __W 'w'
+#include <uportlibc/w_ctype.h>
 
-#define WCTYPE_TABLE_FLAG_ALPHA         (1 << 0)
-#define WCTYPE_TABLE_FLAG_CNTRL         (1 << 1)
-#define WCTYPE_TABLE_FLAG_LOWER_N       (1 << 2)
-#define WCTYPE_TABLE_FLAG_PRINT         (1 << 3)
-#define WCTYPE_TABLE_FLAG_PUNCT         (1 << 4)
-#define WCTYPE_TABLE_FLAG_SPACE         (1 << 5)
-#define WCTYPE_TABLE_FLAG_UPPER_N       (1 << 6)
-#define WCTYPE_TABLE_FLAG_LOWER_UPPER_1 (1 << 7)
-#define WCTYPE_TABLE_FLAG_UPPER_LOWER_1 (1 << 8)
+#ifndef WEOF
+#define WEOF                    ((wint_t) (-1))
+#endif
 
-struct wctype_table_entry
-{
-  unsigned min_c;
-  unsigned max_c;
-  unsigned short flags;
-  short offset;
-};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct wctype_table_entry_index_pair
-{
-  unsigned first_entry_idx;
-  unsigned last_entry_idx;
-};
+#ifndef __WCTRANS_T
+#define __WCTRANS_T
+typedef unsigned wctrans_t;
+#endif
 
-extern struct wctype_table_entry *__uportlibc_wctype_table;
-extern size_t __uportlibc_wctype_table_length;
+#ifndef __WCTYPE_T
+#define __WCTYPE_T
+typedef unsigned wctype_t;
+#endif
 
-extern struct wctype_table_entry_index_pair *__uportlibc_wctype_table_index_pairs;
-extern size_t __uportlibc_wctype_table_index_pair_count;
+int iswctype(wint_t c, wctype_t char_trans);
+wint_t towctrans(wint_t c, wctrans_t char_type);
+wctrans_t wctrans(const char *name);
+wctype_t wctype(const char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

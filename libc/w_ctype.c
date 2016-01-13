@@ -30,7 +30,11 @@
 #if __W == 'w'
 static struct wctype_table_entry *find_wctype_table_entry(wint_t c)
 {
-  size_t l = 0, r = __uportlibc_wctype_table_length - 1;
+  size_t l, r;
+  wint_t i = c >> 16;
+  if(i < 0 && i >= __uportlibc_wctype_table_index_pair_count) return NULL;
+  l = __uportlibc_wctype_table_index_pairs[i].first_entry_idx;
+  r = __uportlibc_wctype_table_index_pairs[i].last_entry_idx;
   while(l <= r) {
     size_t m = (l + r) >> 1;
     if(c < __uportlibc_wctype_table[m].min_c)
