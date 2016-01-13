@@ -49,6 +49,10 @@ int __W_NAME(is, xdigit)(__W_INT c);
 __W_INT __W_NAME(to, lower)(__W_INT c);
 __W_INT __W_NAME(to, upper)(__W_INT c);
 
+#ifdef __cplusplus
+}
+#endif
+
 #define __W_UNDEF
 #include <uportlibc/w_name.h>
 
