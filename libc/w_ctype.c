@@ -123,7 +123,7 @@ int __W_NAME(is, punct)(__W_INT c)
 
 int __W_NAME(is, space)(__W_INT c)
 {
-  if(c >= '\t' || c <= '\r') return 1;
+  if(c >= '\t' && c <= '\r') return 1;
 #if __W == 'w'
   if(c >= 0x80) {
     struct wctype_table_entry *entry = find_wctype_table_entry(c);
