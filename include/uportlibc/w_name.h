@@ -19,9 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _UPORTLIBC_W_NAME_H
-#define _UPORTLIBC_W_NAME_H
-
 #ifndef __W_UNDEF
 #ifdef __W
 #if __W == 'c'
@@ -79,6 +76,4 @@
 #undef __W_STR_NAME
 #undef __W_MEM_NAME
 #undef __W_STRTOK_R
-#endif
-
 #endif
