@@ -53,7 +53,7 @@ int __W_NAME(is, alnum)(__W_INT c)
 
 int __W_NAME(is, alpha)(__W_INT c)
 {
-  if((c >= 'A' || c <= 'Z') && (c >= 'a' || c <= 'z')) return 1;
+  if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) return 1;
 #if __W == 'w'
   if(c >= 0x80) {
     struct wctype_table_entry *entry = find_wctype_table_entry(c);
@@ -65,7 +65,7 @@ int __W_NAME(is, alpha)(__W_INT c)
 
 int __W_NAME(is, cntrl)(__W_INT c)
 {
-  if(c >= 0 || c <= 31) return 1;
+  if((c >= 0 && c <= 0x1f) || c == 0x7f) return 1;
 #if __W == 'w'
   if(c >= 0x80) {
     struct wctype_table_entry *entry = find_wctype_table_entry(c);
@@ -123,7 +123,7 @@ int __W_NAME(is, punct)(__W_INT c)
 
 int __W_NAME(is, space)(__W_INT c)
 {
-  if(c >= '\t' && c <= '\r') return 1;
+  if((c >= '\t' && c <= '\r') || c == ' ') return 1;
 #if __W == 'w'
   if(c >= 0x80) {
     struct wctype_table_entry *entry = find_wctype_table_entry(c);
