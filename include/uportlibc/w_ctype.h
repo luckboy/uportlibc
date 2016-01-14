@@ -29,10 +29,7 @@ extern "C" {
 #endif
 
 #if __W == 'w'
-#ifndef __WINT_T
-#define __WINT_T
 typedef __WINT_TYPE__ wint_t;
-#endif
 #endif
 
 int __W_NAME(is, alnum)(__W_INT c);

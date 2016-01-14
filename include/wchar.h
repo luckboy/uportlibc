@@ -19,11 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCTYPE_H
-#define _WCTYPE_H
+#ifndef _WCHAR_H
+#define _WCHAR_H
 
-#define __W 'w'
 #include <uportlibc/w_ctype.h>
+#include <uportlibc/w_string.h>
 
 #ifndef WEOF
 #define WEOF                    ((wint_t) (-1))
@@ -33,16 +33,12 @@
 extern "C" {
 #endif
 
-typedef unsigned wctrans_t;
-
 #ifndef _WCTYPE_T
 #define _WCTYPE_T
 typedef unsigned wctype_t;
 #endif
 
 int iswctype(wint_t c, wctype_t char_type);
-wint_t towctrans(wint_t c, wctrans_t char_trans);
-wctrans_t wctrans(const char *name);
 wctype_t wctype(const char *name);
 
 #ifdef __cplusplus
