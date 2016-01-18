@@ -57,6 +57,11 @@ __UPORTSYS_STRUCT_ITIMERVAL(itimerval, timeval);
 __UPORTSYS_STRUCT_TIMEZONE(timezone);
 #endif
 
+void FD_CLR(int fd, fd_set *set);
+int FD_ISSET(int fd, fd_set *set);
+void FD_SET(int fd, fd_set *set);
+void FD_ZERO(fd_set *set);
+
 int getitimer(int which, struct itimerval *value);
 #ifdef __UPORTSYS_STRUCT_TIMEZONE
 int gettimeofday(struct timeval *tv, struct timezone *tz);
