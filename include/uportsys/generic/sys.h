@@ -686,7 +686,7 @@ do {                                                                        \
 do {                                                                        \
   unsigned __i;                                                             \
   for(__i = 0; __i < __UPORTSYS_SIGS_BITS_LEN; __i++) {                     \
-    (set)->sigs_bits[i] = __UPORTSYS__sig_empty_mask;                       \
+    (set)->sigs_bits[__i] = __UPORTSYS__sig_empty_mask;                     \
   }                                                                         \
 } while(0)
 
@@ -694,7 +694,7 @@ do {                                                                        \
 do {                                                                        \
   unsigned __i;                                                             \
   for(__i = 0; __i < __UPORTSYS_SIGS_BITS_LEN; __i++) {                     \
-    (set)->sigs_bits[i] = __UPORTSYS__sig_empty_mask;                       \
+    (set)->sigs_bits[__i] = __UPORTSYS__sig_empty_mask;                     \
   }                                                                         \
 } while(0)
 
