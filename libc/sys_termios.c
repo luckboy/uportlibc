@@ -19,22 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <uportsys/sys.h>
+#include <errno.h>
+#include <termios.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int tcdrain(int fd)
+{ return __uportsys_tcdrain(fd, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int tcflow(int fd, int action)
+{ return __uportsys_tcflow(fd, action, &errno); }
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
+int tcflush(int fd, int queue_selector)
+{ return __uportsys_tcflush(fd, queue_selector, &errno); }
 
-#endif
+int tcgetattr(int fd, struct termios *termios)
+{ return __uportsys_tcgetattr(fd, (struct __uportsys_termios *) termios, &errno); }
+
+pid_t tcgetsid(int fd)
+{ return __uportsys_tcgetsid(fd, &errno); }
+
+int tcsendbreak(int fd, int duration)
+{ return __uportsys_tcsendbreak(fd, duration, &errno); }
+
+int tcsetattr(int fd, int opt_actions, const struct termios *termios)
+{ return __uportsys_tcsetattr(fd, opt_actions, (struct __uportsys_termios *) termios, &errno); }

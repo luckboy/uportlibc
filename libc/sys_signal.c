@@ -19,22 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <uportsys/sys.h>
+#include <errno.h>
+#include <signal.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int kill(pid_t pid, int sig_num)
+{ return __uportsys_kill(pid, sig_num, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int sigaction(int sig_num, const struct sigaction *act, struct sigaction *old_act)
+{ return __uportsys_sigaction(sig_num, (const struct __uportsys_sigaction *) act, (struct __uportsys_sigaction *) old_act, &errno); }
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
+int sigaltstack(const stack_t *stack, stack_t *old_stack)
+{ return __uportsys_sigaltstack(stack, old_stack, &errno); }
 
-#endif
+int sigpending(sigset_t *set)
+{ return __uportsys_sigpending(set, &errno); }
+
+int sigprocmask(int how, sigset_t *set, sigset_t *old_set)
+{ return __uportsys_sigprocmask(how, set, old_set, &errno); }
+
+int sigsuspend(const sigset_t *set)
+{ return __uportsys_sigsuspend(set, &errno); }
+
+int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout)
+{ return __uportsys_sigtimedwait(set, (__uportsys_siginfo_t *) info, (const struct __uportsys_timespec *) timeout, &errno); }

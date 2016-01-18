@@ -19,22 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _SYS_TIMES_H
+#define _SYS_TIMES_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
+#include <uportsys/sys.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
-
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
+#ifndef _CLOCK_T
+#define _CLOCK_T
+typedef __uportsys_clock_t clock_t;
 #endif
-typedef __WCHAR_TYPE__ wchar_t;
+
+__UPORTSYS_STRUCT_TMS(tms);
+
+clock_t times(struct tms *buf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

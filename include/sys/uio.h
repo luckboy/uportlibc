@@ -19,22 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _SYS_UIO_H
+#define _SYS_UIO_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
+#include <uportsys/sys.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
-
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
 #ifndef _SIZE_T
 #define _SIZE_T
 typedef __SIZE_TYPE__ size_t;
 #endif
-typedef __WCHAR_TYPE__ wchar_t;
+
+#ifndef _SSIZE_T
+#define _SSIZE_T
+typedef __uportsys_ssize_t ssize_t;
+#endif
+
+#ifndef _STRUCT_IOVEC
+#define _STRUCT_IOVEC
+__UPORTSYS_STRUCT_IOVEC(iovec);
+#endif
+
+ssize_t __uport_readv(int fd, const struct iovec *iov, int iov_count);
+ssize_t __uport_writev(int fd, const struct iovec *iov, int iov_count);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

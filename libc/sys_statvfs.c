@@ -19,22 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <sys/statvfs.h>
+#include <uportsys/sys.h>
+#include <errno.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int fstatvfs(int fd, struct statvfs *buf)
+{ return __uportsys_fstatvfs(fd, (struct __uportsys_statvfs *) buf, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
-
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
-
-#endif
+int statvfs(const char *file_name, struct statvfs *buf)
+{ return __uportsys_statvfs(file_name, (struct __uportsys_statvfs *) buf, &errno); }

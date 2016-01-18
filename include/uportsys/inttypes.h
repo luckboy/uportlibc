@@ -19,22 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _UPORTSYS_INTTYPES_H
+#define _UPORTSYS_INTTYPES_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
-
-#define offsetof(type, member)  __builtin_offsetof(type, member)
-
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
+typedef __INT8_TYPE__ __uportsys_int8_t;
+typedef __INT16_TYPE__ __uportsys_int16_t;
+typedef __INT32_TYPE__ __uportsys_int32_t;
+typedef __INT64_TYPE__ __uportsys_int64_t;
+typedef __INTPTR_TYPE__ __uportsys_intptr_t;
+typedef __UINT8_TYPE__ __uportsys_uint8_t;
+typedef __UINT16_TYPE__ __uportsys_uint16_t;
+typedef __UINT32_TYPE__ __uportsys_uint32_t;
+typedef __UINT64_TYPE__ __uportsys_uint64_t;
+typedef __UINTPTR_TYPE__ __uportsys_uintptr_t;
 
 #endif

@@ -19,22 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <uportsys/sys.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <inttypes.h>
+#include <stdarg.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int fcntl(int fd, int cmd, ...)
+{
+  va_list ap;
+  intptr_t arg;
+  va_start(ap, cmd);
+  arg = va_arg(ap, intptr_t);
+  va_end(ap);
+  return __uportsys_fcntl(fd, cmd, arg, &errno);
+}
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
-
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
-
-#endif
+int open(const char *file_name, int flags, ...)
+{
+  va_list ap;
+  mode_t mode;
+  va_start(ap, flags);
+  mode = va_arg(ap, unsigned);
+  va_end(ap);
+  return __uportsys_open(file_name, flags, mode, &errno);
+}

@@ -19,22 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <sys/mman.h>
+#include <uportsys/sys.h>
+#include <errno.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int mlock(const void *addr, size_t len)
+{ return __uportsys_mlock(addr, len, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int mlockall(int flags)
+{ return __uportsys_mlockall(flags, &errno); }
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
+void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
+{ return __uportsys_mmap(addr, len, prot, flags, fd, offset, &errno); }
 
-#endif
+int mprotect(void *addr, size_t len, int prot)
+{ return __uportsys_mprotect(addr, len, prot, &errno); }
+
+int msync(void *addr, size_t len, int flags)
+{ return __uportsys_msync(addr, len, flags, &errno); }
+
+int munlock(const void *addr, size_t len)
+{ return __uportsys_munlock(addr, len, &errno); }
+
+int munlockall(void)
+{ return __uportsys_munlockall(&errno); }
+
+int munmap(void *addr, size_t len)
+{ return __uportsys_munmap(addr, len, &errno); }

@@ -19,22 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <sys/resource.h>
+#include <uportsys/sys.h>
+#include <errno.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int getpriority(int which, id_t who)
+{ return __uportsys_getpriority(which, who, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int getrlimit(int resource, struct rlimit *rlim)
+{ return __uportsys_getrlimit(resource, (struct __uportsys_rlimit *) rlim, &errno); }
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
+int getrusage(int who, struct rusage *usage)
+{ return __uportsys_getrusage(who, (struct __uportsys_rusage *) usage, &errno); }
 
-#endif
+int setpriority(int which, id_t who, int prio)
+{ return __uportsys_setpriority(which, who, prio, &errno); }
+
+int setrlimit(int resource, const struct rlimit *rlim)
+{ return __uportsys_setrlimit(resource, (const struct __uportsys_rlimit *) rlim, &errno); }

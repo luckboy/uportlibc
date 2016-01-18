@@ -19,22 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <sys/stat.h>
+#include <uportsys/sys.h>
+#include <errno.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+int chmod(const char *path_name, mode_t mode)
+{ return __uportsys_chmod(path_name, mode, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int fchmod(int fd, mode_t mode)
+{ return __uportsys_fchmod(fd, mode, &errno); }
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
+int fstat(int fd, struct stat *buf)
+{ return __uportsys_fstat(fd, (struct __uportsys_stat *) buf, &errno); }
 
-#endif
+int lstat(const char *path_name, struct stat *buf)
+{ return __uportsys_lstat(path_name, (struct __uportsys_stat *) buf, &errno); }
+
+int mkdir(const char *dir_name, mode_t mode)
+{ return __uportsys_mkdir(dir_name, mode, &errno); }
+
+int mknod(const char *file_name, mode_t mode, dev_t dev)
+{ return __uportsys_mknod(file_name, mode, dev, &errno); }
+
+int stat(const char *path_name, struct stat *buf)
+{ return __uportsys_stat(path_name, (struct __uportsys_stat *) buf, &errno); }
+
+mode_t umask(mode_t mask)
+{ return __uportsys_umask(mask, &errno); }

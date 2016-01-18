@@ -19,22 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#include <sys/wait.h>
+#include <uportsys/sys.h>
+#include <errno.h>
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
-#endif
+pid_t wait3(int *status, int options, struct rusage *usage)
+{ return __uportsys_wait3(status, options, (struct __uportsys_rusage *) usage, &errno); }
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int waitid(idtype_t id_type, id_t id, siginfo_t *info, int options)
+{ return __uportsys_waitid(id_type, id, (__uportsys_siginfo_t *) info, options, &errno); }
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
-#endif
-typedef __WCHAR_TYPE__ wchar_t;
-
-#endif
+pid_t waitpid(pid_t pid, int *status, int options)
+{ return __uportsys_waitpid(pid, status, options, &errno); }

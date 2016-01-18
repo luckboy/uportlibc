@@ -19,22 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _TIME_H
+#define _TIME_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
+#include <uportsys/sys.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
-
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
+#ifndef _STRUCT_TIMESPEC
+#define _STRUCT_TIMESPEC
+__UPORTSYS_STRUCT_TIMESPEC(timespec);
 #endif
-typedef __WCHAR_TYPE__ wchar_t;
+
+int nanosleep(const struct timespec *req, const struct timespec *rem);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

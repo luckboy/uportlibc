@@ -19,22 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _POLL_H
+#define _POLL_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
+#include <uportsys/sys.h>
+
+#define POLLIN                  __UPORTSYS_POLLIN
+#define POLLPRI                 __UPORTSYS_POLLPRI
+#define POLLRDBAND              __UPORTSYS_POLLRDBAND
+#define POLLRDNORM              __UPORTSYS_POLLRDNORM
+#define POLLOUT                 __UPORTSYS_POLLOUT
+#define POLLWRBAND              __UPORTSYS_POLLWRBAND
+#define POLLWRNORM              __UPORTSYS_POLLWRNORM
+#define POLLERR                 __UPORTSYS_POLLERR
+#define POLLHUP                 __UPORTSYS_POLLHUP
+#define POLLNVAL                __UPORTSYS_POLLNVAL
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+typedef __uportsys_nfds_t nfds_t;
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
+__UPORTSYS_STRUCT_POLLFD(pollfd);
+
+int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+
+#ifdef __cplusplus
+}
 #endif
-typedef __WCHAR_TYPE__ wchar_t;
 
 #endif

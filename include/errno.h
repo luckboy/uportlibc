@@ -19,22 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _ERRNO_H
+#define _ERRNO_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+int *__uportlibc_errno_ptr(void);
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
+#ifdef __cplusplus
+}
 #endif
-typedef __WCHAR_TYPE__ wchar_t;
+
+#define errno                   (*__uportlibc_errno_ptr())
 
 #endif

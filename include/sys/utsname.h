@@ -19,22 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef _SYS_UTSNAME_H
+#define _SYS_UTSNAME_H
 
-#ifndef __cplusplus
-#define NULL                    ((void *) 0)
-#else
-#define NULL                    0
+#include <uportsys/sys.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#define offsetof(type, member)  __builtin_offsetof(type, member)
+__UPORTSYS_STRUCT_UTSNAME(utsname);
 
-typedef __PTRDIFF_TYPE__ ptrdiff_t;
-#ifndef _SIZE_T
-#define _SIZE_T
-typedef __SIZE_TYPE__ size_t;
+int uname(struct utsname *buf);
+
+#ifdef __cplusplus
+}
 #endif
-typedef __WCHAR_TYPE__ wchar_t;
 
 #endif
