@@ -35,14 +35,17 @@ static struct wctype_table_entry *find_wctype_table_entry(wint_t c)
   if(i < 0 || i >= __uportlibc_wctype_table_index_pair_count) return NULL;
   l = __uportlibc_wctype_table_index_pairs[i].first_entry_idx;
   r = __uportlibc_wctype_table_index_pairs[i].last_entry_idx;
-  while(l <= r) {
+  while(1) {
     size_t m = (l + r) >> 1;
-    if(c < __uportlibc_wctype_table[m].min_c)
+    if(c < __uportlibc_wctype_table[m].min_c) {
+      if(l >= r) break;
       r = m - 1;
-    else if(c > __uportlibc_wctype_table[m].max_c)
+    } else if(c > __uportlibc_wctype_table[m].max_c) {
+      if(l >= r) break;
       l = m + 1;
-    else
+    } else {
       return &(__uportlibc_wctype_table[m]);
+    }
   }
   return NULL;
 }
