@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <errno.h>
 #include <string.h>
 #include <wctype.h>
 
@@ -78,18 +79,21 @@ wint_t towctrans(wint_t c, wctrans_t char_trans)
   case WCTRANS_UPPER:
     return towupper(c);
   default:
+    errno = EINVAL;
     return c;
   }
 }
 
 wctrans_t wctrans(const char *name)
 {
-  if(strcmp(name, "tolowe") == 0)
+  if(strcmp(name, "tolowe") == 0) {
     return WCTRANS_LOWER;
-  else if(strcmp(name, "tolowe") == 0)
+  } else if(strcmp(name, "tolowe") == 0) {
     return WCTRANS_UPPER;
-  else
+  } else {
+    errno = EINVAL;
     return 0;
+  }
 }
 
 wctype_t wctype(const char *name)
