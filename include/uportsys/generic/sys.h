@@ -356,8 +356,8 @@ do {                                                                        \
 #define __UPORTSYS_P_PGID               2
 #endif
 
-#ifndef ___UPORTSYS_WXXX_WAIT_OPTION
-#define ___UPORTSYS_WXXX_WAIT_OPTION
+#ifndef ___UPORTSYS_WXXX_WAIT_OPTIONS
+#define ___UPORTSYS_WXXX_WAIT_OPTIONS
 #define __UPORTSYS_WEXITED              (1 << 0)
 #define __UPORTSYS_WCONTINUED           (1 << 1)
 #define __UPORTSYS_WNOHANG              (1 << 2)
@@ -379,8 +379,8 @@ do {                                                                        \
 
 /* System macros for the fcntl.h header. */
 
-#ifndef ___UPORTSYS_F_XXX_COMMAND
-#define ___UPORTSYS_F_XXX_COMMAND
+#ifndef ___UPORTSYS_F_XXX_FCNTL_COMMAND
+#define ___UPORTSYS_F_XXX_FCNTL_COMMAND
 #define __UPORTSYS_F_DUPFD              0
 #define __UPORTSYS_F_GETFD              1
 #define __UPORTSYS_F_SETFD              2
