@@ -316,7 +316,7 @@ do {                                                                        \
   (set)->fds_bits[__UPORTSYS_FD_INDEX(fd)] |= __UPORTSYS_FD_MASK(fd);       \
 } while(0)
 
-#define __UPORTSYS_FS_ZERO(set)                                             \
+#define __UPORTSYS_FD_ZERO(set)                                             \
 do {                                                                        \
   unsigned __i = 0;                                                         \
   for(__i = 0; __i < __UPORTSYS_FDS_BITS_LEN; __i++) {                      \

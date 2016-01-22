@@ -28,4 +28,4 @@ int FD_ISSET(int fd, fd_set *set) { return __UPORTSYS_FD_ISSET(fd, set); }
 
 void FD_SET(int fd, fd_set *set) { __UPORTSYS_FD_SET(fd, set); }
 
-void FD_ZERO(fd_set *set) { __UPORTSYS_FS_ZERO(set); }
+void FD_ZERO(fd_set *set) { __UPORTSYS_FD_ZERO(set); }
