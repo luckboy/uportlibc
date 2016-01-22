@@ -1,3 +1,4 @@
+/include/uportsys/errno.h
 /include/uportsys/sys.h
 *.a
 *.o
