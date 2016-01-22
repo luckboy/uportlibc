@@ -152,6 +152,11 @@ __UPORTSYS_UNION_SIGVAL(sigval);
 typedef __UPORTSYS_SIGINFO_T(sigval) siginfo_t;
 __UPORTSYS_STRUCT_SIGACTION(sigaction, siginfo_t);
 
+#ifdef ___UPORTSYS_STRUCT_SIGACTION___HANDLER_UNION
+#define sa_handler              __handler_union.sa_handler
+#define sa_sigaction            __handler_union.sa_sigaction
+#endif
+
 int kill(pid_t pid, int sig_num);
 int sigaction(int sig_num, const struct sigaction *act, struct sigaction *old_act);
 int sigaltstack(const stack_t *stack, stack_t *old_stack);

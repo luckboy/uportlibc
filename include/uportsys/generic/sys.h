@@ -1467,6 +1467,19 @@ struct                                                                      \
 typedef __UPORTSYS_SIGINFO_T(__uportsys_sigval) __uportsys_siginfo_t;
 
 #ifndef __UPORTSYS_STRUCT_SIGACTION
+#ifdef ___UPORTSYS_STRUCT_SIGACTION___HANDLER_UNION
+#define __UPORTSYS_STRUCT_SIGACTION(name, siginfo_t_type)                   \
+struct name                                                                 \
+{                                                                           \
+  union                                                                     \
+  {                                                                         \
+    void (*sa_handler)(int);                                                \
+    void (*sa_sigaction)(int, siginfo_t_type *, void *);                    \
+  } __handler_union;                                                        \
+  __uportsys_sigset_t sa_mask;                                              \
+  int sa_flags;                                                             \
+}
+#else
 #define __UPORTSYS_STRUCT_SIGACTION(name, siginfo_t_type)                   \
 struct name                                                                 \
 {                                                                           \
@@ -1475,6 +1488,7 @@ struct name                                                                 \
   int sa_flags;                                                             \
   void (*sa_sigaction)(int, siginfo_t_type *, void *);                      \
 }
+#endif
 #endif
 
 __UPORTSYS_STRUCT_SIGACTION(__uportsys_sigaction, __uportsys_siginfo_t);
