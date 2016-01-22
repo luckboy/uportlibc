@@ -131,6 +131,12 @@ __UPORTSYS_STRUCT_TIMESPEC(timespec);
 
 __UPORTSYS_STRUCT_STAT(stat, timespec);
 
+#ifdef ___UPORTSYS_STRUCT_STAT_XTIM
+#define st_atime                st_atim.tv_sec
+#define st_mtime                st_mtim.tv_sec
+#define st_ctime                st_ctim.tv_sec
+#endif
+
 int chmod(const char *path_name, mode_t mode);
 int fchmod(int fd, mode_t mode);
 int fstat(int fd, struct stat *buf);
