@@ -160,6 +160,12 @@ int sigprocmask(int how, sigset_t *set, sigset_t *old_set);
 int sigsuspend(const sigset_t *set);
 int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout);
 
+int sigaddset(sigset_t *set, int sig_num);
+int sigdelset(sigset_t *set, int sig_num);
+int sigemptyset(sigset_t *set);
+int sigfillset(sigset_t *set);
+int sigismember(sigset_t *set, int sig_num);
+
 #ifdef __cplusplus
 }
 #endif
