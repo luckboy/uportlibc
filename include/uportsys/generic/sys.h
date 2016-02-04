@@ -1729,7 +1729,7 @@ int __uportsys_thread_detach(__uportsys_thread_t *thread, int *err_num);
 int __uportsys_thread_exit(int *err_num);
 int __uportsys_thread_join(__uportsys_thread_t *thread, int *err_num);
 int __uportsys_thread_kill(__uportsys_thread_t *thread, int sig_num, int *err_num);
-int __uportsys_thread_mutex_wait(__uportsys_thread_mutex_t *mutex, __uportsys_thread_t *(self_thread_fun)(void), int *err_num);
+int __uportsys_thread_mutex_wait(__uportsys_thread_mutex_t *mutex, struct __uportsys_timespec *timeout, __uportsys_thread_t *(self_thread_fun)(void), int *err_num);
 int __uportsys_thread_mutex_wake(__uportsys_thread_mutex_t *mutex, int *err_num);
 int __uportsys_thread_settls(void *tls, __uportsys_size_t tls_size, int *err_num);
 int __uportsys_thread_sigmask(int how, const __uportsys_sigset_t *set, const __uportsys_sigset_t *old_set, int *err_num);
