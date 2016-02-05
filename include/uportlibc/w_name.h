@@ -53,7 +53,7 @@
 #define __W_MEM_NAME(suffix)        wmem##suffix
 #define __W_STRTOK_R                wcstok
 #else
-#error "Incorrect macro __W."                    
+#error "Incorrect macro __W."
 #endif
 #endif
 #else
