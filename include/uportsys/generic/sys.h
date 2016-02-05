@@ -1532,6 +1532,7 @@ __UPORTSYS_STRUCT_TIMESPEC(__uportsys_timespec);
 
 /* System functions for the sys/mman.h header. */
 
+#ifdef ___UPORTSYS_MXXX_MEMORY_MANAGEMENT
 int __uportsys_mlock(const void *addr, __uportsys_size_t len, int *err_num);
 int __uportsys_mlockall(int flags, int *err_num);
 void *__uportsys_mmap(void *addr, __uportsys_size_t len, int prot, int flags, int fd, __uportsys_off_t offset, int *err_num);
@@ -1540,6 +1541,7 @@ int __uportsys_msync(void *addr, __uportsys_size_t len, int flags, int *err_num)
 int __uportsys_munlock(const void *addr, __uportsys_size_t len, int *err_num);
 int __uportsys_munlockall(int *err_num);
 int __uportsys_munmap(void *addr, __uportsys_size_t len, int *err_num);
+#endif
 
 /* System functions for the sys/resource.h header. */
 
@@ -1603,10 +1605,8 @@ __uportsys_clock_t __uportsys_times(struct __uportsys_tms *buf, int *err_num);
 
 /* System functions for the sys/uio.h header. */
 
-#ifdef ___UPORTSYS_READV
+#ifdef ___UPORTSYS_XXXV_VECTOR_IO
 __uportsys_ssize_t __uport_readv(int fd, const struct __uportsys_iovec *iov, int iov_count, int *err_num);
-#endif
-#ifdef ___UPORTSYS_WRITEV
 __uportsys_ssize_t __uport_writev(int fd, const struct __uportsys_iovec *iov, int iov_count, int *err_num);
 #endif
 

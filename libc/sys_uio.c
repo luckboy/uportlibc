@@ -23,21 +23,20 @@
 #include <uportsys/sys.h>
 #include <errno.h>
 
-ssize_t __uport_readv(int fd, const struct iovec *iov, int iov_count)
-{
-#ifdef ___UPORTSYS_READV
-  return __uportsys_readv(fd, (const struct __uportsys_iovec *) iov, iov_count, &errno);
-#else
-  return -1;
-#endif
-}
+#ifdef ___UPORTSYS_XXXV_VECTOR_IO
 
-ssize_t __uport_writev(int fd, const struct iovec *iov, int iov_count)
-{
-#ifdef ___UPORTSYS_WRITEV
-  return __uportsys_writev(fd, (const struct __uportsys_iovec *) iov, iov_count, &errno);
-#else
-  return -1;
-#endif
-}
+ssize_t readv(int fd, const struct iovec *iov, int iov_count)
+{ return __uportsys_readv(fd, (const struct __uportsys_iovec *) iov, iov_count, &errno); }
 
+ssize_t writev(int fd, const struct iovec *iov, int iov_count)
+{ return __uportsys_writev(fd, (const struct __uportsys_iovec *) iov, iov_count, &errno); }
+
+#else
+
+ssize_t readv(int fd, const struct iovec *iov, int iov_count)
+{ errno = ENOSYS; return -1; }
+
+ssize_t writev(int fd, const struct iovec *iov, int iov_count)
+{ errno = ENOSYS; return -1; }
+
+#endif

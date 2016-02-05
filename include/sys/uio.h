@@ -43,8 +43,8 @@ typedef __uportsys_ssize_t ssize_t;
 __UPORTSYS_STRUCT_IOVEC(iovec);
 #endif
 
-ssize_t __uport_readv(int fd, const struct iovec *iov, int iov_count);
-ssize_t __uport_writev(int fd, const struct iovec *iov, int iov_count);
+ssize_t readv(int fd, const struct iovec *iov, int iov_count);
+ssize_t writev(int fd, const struct iovec *iov, int iov_count);
 
 #ifdef __cplusplus
 }

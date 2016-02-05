@@ -23,6 +23,8 @@
 #include <uportsys/sys.h>
 #include <errno.h>
 
+#ifdef ___UPORTSYS_MXXX_MEMORY_MANAGEMENT
+
 int mlock(const void *addr, size_t len)
 { return __uportsys_mlock(addr, len, &errno); }
 
@@ -46,3 +48,31 @@ int munlockall(void)
 
 int munmap(void *addr, size_t len)
 { return __uportsys_munmap(addr, len, &errno); }
+
+#else
+
+int mlock(const void *addr, size_t len)
+{ errno = ENOSYS; return -1; }
+
+int mlockall(int flags)
+{ errno = ENOSYS; return -1; }
+
+void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
+{ errno = ENOSYS; return MAP_FAILURE; }
+
+int mprotect(void *addr, size_t len, int prot)
+{ errno = ENOSYS; return -1; }
+
+int msync(void *addr, size_t len, int flags)
+{ errno = ENOSYS; return -1; }
+
+int munlock(const void *addr, size_t len)
+{ errno = ENOSYS; return -1; }
+
+int munlockall(void)
+{ errno = ENOSYS; return -1; }
+
+int munmap(void *addr, size_t len)
+{ errno = ENOSYS; return -1; }
+
+#endif
