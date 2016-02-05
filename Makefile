@@ -1,5 +1,11 @@
+DIRS = libc
+
 all:
-	for d in libc; do $(MAKE) -C $$d all; done
+	@arch="$(ARCH)"; \
+	if [ "$$arch" = "" ]; then arch=`$(CC) -dumpmachine | cut -f 1 -d -`; fi; \
+	for d in $(DIRS); do $(MAKE) -C $$d all ARCH="$$arch"; done
 
 clean:
-	for d in libc; do $(MAKE) -C $$d clean; done
+	@arch="$(ARCH)"; \
+	if [ "$$arch" = "" ]; then arch=`$(CC) -dumpmachine | cut -f 1 -d -`; fi; \
+	for d in $(DIRS); do $(MAKE) -C $$d clean ARCH="$$arch"; done

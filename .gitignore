@@ -1,5 +1,6 @@
 /include/uportsys/errno.h
 /include/uportsys/sys.h
+/libc/build
 *.a
 *.o
 *~
