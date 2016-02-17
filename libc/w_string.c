@@ -25,8 +25,8 @@
 #define __W W
 #include <uportlibc/w_name.h>
 #else
-#include <wchar.h>
 #include <stddef.h>
+#include <wchar.h>
 #define __W W
 #include "w_uportlibc.h"
 #define __W W
