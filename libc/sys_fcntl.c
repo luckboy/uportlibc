@@ -25,6 +25,9 @@
 #include <inttypes.h>
 #include <stdarg.h>
 
+int creat(const char *file_name, mode_t mode)
+{ return open(file_name, O_WRONLY | O_CREAT | O_TRUNC, mode); }
+
 int fcntl(int fd, int cmd, ...)
 {
   va_list ap;

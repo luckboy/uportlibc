@@ -22,6 +22,7 @@
 #include <uportsys/sys.h>
 #include <errno.h>
 #include <signal.h>
+#include <stddef.h>
 
 int kill(pid_t pid, int sig_num)
 { return __uportsys_kill(pid, sig_num, &errno); }
@@ -43,3 +44,6 @@ int sigsuspend(const sigset_t *set)
 
 int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout)
 { return __uportsys_sigtimedwait(set, (__uportsys_siginfo_t *) info, (const struct __uportsys_timespec *) timeout, &errno); }
+
+int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+{ return sigtimedwait(set, info, NULL); }

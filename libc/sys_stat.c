@@ -38,6 +38,9 @@ int lstat(const char *path_name, struct stat *buf)
 int mkdir(const char *dir_name, mode_t mode)
 { return __uportsys_mkdir(dir_name, mode, &errno); }
 
+int mkfifo(const char *file_name, mode_t mode)
+{ return mknod(file_name,  (mode & ~S_IFMT) | S_IFIFO, 0); }
+
 int mknod(const char *file_name, mode_t mode, dev_t dev)
 { return __uportsys_mknod(file_name, mode, dev, &errno); }
 
