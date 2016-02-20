@@ -22,9 +22,11 @@
 #ifndef _WCHAR_H
 #define _WCHAR_H
 
+#define __W 'w'
 #include <uportlibc/w_ctype.h>
 #define __W 'w'
 #include <uportlibc/w_stdlib.h>
+#define __W 'w'
 #include <uportlibc/w_string.h>
 
 #ifndef WEOF
