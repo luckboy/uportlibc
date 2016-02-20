@@ -1,6 +1,6 @@
 BUILD_DIR = build/$(ARCH)
 
-CFLAGS += -Wall -nostdinc -I../include
+CFLAGS += -Wall -nostdinc -I../include -I.
 
 OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sys_mman.o \
