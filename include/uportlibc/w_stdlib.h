@@ -19,42 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
+#ifndef _UPORTLIBC_W_STDLIB_H
+#define _UPORTLIBC_W_STDLIB_H
 
-#include <uportlibc/w_ctype.h>
-#define __W 'w'
-#include <uportlibc/w_stdlib.h>
-#include <uportlibc/w_string.h>
-
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
-#endif
+#undef __W_UNDEF
+#include <uportlibc/w_name.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
-#endif
-
-/* Functions from the wctype.h header. */
-
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
+float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr);
+double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr);
+long __W_STR_NAME(tol)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
+long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr);
+long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
+unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
+unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
 
 #ifdef __cplusplus
 }
 #endif
+
+#define __W_UNDEF
+#include <uportlibc/w_name.h>
 
 #endif

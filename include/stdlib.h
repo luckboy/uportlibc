@@ -23,6 +23,8 @@
 #define _STDLIB_H
 
 #include <sys/wait.h>
+#define __W 'c'
+#include <uportlibc/w_stdlib.h>
 #include <limits.h>
 #include <stddef.h>
 
