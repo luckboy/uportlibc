@@ -19,40 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
+#ifndef _UPORTLIBC_FLOAT_LIMITS_H
+#define _UPORTLIBC_FLOAT_LIMITS_H
 
-#include <uportlibc/w_ctype.h>
-#include <uportlibc/w_string.h>
+#define FLT_DIG                 6
+#define FLT_MAX                 3.40282346638528859812e38f
 
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
+#define DBL_DIG                 10
+#if __SIZEOF_DOUBLE__ == __SIZEOF_FLOAT__
+#define DBL_MAX                 3.40282346638528859812e38
+#else
+#define DBL_MAX                 1.79769313486231570815e308
 #endif
 
-#ifdef __cplusplus
-extern "C" {
+#define LDBL_DIG                10
+#if __SIZEOF_LONG_DOUBLE__ == __SIZEOF_FLOAT__
+#define LDBL_MAX                3.40282346638528859812e38L
+#else
+#if __SIZEOF_LONG_DOUBLE__ == __SIZEOF_FLOAT__
+#define LDBL_MAX                1.79769313486231570815e308L
+#else
+#define LDBL_MAX                1.18973149535723176502e4932L
 #endif
-
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
-#endif
-
-/* Functions from the wctype.h header. */
-
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif

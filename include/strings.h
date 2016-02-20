@@ -19,37 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
+#ifndef _STRINGS_H
+#define _STRINGS_H
 
-#include <uportlibc/w_ctype.h>
-#include <uportlibc/w_string.h>
-
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
-#endif
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
-#endif
-
-/* Functions from the wctype.h header. */
-
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
+int bcmp(const void *str1, const void *str2, size_t count);
+void bcopy(const void *src, void *dst, size_t count);
+void bzero(void *str, size_t count);
+int ffs(int x);
+char *index(const char *str, int c);
+char *rindex(const char *str, int c);
+int strcasecmp(const char *str1, const char *str2);
+int strncasecmp(const char *str1, const char *str2, size_t count);
 
 #ifdef __cplusplus
 }

@@ -157,6 +157,14 @@ __UPORTSYS_STRUCT_SIGACTION(sigaction, siginfo_t);
 #define sa_sigaction            __handler_union.sa_sigaction
 #endif
 
+struct sigstack
+{
+  int ss_onstack;
+  void *ss_sp;
+};
+
+/* System functions. */
+
 int kill(pid_t pid, int sig_num);
 int sigaction(int sig_num, const struct sigaction *act, struct sigaction *old_act);
 int sigaltstack(const stack_t *stack, stack_t *old_stack);
@@ -164,12 +172,31 @@ int sigpending(sigset_t *set);
 int sigprocmask(int how, sigset_t *set, sigset_t *old_set);
 int sigsuspend(const sigset_t *set);
 int sigtimedwait(const sigset_t *set, siginfo_t *info, const struct timespec *timeout);
+int sigwaitinfo(const sigset_t *set, siginfo_t *info);
+
+/* Functions for signal sets. */
 
 int sigaddset(sigset_t *set, int sig_num);
 int sigdelset(sigset_t *set, int sig_num);
 int sigemptyset(sigset_t *set);
 int sigfillset(sigset_t *set);
 int sigismember(sigset_t *set, int sig_num);
+
+/* Other functions. */
+
+void (*bsd_signal(int sig_num, void (*handler)(int)))(int);
+int killpg(pid_t pgid, int sig_num); 
+int raise(int sig_num);
+int sighold(int sig_num);
+int sigignore(int sig_num);
+int siginterrupt(int sig_num, int flag);
+void (*signal(int, int (*handler)(int)))(int);
+int sigpause(int sig_num);
+int sigqueue(pid_t pid, int sig_num, const union sigval value);
+int sigrelse(int sig_num);
+void (*sigset(int sig_num, void (*handler)(int)))(int);
+int sigstack(struct sigstack *stack, struct sigstack *old_stack);
+int sigwait(const sigset_t *set, int *sig_num);
 
 #ifdef __cplusplus
 }

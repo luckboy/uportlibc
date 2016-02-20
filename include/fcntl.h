@@ -75,6 +75,7 @@ typedef __uportsys_pid_t pid_t;
 
 __UPORTSYS_STRUCT_FLOCK(flock);
 
+int creat(const char *file_name, mode_t mode);
 int fcntl(int fd, int cmd, ...);
 int open(const char *file_name, int flags, ...);
 

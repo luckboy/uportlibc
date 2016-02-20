@@ -38,6 +38,11 @@
 #define STDOUT_FILENO           1
 #define STDERR_FILENO           2
 
+#define F_LOCK                  0
+#define F_TEST                  1
+#define F_TLOCK                 2
+#define F_ULOCK                 3
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -45,6 +50,11 @@ extern "C" {
 #ifndef _GID_T
 #define _GID_T
 typedef __uportsys_gid_t gid_t;
+#endif
+
+#ifndef _INTPTR_T
+#define _INTPTR_T
+typedef __INTPTR_TYPE__ intptr_t;
 #endif
 
 #ifndef _OFF_T
@@ -72,6 +82,13 @@ typedef __uportsys_ssize_t ssize_t;
 typedef __uportsys_uid_t uid_t;
 #endif
 
+#ifndef _USECONDS_T
+#define _USECONDS_T
+typedef __uportsys_useconds_t useconds_t;
+#endif
+
+/* System functions. */
+
 void _exit(int status);
 int access(const char *path_name, int mode);
 void *brk(void *addr);
@@ -93,6 +110,7 @@ gid_t getegid(void);
 uid_t geteuid(void);
 gid_t getgid(void);
 int getgroups(int size, gid_t *groups);
+int getpagesize(void);
 pid_t getpgid(pid_t pid);
 pid_t getpid(void);
 pid_t getppid(void);
@@ -124,6 +142,30 @@ int truncate(int fd, off_t length);
 int unlink(const char *file_name);
 pid_t vfork(void);
 ssize_t write(int fd, const void *buf, size_t count);
+
+/* Other functions. */
+
+unsigned alarm(unsigned seconds);
+char *ctermid(char *str);
+int execl(const char *file_name, const char *arg, ...);
+int execle(const char *file_name, const char *arg, ...);
+int execlp(const char *file_name, const char *arg, ...);
+int execv(const char *file_name, char *const *argv);
+int execvp(const char *file_name, char *const *argv);
+int getdtablesize(void);
+long gethostid(void);
+int getopt(int argc, char *const *argv, const char *options);
+int getpgrp(void);
+char *getwd(char *buf);
+int isatty(int fd);
+int lockf(int fd, int cmd, off_t len);
+void *sbrk(intptr_t incr);
+int setpgrp(void);
+int setregid(gid_t rgid, gid_t egid);
+int setreuid(uid_t ruid, gid_t euid);
+unsigned sleep(unsigned seconds);
+void swab(const void *src, void *dst, ssize_t count);
+int usleep(useconds_t useconds);
 
 #ifdef __cplusplus
 }

@@ -19,40 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
+#ifndef _ISO646_H
+#define _ISO646_H
 
-#include <uportlibc/w_ctype.h>
-#include <uportlibc/w_string.h>
-
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
-#endif
-
-/* Functions from the wctype.h header. */
-
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
-
-#ifdef __cplusplus
-}
+#ifndef __cplusplus
+#define and             &&
+#define and_eq          &=
+#define bitand          &
+#define bitor           |
+#define compl           ~
+#define not             !
+#define not_eq          !=
+#define or              ||
+#define or_eq           |=
+#define xor             &
+#define xor_eq          ^=
 #endif
 
 #endif

@@ -205,6 +205,8 @@ typedef __uportsys_tcflag_t tcflag_t;
 
 __UPORTSYS_STRUCT_TERMIOS(termios);
 
+/* System functions. */
+
 int tcdrain(int fd);
 int tcflow(int fd, int action);
 int tcflush(int fd, int queue_selector);
@@ -212,6 +214,13 @@ int tcgetattr(int fd, struct termios *termios);
 pid_t tcgetsid(int fd);
 int tcsendbreak(int fd, int duration);
 int tcsetattr(int fd, int opt_actions, const struct termios *termios);
+
+/* Other functions. */
+
+speed_t cfgetispeed(const struct termios *termios);
+speed_t cfgetispeed(const struct termios *termios);
+int cfsetispeed(struct termios *termios, speed_t speed);
+int cfsetispeed(struct termios *termios, speed_t speed);
 
 #ifdef __cplusplus
 }

@@ -19,37 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
+#ifndef _SYS_TIMEB_H
+#define _SYS_TIMEB_H
 
-#include <uportlibc/w_ctype.h>
-#include <uportlibc/w_string.h>
-
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
-#endif
+#include <uportsys/sys.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
+#ifndef _TIME_T
+#define _TIME_T
+typedef __uportsys_time_t time_t;
 #endif
 
-/* Functions from the wctype.h header. */
+struct timeb
+{
+  time_t time;
+  unsigned short millitm;
+  short timezone;
+  short dstflag;
+};
 
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
+int ftime(struct  timeb *time_ptr);
 
 #ifdef __cplusplus
 }

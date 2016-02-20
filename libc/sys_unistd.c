@@ -21,6 +21,7 @@
  */
 #include <uportsys/sys.h>
 #include <errno.h>
+#include <limits.h>
 #include <unistd.h>
 
 void _exit(int status)
@@ -89,6 +90,15 @@ gid_t getgid(void)
 
 int getgroups(int size, gid_t *groups)
 { return __uportsys_getgroups(size, groups, &errno); }
+
+int getpagesize(void)
+{
+#ifdef ___UPORTSYS_GETPAGESIZE
+  return __uportsys_getpagesize(&errno);
+#else
+  return PAGE_SIZE;
+#endif
+}
 
 pid_t getpgid(pid_t pid)
 { return __uportsys_getpgid(pid, &errno); }

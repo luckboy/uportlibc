@@ -52,6 +52,7 @@ typedef enum __uportsys_idtype_t
   P_PGID = __UPORTSYS_P_PGID
 } idtype_t;
 
+pid_t wait(int *status);
 pid_t wait3(int *status, int options, struct rusage *usage);
 int waitid(idtype_t id_type, id_t id, siginfo_t *info, int options);
 pid_t waitpid(pid_t pid, int *status, int options);

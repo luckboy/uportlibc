@@ -142,6 +142,7 @@ int fchmod(int fd, mode_t mode);
 int fstat(int fd, struct stat *buf);
 int lstat(const char *path_name, struct stat *buf);
 int mkdir(const char *dir_name, mode_t mode);
+int mkfifo(const char *file_name, mode_t mode);
 int mknod(const char *file_name, mode_t mode, dev_t dev);
 int stat(const char *path_name, struct stat *buf);
 mode_t umask(mode_t mask);

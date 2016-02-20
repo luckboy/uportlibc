@@ -23,6 +23,7 @@
 #define _UPORTSYS_GENERIC_SYS_H
 
 #include <uportsys/inttypes.h>
+#include <uportsys/limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -434,7 +435,11 @@ do {                                                                        \
 #endif
 
 #ifndef __UPORTSYS_CHILD_MAX
-#define __UPORTSYS_CHILD_MAX            2147483647
+#define __UPORTSYS_CHILD_MAX            __UPORTSYS_INT_MAX
+#endif
+
+#ifndef __UPORTSYS_FILESIZEBITS
+#define __UPORTSYS_FILESIZEBITS         64
 #endif
 
 #ifndef __UPORTSYS_IOV_MAX
@@ -465,12 +470,20 @@ do {                                                                        \
 #define __UPORTSYS_OPEN_MAX             256
 #endif
 
+#ifndef __UPORTSYS_PAGE_SIZE
+#define __UPORTSYS_PAGE_SIZE            4096
+#endif
+
 #ifndef __UPORTSYS_PATH_MAX
 #define __UPORTSYS_PATH_MAX             1024
 #endif
 
 #ifndef __UPORTSYS_PIPE_BUF
 #define __UPORTSYS_PIPE_BUF             1024
+#endif
+
+#ifndef __UPORTSYS_SIGQUEUE_MAX
+#define __UPORTSYS_SIGQUEUE_MAX         __UPORTSYS_INT_MAX
 #endif
 
 /* System macros for the poll.h header. */
@@ -550,7 +563,7 @@ do {                                                                        \
 #endif
 
 #ifndef __UPORTSYS_SIGRTMIN
-#define __UPORTSYS_SIGRTMIN             32
+#define __UPORTSYS_SIGRTMIN             33
 #endif
 
 #ifndef __UPORTSYS_SIGRTMAX
@@ -861,6 +874,14 @@ do { (termsios)->c_ispeed = (speed) } while(0)
 #define __UPORTSYS__cfsetospeed(termios, speed)                             \
 do { (termsios)->c_ospeed = (speed) } while(0)
 
+#endif
+
+/* System macros for the time.h header. */
+
+#ifndef ___UPORTSYS_CLK_TCK
+#ifndef __UPORTSYS_CLK_TCK
+#define __UPORTSYS_CLK_TCK              100
+#endif
 #endif
 
 /* System macros for the unistd.h header. */
@@ -1676,6 +1697,9 @@ __uportsys_gid_t __uportsys_getegid(int *err_num);
 __uportsys_uid_t __uportsys_geteuid(int *err_num);
 __uportsys_gid_t __uportsys_getgid(int *err_num);
 int __uportsys_getgroups(int size, __uportsys_gid_t *groups, int *err_num);
+#ifdef ___UPORTSYS_GETPAGESIZE
+int __uportsys_getpagesize(int *err_num);
+#endif
 __uportsys_pid_t __uportsys_getpgid(__uportsys_pid_t pid, int *err_num);
 __uportsys_pid_t __uportsys_getpid(int *err_num);
 __uportsys_pid_t __uportsys_getppid(int *err_num);
@@ -1733,6 +1757,10 @@ int __uportsys_thread_mutex_wait(__uportsys_thread_mutex_t *mutex, struct __upor
 int __uportsys_thread_mutex_wake(__uportsys_thread_mutex_t *mutex, int *err_num);
 int __uportsys_thread_settls(void *tls, __uportsys_size_t tls_size, int *err_num);
 int __uportsys_thread_sigmask(int how, const __uportsys_sigset_t *set, const __uportsys_sigset_t *old_set, int *err_num);
+
+#ifdef ___UPORTSYS_CLK_TCK
+__uportsys_clock_t __uportsys_clk_tck(int *err_num);
+#endif
 
 #ifdef __cplusplus
 }

@@ -46,3 +46,11 @@ int utimes(const char *path_name, const struct timeval *times)
 
 int nanosleep(const struct timespec *req, const struct timespec *rem)
 { return __uportsys_nanosleep((const struct __uportsys_timespec *) req, (struct __uportsys_timespec *) rem, &errno); } 
+
+#ifdef ___UPORTSYS_CLK_TCK
+clock_t __uportlibc_clk_tck(void)
+{
+  int tmp_err_num;
+  return __uportsys_clk_tck(&tmp_err_num);
+}
+#endif
