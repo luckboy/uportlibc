@@ -29,13 +29,13 @@
 extern "C" {
 #endif
 
-float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr);
-double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr);
-long __W_STR_NAME(tol)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
-long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr);
-long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
-unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
-unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, CHAR_PTR *end_ptr, int base);
+float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
+double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
+long __W_STR_NAME(tol)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
+long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
 
 #ifdef __cplusplus
 }
