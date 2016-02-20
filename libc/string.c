@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <stdlib.h>
 #include <string.h>
 
 void *memccpy(void *dst, const void *src, int c, size_t count)
@@ -31,6 +32,13 @@ void *memccpy(void *dst, const void *src, int c, size_t count)
     if(*src_ptr != ((unsigned char) c)) return (void *) (dst_ptr + 1);
   }
   return NULL;
+}
+
+char *strdup(const char *str)
+{
+  char *new_str = (char *) malloc(strlen(str) + 1);
+  if(new_str == NULL) return NULL;
+  return strcpy(new_str, str);
 }
 
 char *strtok(char *str, const char *delim)
