@@ -22,6 +22,12 @@
 #include <sys/uio.h>
 #include <uportsys/sys.h>
 #include <errno.h>
+#ifndef ___UPORTSYS_XXXV_VECTOR_IO
+#include <limits.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#endif
 
 #ifdef ___UPORTSYS_XXXV_VECTOR_IO
 
@@ -34,9 +40,83 @@ ssize_t writev(int fd, const struct iovec *iov, int iov_count)
 #else
 
 ssize_t readv(int fd, const struct iovec *iov, int iov_count)
-{ errno = ENOSYS; return -1; }
+{
+  void *buf;
+  size_t buf_size;
+  ssize_t res;
+  int i;
+  if(iov_count < 0 || iov_count > IOV_MAX) {
+    errno = EINVAL;
+    return -1;
+  }
+  buf_size = 0;
+  for(i = 0; i < iov_count; i++) {
+    if(iov[i].iov_len > SSIZE_MAX) {
+      errno = EINVAL;
+      return -1;
+    }
+    buf_size += iov[i].iov_len;
+    if(buf_size > SSIZE_MAX) {
+      errno = EINVAL;
+      return -1;
+    }
+  }
+  buf = malloc(buf_size != 0 ? buf_size : 1);
+  if(buf == NULL) {
+    errno = ENOMEM;
+    return -1;
+  }
+  res = read(fd, buf, buf_size);
+  if(res != -1) {
+    size_t offset = 0, count = (size_t) res;
+    for(i = 0; i < iov_count && offset < ((size_t) res); i++) {
+      const void *src = (const void *) (((const char *) buf) + offset);
+      memcpy(iov[i].iov_base, src, (count < iov[i].iov_len ? count : iov[i].iov_len));
+      offset += iov[i].iov_len;
+      count -= iov[i].iov_len;
+    }
+  }
+  free(buf);
+  return res;
+}
 
 ssize_t writev(int fd, const struct iovec *iov, int iov_count)
-{ errno = ENOSYS; return -1; }
+{
+  void *buf;
+  size_t buf_size;
+  ssize_t res;
+  int i;
+  size_t offset;
+  if(iov_count < 0 || iov_count > IOV_MAX) {
+    errno = EINVAL;
+    return -1;
+  }
+  buf_size = 0;
+  for(i = 0; i < iov_count; i++) {
+    if(iov[i].iov_len > SSIZE_MAX) {
+      errno = EINVAL;
+      return -1;
+    }
+    buf_size += iov[i].iov_len;
+    if(buf_size > SSIZE_MAX) {
+      errno = EINVAL;
+      return -1;
+    }
+  }
+  buf = malloc(buf_size != 0 ? buf_size : 1);
+  if(buf == NULL) {
+    errno = ENOMEM;
+    return -1;
+  }
+  offset = 0;
+  for(i = 0; i < iov_count; i++) {
+    void *dst = (void *) (((char *) buf) + offset);
+    memcpy(dst, iov[i].iov_base, iov[i].iov_len);
+    offset += iov[i].iov_len;
+  }
+  res = write(fd, buf, buf_size);
+  free(buf);
+  return res;
+}
 
 #endif
