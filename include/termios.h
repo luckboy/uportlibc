@@ -218,9 +218,9 @@ int tcsetattr(int fd, int opt_actions, const struct termios *termios);
 /* Other functions. */
 
 speed_t cfgetispeed(const struct termios *termios);
-speed_t cfgetispeed(const struct termios *termios);
+speed_t cfgetospeed(const struct termios *termios);
 int cfsetispeed(struct termios *termios, speed_t speed);
-int cfsetispeed(struct termios *termios, speed_t speed);
+int cfsetospeed(struct termios *termios, speed_t speed);
 
 #ifdef __cplusplus
 }

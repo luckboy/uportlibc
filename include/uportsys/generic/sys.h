@@ -869,10 +869,10 @@ do {                                                                        \
 ((termios)->c_ospeed)
 
 #define __UPORTSYS__cfsetispeed(termios, speed)                             \
-do { (termsios)->c_ispeed = (speed) } while(0)
+do { (termios)->c_ispeed = (speed); } while(0)
 
 #define __UPORTSYS__cfsetospeed(termios, speed)                             \
-do { (termsios)->c_ospeed = (speed) } while(0)
+do { (termios)->c_ospeed = (speed); } while(0)
 
 #endif
 

@@ -25,6 +25,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sigset.o \
 	$(BUILD_DIR)/string.o \
 	$(BUILD_DIR)/strings.o \
+	$(BUILD_DIR)/termios.o \
 	$(BUILD_DIR)/wctype.o \
 	$(BUILD_DIR)/c_ctype.o \
 	$(BUILD_DIR)/w_ctype.o \
