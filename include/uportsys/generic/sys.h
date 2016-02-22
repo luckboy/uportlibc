@@ -1660,6 +1660,12 @@ int __uportsys_sigprocmask(int how, __uportsys_sigset_t *set, __uportsys_sigset_
 int __uportsys_sigsuspend(const __uportsys_sigset_t *set, int *err_num);
 int __uportsys_sigtimedwait(const __uportsys_sigset_t *set, __uportsys_siginfo_t *info, const struct __uportsys_timespec *timeout, int *err_num);
 
+/* System functions for the stdlib.h header. */
+
+int __uportsys_grantpt(int fd, int *err_num);
+int __uportsys_ptsname(int fd, char *buf, __uportsys_size_t size, int *err_num);
+int __uportsys_unlockpt(int fd, int *err_num);
+
 /* System functions for the time.h header. */
 
 int __uportsys_nanosleep(const struct __uportsys_timespec *req, const struct __uportsys_timespec *rem, int *err_num);

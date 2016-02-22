@@ -10,6 +10,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sys_socket.o \
 	$(BUILD_DIR)/sys_stat.o \
 	$(BUILD_DIR)/sys_statvfs.o \
+	$(BUILD_DIR)/sys_stdlib.o \
 	$(BUILD_DIR)/sys_termios.o \
 	$(BUILD_DIR)/sys_time.o \
 	$(BUILD_DIR)/sys_times.o \
