@@ -19,11 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef __W_UPORTLIBC_H
-#define __W_UPORTLIBC_H
+#ifdef __W
+#if ( \
+  (__W == 'c' && !defined(_C_W_UPORTLIBC_H)) || \
+  (__W == 'w' && !defined(_W_W_UPORTLIBC_H)))
+#if __W == 'c'
+#define _C_W_UPORTLIBC_H
+#endif
+#if __W == 'w'
+#define _W_W_UPORTLIBC_H
+#endif
+
+#if __W == 'c'
+#define __SAVED_W 'c'
+#endif
+#if __W == 'w'
+#define __SAVED_W 'w'
+#endif
 
 #include <stddef.h>
 #include <wchar.h>
+#undef __W
+#define __W __SAVED_W
 #undef __W_UNDEF
 #include "w_uportlibc_name.h"
 
@@ -52,4 +69,5 @@ size_t __W_STR_NAME(xfrm)(__W_CHAR_PTR str1, __W_CONST_CHAR_PTR str2, size_t cou
 #define __W_UNDEF
 #include "w_uportlibc_name.h"
 
+#endif
 #endif

@@ -19,8 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _W_CUNIT_H
-#define _W_CUNIT_H
+#ifdef __W
+#if ( \
+  (__W == 'c' && !defined(_C_W_CUNIT_H)) || \
+  (__W == 'w' && !defined(_W_W_CUNIT_H)))
+#if __W == 'c'
+#define _C_W_CUNIT_H
+#endif
+#if __W == 'w'
+#define _W_W_CUNIT_H
+#endif
 
 #ifdef __W
 #if __W == 'c'
@@ -64,4 +72,5 @@ CU_ASSERT(wcsncmp(actual, expected, count) != 0)
 
 #undef __W
 
+#endif
 #endif
