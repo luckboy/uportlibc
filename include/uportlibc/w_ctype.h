@@ -19,9 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _UPORTLIBC_W_CTYPE_H
-#define _UPORTLIBC_W_CTYPE_H
+#ifdef __W
+#if ( \
+  (__W == 'c' && !defined(_C_UPORTLIBC_W_CTYPE_H)) || \
+  (__W == 'w' && !defined(_W_UPORTLIBC_W_CTYPE_H)))
+#if __W == 'c'
+#define _C_UPORTLIBC_W_CTYPE_H
+#endif
+#if __W == 'w'
+#define _W_UPORTLIBC_W_CTYPE_H
+#endif
 
+#undef __W_UNDEF
 #include <uportlibc/w_name.h>
 
 #ifdef __cplusplus
@@ -53,4 +62,5 @@ __W_INT __W_NAME(to, upper)(__W_INT c);
 #define __W_UNDEF
 #include <uportlibc/w_name.h>
 
+#endif
 #endif

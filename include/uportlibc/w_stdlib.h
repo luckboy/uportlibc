@@ -19,8 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _UPORTLIBC_W_STDLIB_H
-#define _UPORTLIBC_W_STDLIB_H
+#ifdef __W
+#if ( \
+  (__W == 'c' && !defined(_C_UPORTLIBC_W_STDLIB_H)) || \
+  (__W == 'w' && !defined(_W_UPORTLIBC_W_STDLIB_H)))
+#if __W == 'c'
+#define _C_UPORTLIBC_W_STDLIB_H
+#endif
+#if __W == 'w'
+#define _W_UPORTLIBC_W_STDLIB_H
+#endif
 
 #undef __W_UNDEF
 #include <uportlibc/w_name.h>
@@ -44,4 +52,5 @@ unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end
 #define __W_UNDEF
 #include <uportlibc/w_name.h>
 
+#endif
 #endif

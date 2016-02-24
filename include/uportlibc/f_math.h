@@ -19,8 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _UPORTLIBC_F_MATH_H
-#define _UPORTLIBC_F_MATH_H
+#ifdef __F
+#if ( \
+  (__F == 'f' && !defined(_F_UPORTLIBC_F_MATH_H)) || \
+  (__F == 'd' && !defined(_D_UPORTLIBC_F_MATH_H)) || \
+  (__F == 'l' && !defined(_L_UPORTLIBC_F_MATH_H)))
+#if __F == 'f'
+#define _F_UPORTLIBC_F_MATH_H
+#endif
+#if __F == 'd'
+#define _D_UPORTLIBC_F_MATH_H
+#endif
+#if __F == 'l'
+#define _L_UPORTLIBC_F_MATH_H
+#endif
 
 #undef __F_UNDEF
 #include <uportlibc/f_name.h>
@@ -69,4 +81,5 @@ __F_DOUBLE __F_NAME(tanh, )(__F_DOUBLE x);
 #define __F_UNDEF
 #include <uportlibc/f_name.h>
 
+#endif
 #endif

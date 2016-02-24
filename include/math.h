@@ -24,13 +24,10 @@
 
 #define __F 'f'
 #include <uportlibc/f_math.h>
-#undef _UPORTLIBC_F_MATH_H
 #define __F 'd'
 #include <uportlibc/f_math.h>
-#undef _UPORTLIBC_F_MATH_H
 #define __F 'l'
 #include <uportlibc/f_math.h>
-#undef _UPORTLIBC_F_MATH_H
 
 #define M_1_PI                  0.31830988618379067154
 #define M_2_PI                  0.63661977236758134308
