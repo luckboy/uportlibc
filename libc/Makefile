@@ -29,6 +29,8 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/wctype.o \
 	$(BUILD_DIR)/c_ctype.o \
 	$(BUILD_DIR)/w_ctype.o \
+	$(BUILD_DIR)/c_stdlib.o \
+	$(BUILD_DIR)/w_stdlib.o \
 	$(BUILD_DIR)/c_string.o \
 	$(BUILD_DIR)/w_string.o
 

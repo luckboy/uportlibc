@@ -26,7 +26,6 @@
 #define __W 'c'
 #include <uportlibc/w_stdlib.h>
 #include <limits.h>
-#include <stddef.h>
 
 #define EXIT_FAILURE            1
 #define EXIT_SUCCESS            0

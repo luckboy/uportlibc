@@ -30,6 +30,7 @@
 #define _W_UPORTLIBC_W_STDLIB_H
 #endif
 
+#include <stddef.h>
 #undef __W_UNDEF
 #include <uportlibc/w_name.h>
 

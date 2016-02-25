@@ -22,7 +22,7 @@
 #ifndef _FLOAT_H
 #define _FLOAT_H
 
-#include <uportsys/float_limits.h>
+#include <uportlibc/float_limits.h>
 
 #define FLT_RADIX               2
 #define FLT_ROUNDS              1
