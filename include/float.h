@@ -46,7 +46,7 @@
 #else
 #define DBL_EPSILON             2.22044604925031308085e-16
 #define DBL_MANT_DIG            53
-#define DBL_MAX_10_EXP          304
+#define DBL_MAX_10_EXP          308
 #define DBL_MAX_EXP             1024
 #define DBL_MIN                 2.22507385850720138309e-308
 #define DBL_MIN_10_EXP          (-307)
