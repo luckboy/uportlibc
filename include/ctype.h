@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 int isascii(int c);
+int toascii(int c);
 
 #ifdef __cplusplus
 }
