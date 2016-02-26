@@ -60,14 +60,6 @@ int grantpt(int fd);
 char *ptsname(int fd);
 int unlockpt(int fd);
 
-/* Functions from the wchar.h header. */
-
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
-
 /* Other functions. */
 
 void abort(void);
@@ -89,6 +81,9 @@ ldiv_t ldiv(long numer, long denom);
 long long llabs(long long x);
 lldiv_t lldiv(long long numer, long long denom);
 void *malloc(size_t size);
+int mblen(const char *str, size_t count);
+size_t mbstowcs(wchar_t *wcs, const char *str, size_t count);
+int mbtowc(wchar_t *wc, const char *str, size_t count);
 int rand(void);
 int rand_r(unsigned *seed);
 void *realloc(void *ptr, size_t size);
@@ -96,6 +91,8 @@ char *realpath(const char *path_name, char *resolved_path_name);
 void qsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *));
 void srand(unsigned seed);
 int system(const char *command);
+size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
+size_t wctomb(char *str, wchar_t wc);
 
 #ifdef __cplusplus
 }

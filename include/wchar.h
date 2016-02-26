@@ -42,6 +42,10 @@ extern "C" {
 typedef unsigned wctype_t;
 #endif
 
+typedef struct {
+  char __pad;
+} mbstate_t;
+
 /* Functions from the wctype.h header. */
 
 int iswctype(wint_t c, wctype_t char_type);
@@ -49,11 +53,12 @@ wctype_t wctype(const char *name);
 
 /* Other functions. */
 
-int mblen(const char *str, size_t count);
-int mbstowcs(wchar_t *wcs, const char *str, size_t count);
-int mbtowc(wchar_t *wc, const char *str, size_t count);
-size_t wcstombs(char *str, const wchar_t *wcs, size_t count);
-size_t wctomb(char *str, wchar_t wc);
+int mbsinit(const mbstate_t *state);
+size_t mbrlen(const char *str, size_t count, mbstate_t *state);
+size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state);
+size_t mbsrtowcs(wchar_t *wcs, const char *str, size_t count, mbstate_t *state);
+size_t wcrtomb(char *str, wchar_t wc, mbstate_t *state);
+size_t wcsrtombs(char *str, const wchar_t **wcs, size_t count, mbstate_t *state);
 
 #ifdef __cplusplus
 }
