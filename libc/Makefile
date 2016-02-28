@@ -18,11 +18,15 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sys_unistd.o \
 	$(BUILD_DIR)/sys_utsname.o \
 	$(BUILD_DIR)/sys_wait.o \
+	$(BUILD_DIR)/atexit.o \
 	$(BUILD_DIR)/bsearch.o \
 	$(BUILD_DIR)/ctype.o \
+	$(BUILD_DIR)/env.o \
+	$(BUILD_DIR)/exit.o \
 	$(BUILD_DIR)/fd_set.o \
 	$(BUILD_DIR)/qsort.o \
 	$(BUILD_DIR)/sigset.o \
+	$(BUILD_DIR)/stdlib.o \
 	$(BUILD_DIR)/string.o \
 	$(BUILD_DIR)/strings.o \
 	$(BUILD_DIR)/termios.o \
