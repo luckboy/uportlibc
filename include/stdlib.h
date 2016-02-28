@@ -62,6 +62,7 @@ int unlockpt(int fd);
 
 /* Other functions. */
 
+long a64l(const char *str);
 void abort(void);
 int abs(int x);
 int atexit(void (*fun)(void));
@@ -76,6 +77,7 @@ void exit(int status);
 char *getenv(const char *name);
 int getsubopt(const char **option_ptr, char *const *tokens, char *value_ptr);
 void free(void *ptr);
+char *l64a(long x);
 long labs(long x);
 ldiv_t ldiv(long numer, long denom);
 long long llabs(long long x);
@@ -84,6 +86,7 @@ void *malloc(size_t size);
 int mblen(const char *str, size_t count);
 size_t mbstowcs(wchar_t *wcs, const char *str, size_t count);
 int mbtowc(wchar_t *wc, const char *str, size_t count);
+int putenv(char *str);
 int rand(void);
 int rand_r(unsigned *seed);
 void *realloc(void *ptr, size_t size);
