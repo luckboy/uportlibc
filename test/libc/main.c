@@ -19,15 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <CUnit/Basic.h>
 
+static unsigned static_test_seed;
+
+unsigned test_seed(void) { return static_test_seed; }
+
+int add_bsearch_suite(void);
+int add_qsort_suite(void);
 int add_c_string_suite(void);
 int add_w_string_suite(void);
 
-int main(void)
+int main(int argc, char **argv)
 {
-  size_t i;
+  static_test_seed = (argc >= 2 ? strtoul(argv[1], NULL, 16) : time(NULL));
+  printf("test seed: 0x%x\n", test_seed());
+  printf("\n");
   if(CU_initialize_registry() != CUE_SUCCESS) return CU_get_error();
+  if(add_bsearch_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_qsort_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
   if(add_c_string_suite() == -1) {
     CU_cleanup_registry();
     return CU_get_error();
@@ -39,5 +59,7 @@ int main(void)
   CU_basic_set_mode(CU_BRM_VERBOSE);
   CU_basic_run_tests();
   CU_cleanup_registry();
+  printf("\n");
+  printf("test seed: 0x%x\n", test_seed());
   return CU_get_error();
 }

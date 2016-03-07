@@ -19,33 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef TEST
-#include <stdlib.h>
-#else
-#define UPORTLIBC_BSEARCH
-#include "uportlibc.h"
-#endif
-#include "array.h"
+#ifndef _UPORTLIBC_H
+#define _UPORTLIBC_H
 
-void *bsearch(const void *key, const void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *))
-{
-  size_t l, r;
-  if(elem_count <= 0) return NULL;
-  l = 0;
-  r = elem_count - 1;
-  while(1) {
-    size_t m = (l + r) >> 1;
-    const void *elem = const_array_elem(elems, m, elem_size);
-    int res = cmp(key, elem);
-    if(res == 0) {
-      return (void *) elem;
-    } else if(res < 0) {
-      if(l >= m) break;
-      r = m - 1;
-    } else {
-      if(m >= r) break;
-      l = m + 1;
-    }
-  }
-  return NULL;
-}
+#include <stddef.h>
+
+void *uportlibc_bsearch(const void *key, const void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *));
+void uportlibc_qsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *));
+
+#ifdef UPORTLIBC_BSEARCH
+#define bsearch uportlibc_bsearch
+#endif
+#ifdef UPORTLIBC_QSORT
+#define qsort uportlibc_qsort
+#endif
+
+#endif

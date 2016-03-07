@@ -38,10 +38,10 @@ static struct wctype_table_entry *find_wctype_table_entry(wint_t c)
   while(1) {
     size_t m = (l + r) >> 1;
     if(c < __uportlibc_wctype_table[m].min_c) {
-      if(l >= r) break;
+      if(l >= m) break;
       r = m - 1;
     } else if(c > __uportlibc_wctype_table[m].max_c) {
-      if(l >= r) break;
+      if(m >= r) break;
       l = m + 1;
     } else {
       return &(__uportlibc_wctype_table[m]);

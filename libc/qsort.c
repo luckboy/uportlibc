@@ -19,8 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <stdlib.h>
+#else
+#define UPORTLIBC_QSORT
+#include "uportlibc.h"
+#endif
 #include "array.h"
+
+#ifndef TEST
+#define STATIC                  static
+#else
+#define STATIC
+#endif
 
 static void swap(void *str1, void *str2, size_t count)
 {
@@ -72,16 +83,16 @@ static void heapify(void *elems, size_t elem_count, size_t elem_size, int (*cmp)
   }
 }
 
-static void heapsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *))
+STATIC void heapsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *))
 {
   heapify(elems, elem_count, elem_size, cmp);
   for(; elem_count != 0; elem_count--) {
     swap(array_elem(elems, 0, elem_size), array_elem(elems, elem_count - 1, elem_size), elem_size);
-    shift_down(elems, elem_count, 0, elem_size, cmp);
+    shift_down(elems, elem_count - 1, 0, elem_size, cmp);
   }
 }
 
-static void introsort(void *elems, size_t l, size_t r, size_t elem_size, int (*cmp)(const void *, const void *), unsigned depth)
+STATIC void introsort(void *elems, size_t l, size_t r, size_t elem_size, int (*cmp)(const void *, const void *), unsigned depth)
 {
   if(l >= r) return;
   if(depth == 0) {
@@ -90,8 +101,8 @@ static void introsort(void *elems, size_t l, size_t r, size_t elem_size, int (*c
     void *elem = array_elem(elems, l, elem_size);
     size_t i = l, j = r;
     while(1) {
-      while(cmp(elem, array_elem(elems, i, elem_size)) < 0) i++;
-      while(cmp(elem, array_elem(elems, j, elem_size)) > 0) j--;
+      while(cmp(elem, array_elem(elems, i, elem_size)) > 0) i++;
+      while(cmp(elem, array_elem(elems, j, elem_size)) < 0) j--;
       if(i >= j) break;
       if(i != j) swap(array_elem(elems, i, elem_size), array_elem(elems, j, elem_size), elem_size);
       i++;

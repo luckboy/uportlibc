@@ -2,9 +2,13 @@ BUILD_DIR = build/$(ARCH)
 
 CFLAGS = -g -DTEST=1 -I.
 LDFLAGS = -g
-LIBS = -lcunit
+LIBS = -lm -lcunit
 
 OBJS = $(BUILD_DIR)/main.o \
+	$(BUILD_DIR)/bsearch.o \
+  	$(BUILD_DIR)/bsearch_suite.o \
+	$(BUILD_DIR)/qsort.o \
+  	$(BUILD_DIR)/qsort_suite.o \
 	$(BUILD_DIR)/c_string.o \
   	$(BUILD_DIR)/c_string_suite.o \
   	$(BUILD_DIR)/w_string.o \
