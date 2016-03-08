@@ -25,6 +25,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/exit.o \
 	$(BUILD_DIR)/fd_set.o \
 	$(BUILD_DIR)/qsort.o \
+	$(BUILD_DIR)/realpath.o \
 	$(BUILD_DIR)/sigset.o \
 	$(BUILD_DIR)/stdlib.o \
 	$(BUILD_DIR)/string.o \
