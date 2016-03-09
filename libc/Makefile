@@ -20,6 +20,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sys_wait.o \
 	$(BUILD_DIR)/atexit.o \
 	$(BUILD_DIR)/bsearch.o \
+	$(BUILD_DIR)/calloc.o \
 	$(BUILD_DIR)/ctype.o \
 	$(BUILD_DIR)/env.o \
 	$(BUILD_DIR)/exit.o \
@@ -28,6 +29,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/realpath.o \
 	$(BUILD_DIR)/sigset.o \
 	$(BUILD_DIR)/stdlib.o \
+	$(BUILD_DIR)/strdup.o \
 	$(BUILD_DIR)/string.o \
 	$(BUILD_DIR)/strings.o \
 	$(BUILD_DIR)/termios.o \

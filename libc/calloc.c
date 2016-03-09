@@ -19,22 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <stdlib.h>
 #include <string.h>
 
-void *memccpy(void *dst, const void *src, int c, size_t count)
+void *calloc(size_t elem_count, size_t elem_size)
 {
-  unsigned char *dst_ptr = (unsigned char *) dst;
-  const unsigned char *src_ptr = (const unsigned char *) src;
-  unsigned char *dst_end = dst_ptr + count;
-  for(; dst_ptr != dst_end; dst_ptr++, src_ptr++) {
-    *dst_ptr = *src_ptr;
-    if(*src_ptr != ((unsigned char) c)) return (void *) (dst_ptr + 1);
-  }
-  return NULL;
-}
-
-char *strtok(char *str, const char *delim)
-{
-  static char *ptr;
-  return strtok_r(str, delim, &ptr);
+  void *ptr = malloc(elem_count * elem_size);
+  if(ptr == NULL) return NULL;
+  memset(ptr, 0, elem_count * elem_size);
+  return ptr;
 }
