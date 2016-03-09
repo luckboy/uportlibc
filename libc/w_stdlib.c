@@ -216,8 +216,8 @@ long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int 
   errno = 0;
   res = __W_STR_NAME(toull)(tmp_str, end_ptr, base);
   if(errno != 0) {
-    if(res == ULONG_LONG_MAX)
-      return is_minus ? LONG_LONG_MIN : LONG_LONG_MAX;
+    if(res == ULLONG_MAX)
+      return is_minus ? LLONG_MIN : LLONG_MAX;
     else
       return 0;
   }
@@ -225,14 +225,14 @@ long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int 
   if(end_ptr != NULL && *end_ptr == tmp_str) *end_ptr = (__W_CHAR_PTR) str;
   if(is_minus) tmp_res = (unsigned long long) (-((long long) res));
   if(is_minus) {
-    if(tmp_res > ((unsigned long long) (-(LONG_LONG_MIN + 1LL) + 1ULL))) {
+    if(tmp_res > ((unsigned long long) (-(LLONG_MIN + 1LL) + 1ULL))) {
       errno = ERANGE;
-      return LONG_LONG_MIN;
+      return LLONG_MIN;
     }
   } else {
-    if(tmp_res > ((unsigned long long) LONG_LONG_MAX)) {
+    if(tmp_res > ((unsigned long long) LLONG_MAX)) {
       errno = ERANGE;
-      return LONG_LONG_MAX;
+      return LLONG_MAX;
     }
   }
   return (long long) res;
@@ -283,7 +283,7 @@ unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end
   res = 0ULL;
   is_first = 1;
   is_overflow = 0;
-  max_mul_res = ULONG_LONG_MAX / base;
+  max_mul_res = ULLONG_MAX / base;
   for(; *str != 0; str++) {
     __W_CHAR_INT c = (__W_CHAR_INT) ((__W_UCHAR) (*str));
     unsigned digit;
@@ -296,7 +296,7 @@ unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end
     if(!is_overflow) {
       if(res <= max_mul_res) {
         res *= base;
-        if(res <= ULONG_LONG_MAX - digit)
+        if(res <= ULLONG_MAX - digit)
           res += digit;
         else
           is_overflow = 1;
@@ -309,7 +309,7 @@ unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end
   if(end_ptr != NULL) *end_ptr = (__W_CHAR_PTR) str;
   if(is_overflow) {
     errno = ERANGE;
-    return ULONG_LONG_MAX;
+    return ULLONG_MAX;
   }
   res = (unsigned long long) (sign * ((long long) res));
   return res;

@@ -39,14 +39,14 @@
 #define INT_MIN                 (-INT_MAX - 1)
 #define LONG_MAX                __LONG_MAX__
 #define LONG_MIN                (-LONG_MAX - 1L)
-#define LONG_LONG_MAX           __LONG_LONG_MAX__
-#define LONG_LONG_MIN           (-LONG_LONG_MAX - 1LL)
+#define LLONG_MAX               __LONG_LONG_MAX__
+#define LLONG_MIN               (-LLONG_MAX - 1LL)
 
 #define UCHAR_MAX               (SCHAR_MAX * 2U + 1U)
 #define USHRT_MAX               (SHRT_MAX * 2U + 1U)
 #define UINT_MAX                (INT_MAX * 2U + 1U)
 #define ULONG_MAX               (LONG_MAX * 2UL + 1UL)
-#define ULONG_LONG_MAX          (LONG_LONG_MAX * 2ULL + 1ULL)
+#define ULLONG_MAX              (LLONG_MAX * 2ULL + 1ULL)
 
 #ifdef __CHAR_UNSIGNED__
 #define CHAR_MAX                UCHAR_MAX
