@@ -49,19 +49,19 @@ static void set_rand_bsearch_array_without_key(int *array, size_t len, size_t ke
   size_t i;
   int value = 0;
   for(i = 0; i < len; i++) {
-    if(key_idx != i + 1) {
+    if(key_idx != i || key_idx == 0) {
       value += floor((rand() / (RAND_MAX * 1.0)) * 100.0) + 1;
     } else {
       int inc = floor((rand() / (RAND_MAX * 1.0)) * 99.0) + 2; 
+      *key = value + floor((rand() / (RAND_MAX * 1.0)) * (inc - 2)) + 1;
       value += inc;
-      *key = floor((rand() / (RAND_MAX * 1.0)) * (inc - 1));
     }
     array[i] = value;
   }
   if(key_idx == 0)
-    *key = array[0] - floor((rand() / (RAND_MAX * 1.0)) * 100.0) + 1;
+    *key = array[0] - floor((rand() / (RAND_MAX * 1.0)) * 100.0) - 1;
   if(key_idx == len)
-    *key = array[len - 1] - floor((rand() / (RAND_MAX * 1.0)) * 100.0) + 1;
+    *key = array[len - 1] + floor((rand() / (RAND_MAX * 1.0)) * 100.0) + 1;
 }
 
 void test_bsearch_returns_pointer_to_found_element(void)
