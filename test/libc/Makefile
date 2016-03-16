@@ -9,6 +9,10 @@ OBJS = $(BUILD_DIR)/main.o \
   	$(BUILD_DIR)/bsearch_suite.o \
 	$(BUILD_DIR)/qsort.o \
   	$(BUILD_DIR)/qsort_suite.o \
+	$(BUILD_DIR)/c_stdlib.o \
+  	$(BUILD_DIR)/c_stdlib_suite.o \
+  	$(BUILD_DIR)/w_stdlib.o \
+  	$(BUILD_DIR)/w_stdlib_suite.o \
 	$(BUILD_DIR)/c_string.o \
   	$(BUILD_DIR)/c_string_suite.o \
   	$(BUILD_DIR)/w_string.o \

@@ -44,6 +44,18 @@
 #undef __W_UNDEF
 #include "w_uportlibc_name.h"
 
+/* Functions for the stdlib.h header. */
+
+float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
+double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
+long __W_STR_NAME(tol)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
+long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+
+/* Functions for the string.h header. */
+
 __W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_CHAR_INT c, size_t count);
 int __W_MEM_NAME(cmp)(__W_CONST_VOID_PTR str1, __W_CONST_VOID_PTR str2, size_t count);
 __W_VOID_PTR __W_MEM_NAME(cpy)(__W_VOID_PTR dst, __W_CONST_VOID_PTR src, size_t count);

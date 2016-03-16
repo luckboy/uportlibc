@@ -31,6 +31,8 @@ unsigned test_seed(void) { return static_test_seed; }
 
 int add_bsearch_suite(void);
 int add_qsort_suite(void);
+int add_c_stdlib_suite(void);
+int add_w_stdlib_suite(void);
 int add_c_string_suite(void);
 int add_w_string_suite(void);
 
@@ -45,6 +47,14 @@ int main(int argc, char **argv)
     return CU_get_error();
   }
   if(add_qsort_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_c_stdlib_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_w_stdlib_suite() == -1) {
     CU_cleanup_registry();
     return CU_get_error();
   }

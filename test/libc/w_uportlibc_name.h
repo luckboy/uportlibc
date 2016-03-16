@@ -48,7 +48,7 @@
 #define __W_CONST_CHAR_PTR              const wchar_t *
 #define __W_CONST_UCHAR_PTR             const wchar_t *
 #define __W_CONST_VOID_PTR              const wchar_t *
-#define __W_NAME(prefix, suffix)        uportlibc_prefix##w##suffix
+#define __W_NAME(prefix, suffix)        uportlibc_##prefix##w##suffix
 #define __W_STR_NAME(suffix)            uportlibc_wcs##suffix
 #define __W_MEM_NAME(suffix)            uportlibc_wmem##suffix
 #define __W_STRTOK_R                    uportlibc_wcstok
