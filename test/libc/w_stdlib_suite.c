@@ -683,11 +683,11 @@ void __W_TEST_STR_NAME(told, _returns_zero_and_sets_errno_for_underflow)(void)
   __W_CHAR_PTR end4;
   long double res4;
 #if __W == 'c'
-  sprintf(str1, "1e%d", (int) (ceil(LDBL_MIN_EXP * logr_log10) - 1.0));
-  sprintf(str2, "0x1p%d", (int) (ceil(LDBL_MIN_EXP * logr_log2) - 1.0));
+  sprintf(str1, "1e%d", (int) (ceil((LDBL_MIN_EXP - 1.0) * logr_log10) - 1.0));
+  sprintf(str2, "0x1p%d", (int) (ceil((LDBL_MIN_EXP - 1.0) * logr_log2) - 1.0));
 #else
-  swprintf(str1, 1000, L"1e%d", (int) (ceil(LDBL_MIN_EXP * logr_log10) - 1.0));
-  swprintf(str2, 1000, L"0x1p%d", (int) (ceil(LDBL_MIN_EXP * logr_log2) - 1.0));
+  swprintf(str1, 1000, L"1e%d", (int) (ceil((LDBL_MIN_EXP - 1.0) * logr_log10) - 1.0));
+  swprintf(str2, 1000, L"0x1p%d", (int) (ceil((LDBL_MIN_EXP - 1.0) * logr_log2) - 1.0));
 #endif
   errno = 0;
   res1 = __W_STR_NAME(told)(str1, &end1);

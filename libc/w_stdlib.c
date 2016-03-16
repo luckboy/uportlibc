@@ -124,7 +124,7 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
     base = 16.0;
     exp_base = 2.0;
     max_exp = floor(LDBL_MAX_EXP * logr_log2);
-    min_exp = floor(LDBL_MIN_EXP * logr_log2) - 4;
+    min_exp = floor((LDBL_MIN_EXP - 1.0) * logr_log2) - 3;
     max_digits = ceil(LDBL_MANT_DIG * logr_log2 / 4.0);
     is_hex = 1;
     str += 2;
@@ -137,7 +137,7 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
     base = 10.0;
     exp_base = 10.0;
     max_exp = floor(LDBL_MAX_EXP * logr_log10);
-    min_exp = floor(LDBL_MIN_EXP * logr_log10);
+    min_exp = floor((LDBL_MIN_EXP - 1.0) * logr_log10);
     max_digits = ceil(LDBL_MANT_DIG * logr_log10);
     is_hex = 0;
   }
@@ -206,15 +206,15 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
             is_overflow = 1;
         } else if(exp < 0) {
           if(exp >= min_exp) {
-            res /= powl(exp_base, -(exp + 1));
+            res *= powl(exp_base, exp + 1);
             if(res >= LDBL_MIN * exp_base)
               res /= exp_base;
             else
               is_underflow = 1;
           } else {
             if(exp + fract_digit_exp >= min_exp) {
-              res /= powl(exp_base, fract_digit_exp + 1);
-              res /= powl(exp_base, -(exp + fract_digit_exp + 2));
+              res *= powl(exp_base, -(fract_digit_exp + 1));
+              res *= powl(exp_base, exp + fract_digit_exp + 2);
               if(res >= LDBL_MIN * exp_base)
                 res /= exp_base;
               else
