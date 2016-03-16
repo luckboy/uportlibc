@@ -51,20 +51,6 @@
 #endif
 #endif
 
-float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
-{
-  long double res = __W_STR_NAME(told)(str, end_ptr);
-  if(res < -FLT_MAX) {
-    errno = ERANGE;
-    return -HUGE_VALF;
-  }
-  if(res > FLT_MAX) {
-    errno = ERANGE;
-    return HUGE_VALF;
-  }
-  return (float) res;
-}
-
 double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
 {
   long double res = __W_STR_NAME(told)(str, end_ptr);
@@ -77,6 +63,20 @@ double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
     return HUGE_VAL;
   }
   return (double) res;
+}
+
+float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
+{
+  long double res = __W_STR_NAME(told)(str, end_ptr);
+  if(res < -FLT_MAX) {
+    errno = ERANGE;
+    return -HUGE_VALF;
+  }
+  if(res > FLT_MAX) {
+    errno = ERANGE;
+    return HUGE_VALF;
+  }
+  return (float) res;
 }
 
 long __W_STR_NAME(tol)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base)
