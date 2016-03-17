@@ -287,7 +287,7 @@ unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, 
   is_minus = (*tmp_str == '-');
   saved_errno = errno;
   errno = 0;
-  res = __W_STR_NAME(toull)(str, end_ptr, base);
+  res = __W_STR_NAME(toull)(tmp_str, end_ptr, base);
   if(errno != 0) return res == ULLONG_MAX ? ULONG_MAX : 0;
   errno = saved_errno;
   if(end_ptr != NULL && *end_ptr == tmp_str) *end_ptr = (__W_CHAR_PTR) str;
