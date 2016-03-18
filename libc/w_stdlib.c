@@ -145,6 +145,7 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
   is_first = 1;
   is_dot = 0;
   digits = 0;
+  int_digits = 0;
   significant_digits = 0;
   for(; *str != 0; str++) {
     __W_CHAR_INT c = (__W_CHAR_INT) ((__W_UCHAR) (*str));
@@ -153,7 +154,7 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
       if(c >= '0' && c <= '9')
         digit = c - '0';
       else if(is_hex && (c & ~0x20) >= 'A' && (c & ~0x20) <= 'F')
-        digit = (c & ~0x20) + 10 - 'A';
+        digit = (c & ~0x20) - 'A' + 10;
       else
         break;
       if(digits <= max_digits + 1) {
