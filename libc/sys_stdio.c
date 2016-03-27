@@ -19,51 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifdef __W
-#if ( \
-  (__W == 'c' && !defined(_C_UPORTLIBC_W_CTYPE_H)) || \
-  (__W == 'w' && !defined(_W_UPORTLIBC_W_CTYPE_H)))
-#if __W == 'c'
-#define _C_UPORTLIBC_W_CTYPE_H
-#endif
-#if __W == 'w'
-#define _W_UPORTLIBC_W_CTYPE_H
-#endif
+#include <uportsys/sys.h>
+#include <errno.h>
+#include <stdio.h>
 
-#undef __W_UNDEF
-#include <uportlibc/w_name.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if __W == 'w'
-#ifndef _WINT_T
-#define _WINT_T
-typedef __WINT_TYPE__ wint_t;
-#endif
-#endif
-
-int __W_NAME(is, alnum)(__W_INT c);
-int __W_NAME(is, alpha)(__W_INT c);
-int __W_NAME(is, cntrl)(__W_INT c);
-int __W_NAME(is, digit)(__W_INT c);
-int __W_NAME(is, graph)(__W_INT c);
-int __W_NAME(is, lower)(__W_INT c);
-int __W_NAME(is, print)(__W_INT c);
-int __W_NAME(is, punct)(__W_INT c);
-int __W_NAME(is, space)(__W_INT c);
-int __W_NAME(is, upper)(__W_INT c);
-int __W_NAME(is, xdigit)(__W_INT c);
-__W_INT __W_NAME(to, lower)(__W_INT c);
-__W_INT __W_NAME(to, upper)(__W_INT c);
-
-#ifdef __cplusplus
-}
-#endif
-
-#define __W_UNDEF
-#include <uportlibc/w_name.h>
-
-#endif
-#endif
+int rename(const char *old_path_name, const char *new_path_name)
+{ return __uportsys_rename(old_path_name, new_path_name, &errno); }

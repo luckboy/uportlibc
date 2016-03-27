@@ -22,6 +22,7 @@
 #ifndef __W_UNDEF
 #ifdef __W
 #if __W == 'c'
+#define __W_EOF                     (-1)
 #define __W_CHAR                    char
 #define __W_UCHAR                   unsigned char
 #define __W_CHAR_INT                int
@@ -36,8 +37,11 @@
 #define __W_STR_NAME(suffix)        str##suffix
 #define __W_MEM_NAME(suffix)        mem##suffix
 #define __W_STRTOK_R                strtok_r
+#define __W_SNPRINTF                snprintf
+#define __W_VSNPRINTF               vsnprintf
 #else
 #if __W == 'w'
+#define __W_EOF                     ((wint_t) (-1))
 #define __W_CHAR                    wchar_t
 #define __W_UCHAR                   wchar_t
 #define __W_CHAR_INT                wchar_t
@@ -52,6 +56,8 @@
 #define __W_STR_NAME(suffix)        wcs##suffix
 #define __W_MEM_NAME(suffix)        wmem##suffix
 #define __W_STRTOK_R                wcstok
+#define __W_SNPRINTF                swprintf
+#define __W_VSNPRINTF               vswprintf
 #else
 #error "Incorrect macro __W."
 #endif
@@ -62,6 +68,7 @@
 #else
 #undef __W
 #undef __W_UNDEF
+#undef __W_EOF
 #undef __W_CHAR
 #undef __W_UCHAR
 #undef __W_CHAR_INT
@@ -76,4 +83,6 @@
 #undef __W_STR_NAME
 #undef __W_MEM_NAME
 #undef __W_STRTOK_R
+#undef __W_SNPRINTF
+#undef __W_VSNPRINTF
 #endif

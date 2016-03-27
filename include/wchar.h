@@ -22,8 +22,11 @@
 #ifndef _WCHAR_H
 #define _WCHAR_H
 
+#include <uportlibc/mbstate.h>
 #define __W 'w'
 #include <uportlibc/w_ctype.h>
+#define __W 'w'
+#include <uportlibc/w_stdio.h>
 #define __W 'w'
 #include <uportlibc/w_stdlib.h>
 #define __W 'w'
@@ -42,10 +45,7 @@ extern "C" {
 typedef unsigned wctype_t;
 #endif
 
-typedef struct {
-  size_t count;
-  wchar_t wc;
-} mbstate_t;
+typedef __uportlibc_mbstate_t mbstate_t;
 
 /* Functions from the wctype.h header. */
 
@@ -54,6 +54,7 @@ wctype_t wctype(const char *name);
 
 /* Other functions. */
 
+int fwide(FILE *stream, int mode);
 int mbsinit(const mbstate_t *state);
 size_t mbrlen(const char *str, size_t count, mbstate_t *state);
 size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state);

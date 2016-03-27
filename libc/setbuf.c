@@ -19,51 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifdef __W
-#if ( \
-  (__W == 'c' && !defined(_C_UPORTLIBC_W_CTYPE_H)) || \
-  (__W == 'w' && !defined(_W_UPORTLIBC_W_CTYPE_H)))
-#if __W == 'c'
-#define _C_UPORTLIBC_W_CTYPE_H
-#endif
-#if __W == 'w'
-#define _W_UPORTLIBC_W_CTYPE_H
-#endif
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "stdio_priv.h"
 
-#undef __W_UNDEF
-#include <uportlibc/w_name.h>
+void setbuf(FILE *stream, char *buf)
+{ setvbuf(stream, buf, (buf != NULL ? _IOFBF : _IONBF), BUFSIZ); }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if __W == 'w'
-#ifndef _WINT_T
-#define _WINT_T
-typedef __WINT_TYPE__ wint_t;
-#endif
-#endif
-
-int __W_NAME(is, alnum)(__W_INT c);
-int __W_NAME(is, alpha)(__W_INT c);
-int __W_NAME(is, cntrl)(__W_INT c);
-int __W_NAME(is, digit)(__W_INT c);
-int __W_NAME(is, graph)(__W_INT c);
-int __W_NAME(is, lower)(__W_INT c);
-int __W_NAME(is, print)(__W_INT c);
-int __W_NAME(is, punct)(__W_INT c);
-int __W_NAME(is, space)(__W_INT c);
-int __W_NAME(is, upper)(__W_INT c);
-int __W_NAME(is, xdigit)(__W_INT c);
-__W_INT __W_NAME(to, lower)(__W_INT c);
-__W_INT __W_NAME(to, upper)(__W_INT c);
-
-#ifdef __cplusplus
+int setvbuf(FILE *stream, char *buf, int type, size_t size)
+{
+  int res;
+  if(type != _IONBF && type != _IOFBF && type != _IOLBF) return -1;
+  lock_lock(&(stream->lock));
+  do {
+    stream->buf_type = type;
+    if(type != _IONBF) {
+      if(buf != NULL) {
+        stream->flags |= FILE_FLAG_STATIC_BUF;
+        stream->buf = buf;
+      } else {
+        buf = (char *) malloc(size);
+        if(buf == NULL) {
+          errno = ENOMEM;
+          res = -1;
+          break;
+        }
+        stream->flags &= ~FILE_FLAG_STATIC_BUF;
+        stream->buf = buf;
+      }
+    } else {
+      stream->flags &= ~FILE_FLAG_STATIC_BUF;
+      stream->buf = NULL;
+    }
+    stream->buf_size = size;
+    stream->buf_data_cur = buf;
+    stream->buf_data_end = buf;
+    res = 0;
+  } while(0);
+  lock_unlock(&(stream->lock));
+  return res;
 }
-#endif
-
-#define __W_UNDEF
-#include <uportlibc/w_name.h>
-
-#endif
-#endif

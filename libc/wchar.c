@@ -22,6 +22,20 @@
 #include <errno.h>
 #include <limits.h>
 #include <wchar.h>
+#include "stdio_priv.h"
+
+int fwide(FILE *stream, int mode)
+{
+  int res;
+  lock_lock(&(stream->lock));
+  if(mode != 0) {
+    if(mode < 0 && stream->wide_mode == 0) stream->wide_mode = -1;
+    if(mode > 0 && stream->wide_mode == 0) stream->wide_mode = 1;
+  }
+  res = stream->wide_mode;
+  lock_unlock(&(stream->lock));
+  return res;
+}
 
 int mbsinit(const mbstate_t *state)
 { return state == NULL || (state->count == 0 && state->wc == 0); }

@@ -10,6 +10,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sys_socket.o \
 	$(BUILD_DIR)/sys_stat.o \
 	$(BUILD_DIR)/sys_statvfs.o \
+	$(BUILD_DIR)/sys_stdio.o \
 	$(BUILD_DIR)/sys_stdlib.o \
 	$(BUILD_DIR)/sys_termios.o \
 	$(BUILD_DIR)/sys_time.o \
@@ -25,9 +26,14 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/env.o \
 	$(BUILD_DIR)/exit.o \
 	$(BUILD_DIR)/fd_set.o \
+	$(BUILD_DIR)/gets.o \
+	$(BUILD_DIR)/init_stdio.o \
 	$(BUILD_DIR)/qsort.o \
 	$(BUILD_DIR)/realpath.o \
+	$(BUILD_DIR)/setbuf.o \
 	$(BUILD_DIR)/sigset.o \
+	$(BUILD_DIR)/stdio.o \
+	$(BUILD_DIR)/stdio_priv.o \
 	$(BUILD_DIR)/stdlib.o \
 	$(BUILD_DIR)/strdup.o \
 	$(BUILD_DIR)/string.o \
@@ -37,6 +43,8 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/wctype.o \
 	$(BUILD_DIR)/c_ctype.o \
 	$(BUILD_DIR)/w_ctype.o \
+	$(BUILD_DIR)/c_stdio.o \
+	$(BUILD_DIR)/w_stdio.o \
 	$(BUILD_DIR)/c_stdlib.o \
 	$(BUILD_DIR)/w_stdlib.o \
 	$(BUILD_DIR)/c_string.o \

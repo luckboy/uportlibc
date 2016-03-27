@@ -1660,6 +1660,10 @@ int __uportsys_sigprocmask(int how, __uportsys_sigset_t *set, __uportsys_sigset_
 int __uportsys_sigsuspend(const __uportsys_sigset_t *set, int *err_num);
 int __uportsys_sigtimedwait(const __uportsys_sigset_t *set, __uportsys_siginfo_t *info, const struct __uportsys_timespec *timeout, int *err_num);
 
+/* System functions for the stdio.h header. */
+
+int __uportsys_rename(const char *old_path_name, const char *new_path_name, int *err_num);
+
 /* System functions for the stdlib.h header. */
 
 int __uportsys_grantpt(int fd, int *err_num);
