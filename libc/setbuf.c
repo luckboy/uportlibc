@@ -33,6 +33,8 @@ int setvbuf(FILE *stream, char *buf, int type, size_t size)
   if(type != _IONBF && type != _IOFBF && type != _IOLBF) return -1;
   lock_lock(&(stream->lock));
   do {
+    if(stream->buf_type != _IONBF && (stream->flags & FILE_FLAG_STATIC_BUF) == 0)
+      free(stream->buf);
     stream->buf_type = type;
     if(type != _IONBF) {
       if(buf != NULL) {
