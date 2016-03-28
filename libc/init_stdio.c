@@ -19,6 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <limits.h>
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "stdio_priv.h"
@@ -132,9 +134,40 @@ int __uportlibc_for_each_stream(int (*fun)(FILE *))
   FILE *stream;
   int res = 0;
   lock_lock(&stdio_lock);
-  for(stream = stdio_first_stream; stream != NULL; stream = stream->next) {
-    if(fun(stream) == EOF) res = EOF;
+  stream = stdio_first_stream;
+  while(stream != NULL) {
+    FILE *tmp_stream = stream;
+    stream = stream->next;
+    lock_unlock(&stdio_lock);
+    if(fun(tmp_stream) == EOF) res = EOF;
+    lock_lock(&stdio_lock);
   }
   lock_unlock(&stdio_lock);
   return res;
+}
+
+int __uportlibc_unsafely_flush_stream(FILE *stream)
+{
+  if((stream->flags & FILE_FLAG_CLOSED) != 0) {
+    errno = EBADF;
+    return EOF;
+  }
+  if(stream->buf_type != _IONBF) {
+    if((stream->flags & FILE_FLAG_DATA_TO_WRITE) != 0) {
+      while(stream->buf_data_cur != stream->buf_data_end) {
+        size_t diff = stream->buf_data_end - stream->buf_data_cur;
+        size_t count = (diff <= SSIZE_MAX ? diff : SSIZE_MAX);
+        ssize_t res = write(stream->fd, stream->buf_data_cur, count);
+        if(res == -1) {
+          stream->flags |= FILE_FLAG_ERROR;
+          return EOF;
+        }
+        stream->buf_data_cur += res;
+      }
+    }
+    stream->flags &= ~FILE_FLAG_DATA_TO_WRITE;
+    stream->buf_data_cur = stream->buf;
+    stream->buf_data_end = stream->buf;
+  }
+  return 0;
 }

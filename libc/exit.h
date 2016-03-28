@@ -27,5 +27,6 @@
 extern lock_t __uportlibc_exit_lock;
 extern void (*__uportlibc_atexit_exit_fun)(void);
 extern void (*__uportlibc_environ_exit_fun)(void);
+extern void (*__uportlibc_stdio_exit_fun)(void);
 
 #endif

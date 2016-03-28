@@ -49,32 +49,10 @@ static int unsafely_check_and_set_stream_wide_mode(FILE *stream, int mode)
   return 0;
 }
 
-int __uportlibc_unsafely_flush_stream(FILE *stream)
-{
-  if(stream->buf_type != _IONBF) {
-    if((stream->flags & FILE_FLAG_DATA_TO_WRITE) != 0) {
-      while(stream->buf_data_cur != stream->buf_data_end) {
-        size_t diff = stream->buf_data_end - stream->buf_data_cur;
-        size_t count = (diff <= SSIZE_MAX ? diff : SSIZE_MAX);
-        ssize_t res = write(stream->fd, stream->buf_data_cur, count);
-        if(res == -1) {
-          stream->flags |= FILE_FLAG_ERROR;
-          return EOF;
-        }
-        stream->buf_data_cur += res;
-      }
-    }
-    stream->flags &= ~FILE_FLAG_DATA_TO_WRITE;
-    stream->buf_data_cur = stream->buf;
-    stream->buf_data_end = stream->buf;
-  }
-  return 0;
-}
-
 int __uportlibc_unsafely_prepare_stream_to_read(FILE *stream, int wide_mode)
 {
   if(unsafely_check_and_set_stream_wide_mode(stream, wide_mode) == EOF) return EOF;
-  if((stream->flags & FILE_FLAG_READABLE) == 0) {
+  if((stream->flags & FILE_FLAG_READABLE) == 0 || (stream->flags & FILE_FLAG_CLOSED) != 0) {
     stream->flags |= FILE_FLAG_ERROR;
     errno = EBADF;
     return EOF;
@@ -85,7 +63,7 @@ int __uportlibc_unsafely_prepare_stream_to_read(FILE *stream, int wide_mode)
 int __uportlibc_unsafely_prepare_stream_to_write(FILE *stream, int wide_mode)
 {
   if(unsafely_check_and_set_stream_wide_mode(stream, wide_mode) == EOF) return EOF;
-  if((stream->flags & FILE_FLAG_WRITABLE) == 0) {
+  if((stream->flags & FILE_FLAG_WRITABLE) == 0 || (stream->flags & FILE_FLAG_CLOSED) != 0) {
     stream->flags |= FILE_FLAG_ERROR;
     errno = EBADF;
     return EOF;
@@ -178,7 +156,7 @@ int __uportlibc_unsafely_put_char(int c, FILE *stream)
 
 int __uportlibc_unsafely_unget_char(int c, FILE *stream)
 {
-  if((stream->flags & FILE_FLAG_READABLE) == 0) return EOF;
+  if((stream->flags & FILE_FLAG_READABLE) == 0 || (stream->flags & FILE_FLAG_CLOSED) != 0) return EOF;
   if(c == EOF) return EOF;
   if(stream->pushed_c_count < MB_LEN_MAX) {
     stream->pushed_cs[stream->pushed_c_count] = c;

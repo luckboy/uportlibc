@@ -35,6 +35,8 @@
 #define FILE_FLAG_EOF           (1 << 5)
 #define FILE_FLAG_ERROR         (1 << 6)
 #define FILE_FLAG_DATA_TO_WRITE (1 << 7)
+#define FILE_FLAG_CLOSED        (1 << 8)
+#define FILE_FLAG_STD           (1 << 9)
 
 struct __uportlibc_FILE
 {

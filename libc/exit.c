@@ -19,24 +19,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "exit.h"
+#include "stdio_priv.h"
+
+static int close_stream(FILE *stream)
+{
+  int res;
+  lock_lock(&(stream->lock));
+  do {
+    if(__uportlibc_unsafely_flush_stream(stream) == EOF) {
+      res = EOF;
+      break;
+    }
+    if(close(stream->fd) == -1) {
+      res = EOF;
+      break;
+    }
+  } while(0);
+  lock_unlock(&(stream->lock));
+  return res;
+}
+
+static void close_all_streams(void)
+{ __uportlibc_for_each_stream(close_stream); }
 
 lock_t __uportlibc_exit_lock = LOCK;
 void (*__uportlibc_atexit_exit_fun)(void) = NULL;
 void (*__uportlibc_environ_exit_fun)(void) = NULL;
+void (*__uportlibc_stdio_exit_fun)(void) = close_all_streams;
 
 void exit(int status)
 {
   void (*atexit_exit_fun)(void);
   void (*environ_exit_fun)(void);
+  void (*stdio_exit_fun)(void);
   lock_lock(&__uportlibc_exit_lock);
   atexit_exit_fun = __uportlibc_atexit_exit_fun;
   environ_exit_fun = __uportlibc_environ_exit_fun;
+  stdio_exit_fun = __uportlibc_stdio_exit_fun;
   lock_unlock(&__uportlibc_exit_lock);
   if(atexit_exit_fun != NULL) atexit_exit_fun();
   if(environ_exit_fun != NULL) environ_exit_fun();
+  stdio_exit_fun();
   _exit(status);
   while(1);
 }
