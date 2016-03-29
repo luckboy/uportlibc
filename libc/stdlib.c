@@ -240,6 +240,7 @@ int system(const char *command)
     do {
       res = waitpid(pid, &status, 0); 
     } while(res == -1 && errno == EINTR);
+    if(res == -1) status = -1;
   } else
     status = -1;
   __uportsys_thread_sigmask(SIG_SETMASK, &saved_sig_set, NULL, &tmp_err_num); 
