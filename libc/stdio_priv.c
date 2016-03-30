@@ -118,14 +118,28 @@ int __uportlibc_unsafely_get_char(FILE *stream)
     c = *(stream->buf_data_cur);
     stream->buf_data_cur++;
   } else {
-    ssize_t res = read(stream->fd, &c, 1);
-    if(res == 0) {
-      stream->flags |= FILE_FLAG_EOF;
-      return EOF;
+    ssize_t res;
+    int is_c = 0;
+    if(stream->buf_type == _IOLBF) {
+      if(stream->buf_data_cur != stream->buf_data_end) {
+        c = *(stream->buf_data_cur);
+        stream->buf_data_cur++;
+        is_c = 1;
+      } else {
+        stream->buf_data_cur = stream->buf;
+        stream->buf_data_end = stream->buf;
+      }
     }
-    if(res == -1) {
-      stream->flags |= FILE_FLAG_ERROR;
-      return EOF;
+    if(!is_c) {
+      res = read(stream->fd, &c, 1);
+      if(res == 0) {
+        stream->flags |= FILE_FLAG_EOF;
+        return EOF;
+      }
+      if(res == -1) {
+        stream->flags |= FILE_FLAG_ERROR;
+        return EOF;
+      }
     }
   }
   return (int) ((unsigned char) c);
