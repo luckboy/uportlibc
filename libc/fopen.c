@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -148,7 +149,7 @@ FILE *fopen(const char *file_name, const char *mode)
     free(buf);
     return NULL;
   }
-  fd = open(file_name, flags);
+  fd = open(file_name, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
   if(fd == -1) {
     free(buf);
     free(stream);
@@ -173,7 +174,7 @@ FILE *freopen(const char *file_name, const char *mode, FILE *stream)
         break;
       }
     }
-    fd = open(file_name, flags);
+    fd = open(file_name, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     if(fd == -1) {
       stream = NULL;
       break;
