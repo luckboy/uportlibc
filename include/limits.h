@@ -57,7 +57,7 @@
 #endif
 
 #define MB_LEN_MAX              4
-#define SSIZE_MAX               INT_MAX
+#define SSIZE_MAX               LONG_MAX
 
 /* System macros. */
 
