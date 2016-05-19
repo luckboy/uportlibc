@@ -1,6 +1,6 @@
 BUILD_DIR = build/$(ARCH)
 
-CFLAGS += -Wall -nostdinc -I../include -I.
+CFLAGS += -Wall -nostdinc -I../include -I. -I$(BUILD_DIR)/gen_src
 
 OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/sys_mman.o \
@@ -61,12 +61,19 @@ $(BUILD_DIR)/w_%.o: w_%.c $(BUILD_DIR)/.empty
 
 $(BUILD_DIR)/%.o: %.c $(BUILD_DIR)/.empty
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $<
-	
+
 all: $(LIB)
 
 $(BUILD_DIR)/.empty:
 	mkdir -p $(BUILD_DIR)
 	touch $(BUILD_DIR)/.empty
+
+$(BUILD_DIR)/gen_src/.empty:
+	mkdir -p $(BUILD_DIR)/gen_src
+	touch $(BUILD_DIR)/gen_src/.empty
+
+$(BUILD_DIR)/gen_src/float_priv.h: $(BUILD_DIR)/gen_src/.empty gen_float_priv_h.sh
+	CC="$(CC)" CFLAGS="$(CFLAGS)" ./gen_float_priv_h.sh > $(BUILD_DIR)/gen_src/float_priv.h
 
 $(LIB): $(OBJS)
 	$(AR) -rc $(LIB) $(OBJS)
@@ -74,3 +81,6 @@ $(LIB): $(OBJS)
 
 clean:
 	rm -fr $(BUILD_DIR) *~
+
+$(BUILD_DIR)/c_stdlib.o: w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
+$(BUILD_DIR)/w_stdlib.o: w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h

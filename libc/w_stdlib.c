@@ -30,6 +30,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
+#include "float_priv.h"
 #ifndef TEST
 #define __W W
 #include <uportlibc/w_name.h>
@@ -116,29 +117,19 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
     break;
   }
   if(str[0] == '0' && (str[1] == 'X' || str[1] == 'x')) {
-#if FLT_RADIX == 2
-    double logr_log2 = 1.0;
-#else
-    double logr_log2 = log(FLT_RADIX) / log(2.0);
-#endif
     base = 16.0;
     exp_base = 2.0;
-    max_exp = floor(LDBL_MAX_EXP * logr_log2);
-    min_exp = floor((LDBL_MIN_EXP - 1.0) * logr_log2) - 3;
-    max_digits = ceil(LDBL_MANT_DIG * logr_log2 / 4.0);
+    max_exp = LDBL_MAX_HEX_STRTOLD_EXP;
+    min_exp = LDBL_MIN_HEX_STRTOLD_EXP;
+    max_digits = LDBL_MAX_HEX_MANT_DIG;
     is_hex = 1;
     str += 2;
   } else {
-#if FLT_RADIX == 2
-    double logr_log10 = 0.30102999566398119521;
-#else
-    double logr_log10 = log(FLT_RADIX) / log(10.0);
-#endif
     base = 10.0;
     exp_base = 10.0;
-    max_exp = floor(LDBL_MAX_EXP * logr_log10);
-    min_exp = floor((LDBL_MIN_EXP - 1.0) * logr_log10);
-    max_digits = ceil(LDBL_MANT_DIG * logr_log10);
+    max_exp = LDBL_MAX_DEC_STRTOLD_EXP;
+    min_exp = LDBL_MIN_DEC_STRTOLD_EXP;
+    max_digits = LDBL_MAX_DEC_MANT_DIG;
     is_hex = 0;
   }
   res = 0.0;

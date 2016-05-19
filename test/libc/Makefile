@@ -1,6 +1,6 @@
 BUILD_DIR = build/$(ARCH)
 
-CFLAGS = -g -DTEST=1 -I.
+CFLAGS = -g -DTEST=1 -I. -I$(BUILD_DIR)/gen_src
 LDFLAGS = -g
 LIBS = -lm -lcunit
 
@@ -44,6 +44,13 @@ $(BUILD_DIR)/.empty:
 	mkdir -p $(BUILD_DIR)
 	touch $(BUILD_DIR)/.empty
 
+$(BUILD_DIR)/gen_src/.empty:
+	mkdir -p $(BUILD_DIR)/gen_src
+	touch $(BUILD_DIR)/gen_src/.empty
+
+$(BUILD_DIR)/gen_src/float_priv.h: $(BUILD_DIR)/gen_src/.empty ../../libc/gen_float_priv_h.sh
+	CC="$(CC)" CFLAGS="$(CFLAGS)" ../../libc/gen_float_priv_h.sh > $(BUILD_DIR)/gen_src/float_priv.h	
+
 $(TEST): $(OBJS)
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -o $(TEST) $(OBJS) $(LIBS) $(EXTRA_LIBS)
 
@@ -52,3 +59,6 @@ run: all
 
 clean:
 	rm -fr rm -fr $(BUILD_DIR) *~
+
+$(BUILD_DIR)/c_stdlib.o: ../../libc/w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
+$(BUILD_DIR)/w_stdlib.o: ../../libc/w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
