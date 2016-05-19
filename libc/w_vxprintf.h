@@ -19,52 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
-
-#include <uportlibc/mbstate.h>
-#define __W 'w'
-#include <uportlibc/w_ctype.h>
-#define __W 'w'
-#include <uportlibc/w_stdio.h>
-#define __W 'w'
-#include <uportlibc/w_stdlib.h>
-#define __W 'w'
-#include <uportlibc/w_string.h>
-
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
+#ifdef __W
+#if ( \
+  (__W == 'c' && !defined(_C_VXPRINTF_H)) || \
+  (__W == 'w' && !defined(_W_VXPRINTF_H)))
+#if __W == 'c'
+#define _C_VXPRINTF_H
+#endif
+#if __W == 'w'
+#define _W_VXPRINTF_H
 #endif
 
-#ifdef __cplusplus
-extern "C" {
+#include <stdarg.h>
+#include <stddef.h>
+#undef __W_UNDEF
+#include <uportlibc/w_name.h>
+
+struct __W_NAME(vx, printf_stream)
+{
+  int (*put_char)(void *, __W_CHAR_INT);
+  void *data;
+};
+
+int __W_NAME(__uportlibc_vx, printf)(struct __W_NAME(vx, printf_stream) *stream, __W_CONST_CHAR_PTR format, va_list ap);
+
+#define __W_UNDEF
+#include <uportlibc/w_name.h>
+
 #endif
-
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
-#endif
-
-typedef __uportlibc_mbstate_t mbstate_t;
-
-/* Functions from the wctype.h header. */
-
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-wint_t btowc(int c);
-int fwide(FILE *stream, int mode);
-int mbsinit(const mbstate_t *state);
-size_t mbrlen(const char *str, size_t count, mbstate_t *state);
-size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state);
-size_t mbsrtowcs(wchar_t *wcs, const char **str, size_t count, mbstate_t *state);
-size_t wcrtomb(char *str, wchar_t wc, mbstate_t *state);
-size_t wcsrtombs(char *str, const wchar_t **wcs, size_t count, mbstate_t *state);
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif

@@ -85,5 +85,6 @@
 #define STREAM_MAX              INT_MAX
 #define TTY_NAME_MAX            (NAME_MAX + 1)
 #define TZNAME_MAX              6
+#define NL_ARGMAX               9
 
 #endif

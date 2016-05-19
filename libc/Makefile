@@ -40,6 +40,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/string.o \
 	$(BUILD_DIR)/strings.o \
 	$(BUILD_DIR)/termios.o \
+	$(BUILD_DIR)/ulltostr.o \
 	$(BUILD_DIR)/wchar.o \
 	$(BUILD_DIR)/wctype.o \
 	$(BUILD_DIR)/c_ctype.o \
@@ -49,7 +50,9 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/c_stdlib.o \
 	$(BUILD_DIR)/w_stdlib.o \
 	$(BUILD_DIR)/c_string.o \
-	$(BUILD_DIR)/w_string.o
+	$(BUILD_DIR)/w_string.o \
+	$(BUILD_DIR)/c_vxprintf.o \
+	$(BUILD_DIR)/w_vxprintf.o
 
 LIB = $(BUILD_DIR)/libc.a
 
@@ -84,3 +87,5 @@ clean:
 
 $(BUILD_DIR)/c_stdlib.o: w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
 $(BUILD_DIR)/w_stdlib.o: w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
+$(BUILD_DIR)/c_vxprintf.o: w_vxprintf.c $(BUILD_DIR)/gen_src/float_priv.h
+$(BUILD_DIR)/w_vxprintf.o: w_vxprintf.c $(BUILD_DIR)/gen_src/float_priv.h

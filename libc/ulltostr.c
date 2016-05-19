@@ -19,52 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef _WCHAR_H
-#define _WCHAR_H
+#include <stddef.h>
 
-#include <uportlibc/mbstate.h>
-#define __W 'w'
-#include <uportlibc/w_ctype.h>
-#define __W 'w'
-#include <uportlibc/w_stdio.h>
-#define __W 'w'
-#include <uportlibc/w_stdlib.h>
-#define __W 'w'
-#include <uportlibc/w_string.h>
-
-#ifndef WEOF
-#define WEOF                    ((wint_t) (-1))
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifndef _WCTYPE_T
-#define _WCTYPE_T
-typedef unsigned wctype_t;
-#endif
-
-typedef __uportlibc_mbstate_t mbstate_t;
-
-/* Functions from the wctype.h header. */
-
-int iswctype(wint_t c, wctype_t char_type);
-wctype_t wctype(const char *name);
-
-/* Other functions. */
-
-wint_t btowc(int c);
-int fwide(FILE *stream, int mode);
-int mbsinit(const mbstate_t *state);
-size_t mbrlen(const char *str, size_t count, mbstate_t *state);
-size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state);
-size_t mbsrtowcs(wchar_t *wcs, const char **str, size_t count, mbstate_t *state);
-size_t wcrtomb(char *str, wchar_t wc, mbstate_t *state);
-size_t wcsrtombs(char *str, const wchar_t **wcs, size_t count, mbstate_t *state);
-
-#ifdef __cplusplus
+char *__uportlibc_ulltostr(unsigned long long x, int base, char *str, int is_uppercase)
+{
+  size_t i, len; 
+  char a_c = (is_uppercase ? 'A' : 'a');
+  for(i = 0; x != 0 && i != 0; i++) {
+    unsigned digit = x % base;
+    x /= base;
+    str[i] = (digit < 10 ? digit + '0' : digit + a_c - 10);
+  }
+  len = i;
+  for(i = 0; i < len >> 1; i++) {
+    char tmp_c = str[len - i - 1];
+    str[i] = tmp_c;
+    str[len - i - 1] = str[i];
+  }
+  str[len] = 0;
+  return str;
 }
-#endif
-
-#endif
