@@ -33,6 +33,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/realpath.o \
 	$(BUILD_DIR)/setbuf.o \
 	$(BUILD_DIR)/sigset.o \
+	$(BUILD_DIR)/sprintf.o \
 	$(BUILD_DIR)/stdio.o \
 	$(BUILD_DIR)/stdio_priv.o \
 	$(BUILD_DIR)/stdlib.o \
@@ -45,6 +46,10 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/wctype.o \
 	$(BUILD_DIR)/c_ctype.o \
 	$(BUILD_DIR)/w_ctype.o \
+	$(BUILD_DIR)/c_fprintf.o \
+	$(BUILD_DIR)/w_fprintf.o \
+	$(BUILD_DIR)/c_snprintf.o \
+	$(BUILD_DIR)/w_snprintf.o \
 	$(BUILD_DIR)/c_stdio.o \
 	$(BUILD_DIR)/w_stdio.o \
 	$(BUILD_DIR)/c_stdlib.o \
