@@ -72,5 +72,7 @@ CU_ASSERT(wcsncmp(actual, expected, count) != 0)
 
 #undef __W
 
+#else
+#undef __W
 #endif
 #endif

@@ -81,5 +81,7 @@ size_t __W_STR_NAME(xfrm)(__W_CHAR_PTR str1, __W_CONST_CHAR_PTR str2, size_t cou
 #define __W_UNDEF
 #include "w_uportlibc_name.h"
 
+#else
+#undef __W
 #endif
 #endif

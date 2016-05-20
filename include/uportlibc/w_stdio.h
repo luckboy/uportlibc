@@ -96,5 +96,7 @@ int __W_NAME(vs, scanf)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR format, va_li
 #define __W_UNDEF
 #include <uportlibc/w_name.h>
 
+#else
+#undef __W
 #endif
 #endif

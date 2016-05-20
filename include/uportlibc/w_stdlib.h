@@ -53,5 +53,7 @@ unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end
 #define __W_UNDEF
 #include <uportlibc/w_name.h>
 
+#else
+#undef __W
 #endif
 #endif

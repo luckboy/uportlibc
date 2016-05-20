@@ -81,5 +81,7 @@ __F_DOUBLE __F_NAME(tanh, )(__F_DOUBLE x);
 #define __F_UNDEF
 #include <uportlibc/f_name.h>
 
+#else
+#undef __F
 #endif
 #endif
