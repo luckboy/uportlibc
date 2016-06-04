@@ -31,7 +31,6 @@
 #endif
 
 #include <stdarg.h>
-#include <stddef.h>
 #undef __W_UNDEF
 #include <uportlibc/w_name.h>
 
