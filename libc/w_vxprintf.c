@@ -79,8 +79,8 @@ union arg_value
 
 struct conv_spec
 {
-  signed char is_width_arg_idx;
-  signed char is_prec_arg_idx;
+  signed char has_width_arg_idx;
+  signed char has_prec_arg_idx;
   unsigned flags;
   unsigned arg_idx;
   union
@@ -198,14 +198,14 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
       }
       /* Parses a width. */
       if(*format == '*') {
-        spec->is_width_arg_idx = 1;
+        spec->has_width_arg_idx = 1;
         format++;
         arg_idx = __W_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
         if(arg_idx == -1) return -1;
         spec->width.arg_idx = arg_idx;
         if(arg_types != NULL) arg_types[spec->width.arg_idx] = ARG_TYPE_INT;
       } else {
-        spec->is_width_arg_idx = 0;
+        spec->has_width_arg_idx = 0;
         if(*format >= '0' && *format <= '9') {
           value = __W_NAME(, parse_conv_spec_num)(&format);
           if(value == -1) return -1;
@@ -218,14 +218,14 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         format++;
         is_prec = 1;
         if(*format == '*') {
-          spec->is_prec_arg_idx = 1;
+          spec->has_prec_arg_idx = 1;
           format++;
           arg_idx = __W_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
           if(arg_idx == -1) return -1;
           spec->prec.arg_idx = arg_idx;
           if(arg_types != NULL) arg_types[spec->prec.arg_idx] = ARG_TYPE_INT;
         } else {
-          spec->is_prec_arg_idx = 0;
+          spec->has_prec_arg_idx = 0;
           value = __W_NAME(, parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->prec.value = value;
@@ -374,7 +374,7 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
           errno = EINVAL;
           return -1;
         }
-        if(is_prec && !spec->is_prec_arg_idx) spec->prec.value = 1;
+        if(is_prec && !spec->has_prec_arg_idx) spec->prec.value = 1;
         new_arg_type = ARG_TYPE_VOID_PTR;
         break;
       case 'n':
@@ -466,8 +466,8 @@ static int __W_NAME(, convert_int)(struct __W_NAME(vx, printf_stream) *stream, c
     x = value->u;
   __uportlibc_ulltostr(x, base, buf, is_uppercase);
   len = (int) strlen(buf);
-  width = (spec->is_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
-  prec = (spec->is_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
+  width = (spec->has_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
+  prec = (spec->has_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
   if(prec >= 0) {
     is_prec = 1;
   } else {
@@ -622,8 +622,8 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
         exp = 0;
     }
   }
-  width = (spec->is_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
-  prec = (spec->is_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
+  width = (spec->has_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
+  prec = (spec->has_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
   if((spec->flags & FLAG_MINUS) != 0 && width >= 0) width = -width;
   if(prec < 0) prec = (is_hex ? LDBL_MAX_HEX_MANT_DIG : 6);
   if(is_g && prec == 0) prec = 1;
@@ -802,7 +802,7 @@ static int __W_NAME(, convert_char)(struct __W_NAME(vx, printf_stream) *stream, 
   } else
     c = (wchar_t) ((wint_t) (value->i));
 #endif
-  width = (spec->is_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
+  width = (spec->has_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
   if((spec->flags & FLAG_MINUS) != 0 && width >= 0) width = -width;
 #if __W != 'w'
   spaces = (width >= 0 ? width : -width) - ((size_t) len);
@@ -847,8 +847,8 @@ static int __W_NAME(, convert_str)(struct __W_NAME(vx, printf_stream) *stream, c
     str = value->const_cp;
   else
     wstr = value->const_wcp;
-  width = (spec->is_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
-  prec = (spec->is_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
+  width = (spec->has_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
+  prec = (spec->has_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
   count = (prec >= 0 ? prec : SSIZE_MAX * 2UL + 1UL);
 #if __W != 'w'
   if(spec->length != LENGTH_LONG) {
