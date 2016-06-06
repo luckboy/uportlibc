@@ -309,6 +309,7 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
           return -1;
         }
         break;
+      case 'F':
       case 'f':
       case 'E':
       case 'e':
@@ -352,12 +353,15 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         break;
       case 's':
         switch(spec->length) {
+        case 0:
+          new_arg_type = ARG_TYPE_CONST_CHAR_PTR;
+          break;
         case LENGTH_LONG:
           new_arg_type = ARG_TYPE_CONST_WCHAR_T_PTR;
           break;
         default:
-          new_arg_type = ARG_TYPE_CONST_CHAR_PTR;
-          break;
+          errno = EINVAL;
+          return -1;
         }
         break;
       case 'S':
@@ -393,8 +397,10 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
       *format_ptr = format;
       *curr_arg_idx_ptr = curr_arg_idx;
       *arg_count_ptr = arg_count;
+      return 1;
     }
   }
+  *format_ptr = format;
   return 0;
 }
 
