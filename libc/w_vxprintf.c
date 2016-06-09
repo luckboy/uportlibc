@@ -569,7 +569,7 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
     is_e = is_uppercase = 1;
     break;
   case 'e':
-    is_e = is_uppercase = 1;
+    is_e = 1;
     break;
   case 'G':
     is_g = is_uppercase = 1;
