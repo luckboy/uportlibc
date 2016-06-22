@@ -28,7 +28,10 @@
 #include <stddef.h>
 #include <string.h>
 #include <wchar.h>
+#include "conv.h"
 #include "float_priv.h"
+#define __W W
+#include "w_format.h"
 #define __W W
 #include "w_vxprintf.h"
 #define __W W
@@ -105,51 +108,6 @@ struct counter
 
 char *__uportlibc_ulltostr(unsigned long long x, int base, char *str, int is_uppercase);
 
-static int __W_NAME(, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
-{
-  unsigned long res;
-  int saved_errno = errno;
-  errno = 0;
-  res = __W_STR_NAME(toul)(*format_ptr, (__W_CHAR_PTR *) format_ptr, 10);
-  if(res == ULONG_MAX && errno != 0) {
-    errno = EOVERFLOW;
-    return -1;
-  }
-  if(res <= INT_MAX) {
-    errno = EOVERFLOW;
-    return -1;
-  }
-  errno = saved_errno;
-  return res;
-}
-
-static int __W_NAME(, parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr)
-{
-  __W_CONST_CHAR_PTR ptr;
-  unsigned arg_idx;
-  for(ptr = *format_ptr; *ptr >= '0' && *ptr <= '9'; ptr++);
-  if(*ptr == '$') {
-    __W_CONST_CHAR_PTR format = *format_ptr;
-    int res = __W_NAME(, parse_conv_spec_num)(&format);
-    if(res == -1) return -1;
-    if(res == 0) {
-      errno = EOVERFLOW;
-      return -1;
-    }
-    arg_idx = res - 1;
-    *format_ptr = ptr;
-  } else {
-    arg_idx = *curr_arg_idx_ptr;
-    (*curr_arg_idx_ptr)++;
-    if(*curr_arg_idx_ptr + 1 > *arg_count_ptr) *arg_count_ptr = *curr_arg_idx_ptr + 1;
-  }
-  if(arg_idx >= NL_ARGMAX) {
-    errno = EINVAL;
-    return -1;
-  }
-  return (int) arg_idx;
-}
-
 static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct conv_spec *spec, unsigned char *arg_types, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr)
 {
   __W_CONST_CHAR_PTR format = *format_ptr;
@@ -160,7 +118,7 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
     if(*format != '%') {
       unsigned new_arg_type;
       int arg_idx, value, is_prec;
-      arg_idx = __W_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+      arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
       if(arg_idx == -1) return -1;
       spec->arg_idx = arg_idx;
       /* Parses flag characters. */
@@ -200,14 +158,14 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
       if(*format == '*') {
         spec->has_width_arg_idx = 1;
         format++;
-        arg_idx = __W_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+        arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
         if(arg_idx == -1) return -1;
         spec->width.arg_idx = arg_idx;
         if(arg_types != NULL) arg_types[spec->width.arg_idx] = ARG_TYPE_INT;
       } else {
         spec->has_width_arg_idx = 0;
         if(*format >= '0' && *format <= '9') {
-          value = __W_NAME(, parse_conv_spec_num)(&format);
+          value = __W_NAME(__uportlibc_, parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->width.value = value;
         } else
@@ -220,13 +178,13 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         if(*format == '*') {
           spec->has_prec_arg_idx = 1;
           format++;
-          arg_idx = __W_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+          arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
           if(arg_idx == -1) return -1;
           spec->prec.arg_idx = arg_idx;
           if(arg_types != NULL) arg_types[spec->prec.arg_idx] = ARG_TYPE_INT;
         } else {
           spec->has_prec_arg_idx = 0;
-          value = __W_NAME(, parse_conv_spec_num)(&format);
+          value = __W_NAME(__uportlibc_, parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->prec.value = value;
         }
@@ -550,9 +508,9 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
   long double x, tmp_x;
   int is_sign;
   int width, prec, spaces, zeros;
-  long double base, exp_base;
+  long double base;
   unsigned digit_base;
-  int exp = 0, min_exp;
+  long exp = 0;
   int64_t i, len, digits = 0, last_int_digit_idx = 0, carry_idx = -1, last_zero_idx = -1;
   int is_e = 0, is_g = 0, is_hex = 0, is_uppercase = 0;
   char a_c, exp_c;
@@ -590,15 +548,11 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
   a_c = (is_uppercase ? 'A' : 'a');
   if(is_hex) {
     base = 16.0;
-    exp_base = 2.0;
     digit_base = 16;
-    min_exp = LDBL_MIN_HEX_EXP;
     exp_c = (is_uppercase ? 'P' : 'p');
   } else {
     base = 10.0;
-    exp_base = 2.0;
     digit_base = 10;
-    min_exp = LDBL_MIN_DEC_EXP;
     exp_c = (is_uppercase ? 'E' : 'e');
   }
   /* Prepares. */
@@ -616,15 +570,9 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
     if(x == HUGE_VALL && HUGE_VALL != LDBL_MAX) {
       str = (is_uppercase ? "INF" : "inf");
     } else {
-      if(x != 0.0) {
-        exp = floorl(logl(x) / logl(exp_base));
-        if(exp >= min_exp) {
-          x /= powl(exp_base, exp);
-        } else {
-          x /= powl(exp_base, exp + 2);
-          x *= exp_base * exp_base;
-        }
-      } else
+      if(x != 0.0)
+        x = __uportlibc_log_pow_div_for_conv(x, &exp, is_hex);
+      else
         exp = 0;
     }
   }

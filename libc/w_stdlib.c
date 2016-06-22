@@ -30,6 +30,12 @@
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
+#ifndef TEST
+#include "conv.h"
+#else
+#define UPORTLIBC_POW_MUL_FOR_CONV
+#include "uportlibc.h"
+#endif
 #include "float_priv.h"
 #ifndef TEST
 #define __W W
@@ -96,9 +102,9 @@ long __W_STR_NAME(tol)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base)
 
 long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
 {
-  long double res, sign, base, exp_base;
-  long exp, max_exp, min_exp;
-  int is_hex, is_first, is_dot, is_overflow, is_underflow;
+  long double res, sign, base;
+  long exp;
+  int is_hex, is_first, is_dot;
   size_t max_digits, digits, int_digits, significant_digits;
   int saved_errno;
   if(end_ptr != NULL) *end_ptr = (__W_CHAR_PTR) str;
@@ -118,17 +124,11 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
   }
   if(str[0] == '0' && (str[1] == 'X' || str[1] == 'x')) {
     base = 16.0;
-    exp_base = 2.0;
-    max_exp = LDBL_MAX_HEX_STRTOLD_EXP;
-    min_exp = LDBL_MIN_HEX_STRTOLD_EXP;
     max_digits = LDBL_MAX_HEX_MANT_DIG;
     is_hex = 1;
     str += 2;
   } else {
     base = 10.0;
-    exp_base = 10.0;
-    max_exp = LDBL_MAX_DEC_STRTOLD_EXP;
-    min_exp = LDBL_MIN_DEC_STRTOLD_EXP;
     max_digits = LDBL_MAX_DEC_MANT_DIG;
     is_hex = 0;
   }
@@ -178,61 +178,25 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr)
       exp = 0;
   } else
     exp = 0;
-  is_overflow = 0;
-  is_underflow = 0;
   if((digits << (is_hex ? 2 : 0)) <= ((unsigned long) LONG_MAX)) {
     if(errno == 0) {
       if(res != 0.0) {
         long fract_digit_exp = ((long) (digits - int_digits)) << (is_hex ? 2 : 0);
         long unsignificant_digit_exp = ((long) (digits - significant_digits)) << (is_hex ? 2 : 0);
+        errno = saved_errno;
         exp -= fract_digit_exp;
         exp += unsignificant_digit_exp;
-        if(exp > 0) {
-          if(exp <= max_exp) {
-            res *= powl(exp_base, exp - 1);
-            if(res <= LDBL_MAX / exp_base)
-              res *= exp_base;
-            else
-              is_overflow = 1;
-          } else
-            is_overflow = 1;
-        } else if(exp < 0) {
-          if(exp >= min_exp) {
-            res *= powl(exp_base, exp + 1);
-            if(res >= LDBL_MIN * exp_base)
-              res /= exp_base;
-            else
-              is_underflow = 1;
-          } else {
-            if(exp + fract_digit_exp >= min_exp) {
-              res *= powl(exp_base, -(fract_digit_exp + 1));
-              res *= powl(exp_base, exp + fract_digit_exp + 2);
-              if(res >= LDBL_MIN * exp_base)
-                res /= exp_base;
-              else
-                is_underflow = 1;
-            } else
-              is_underflow = 1;
-          }
-        }
+        res = __uportlibc_pow_mul_for_conv(res, exp, fract_digit_exp, is_hex);
       }
     } else {
-      if(exp >= LONG_MAX)
-        is_overflow = 1;
-      else
-        is_underflow = 1;
+      res = (exp >= LONG_MAX ? HUGE_VALL : 0.0);
+      errno = ERANGE;
     }
-  } else
-    is_overflow = 1;
-  errno = saved_errno;
-  if(end_ptr != NULL) *end_ptr = (__W_CHAR_PTR) str;
-  if(is_overflow) {
-    errno = ERANGE;
+  } else {
     res = HUGE_VALL;
-  } else if(is_underflow) {
     errno = ERANGE;
-    return 0.0;
   }
+  if(end_ptr != NULL) *end_ptr = (__W_CHAR_PTR) str;
   res *= sign;
   return res;
 }

@@ -5,6 +5,7 @@ LDFLAGS = -g
 LIBS = -lm -lcunit
 
 OBJS = $(BUILD_DIR)/main.o \
+	$(BUILD_DIR)/conv.o \
 	$(BUILD_DIR)/bsearch.o \
   	$(BUILD_DIR)/bsearch_suite.o \
 	$(BUILD_DIR)/qsort.o \
@@ -60,5 +61,6 @@ run: all
 clean:
 	rm -fr rm -fr $(BUILD_DIR) *~
 
+$(BUILD_DIR)/conv.o: ../../libc/conv.c $(BUILD_DIR)/gen_src/float_priv.h
 $(BUILD_DIR)/c_stdlib.o: ../../libc/w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
 $(BUILD_DIR)/w_stdlib.o: ../../libc/w_stdlib.c $(BUILD_DIR)/gen_src/float_priv.h
