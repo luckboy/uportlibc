@@ -176,16 +176,23 @@ int __uportlibc_unsafely_unget_char(int c, FILE *stream)
     stream->pushed_cs[stream->pushed_c_count] = c;
     stream->pushed_c_count++;
   } else {
+    int tmp_c;
     if(stream->buf_type == _IONBF || (stream->flags & FILE_FLAG_DATA_TO_WRITE) != 0) 
       return EOF;
+    if(stream->buf == stream->buf_data_cur) {
+      if(stream->buf_data_end == stream->buf + stream->buf_size) return EOF;
+    }
+    tmp_c = stream->pushed_cs[0];
+    memmove(stream->pushed_cs, stream->pushed_cs + 1, MB_LEN_MAX - 1);
+    stream->pushed_cs[MB_LEN_MAX - 1] = c;
     if(stream->buf != stream->buf_data_cur) {
       stream->buf_data_cur--;
-      *(stream->buf_data_cur) = c;
+      *(stream->buf_data_cur) = tmp_c;
     } else {
       if(stream->buf_data_end == stream->buf + stream->buf_size) return EOF;
       memmove(stream->buf + 1, stream->buf, stream->buf_data_end - stream->buf);
       stream->buf_data_end++;
-      *(stream->buf) = c;
+      *(stream->buf) = tmp_c;
     }
   }
   stream->flags &= ~FILE_FLAG_EOF;
