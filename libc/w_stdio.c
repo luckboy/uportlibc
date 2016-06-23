@@ -207,44 +207,35 @@ __W_INT __W_NAME(unget, c)(__W_CHAR_INT c, FILE *stream)
 {
   __W_INT res;
   lock_lock(&(stream->lock));
-#if __W != 'w'
-  res = __uportlibc_unsafely_unget_char(c, stream);
-#else
-  do {
-    char buf[MB_LEN_MAX];
-    mbstate_t state;
-    size_t len, unpushed_c_count;
-    if((stream->flags & FILE_FLAG_READABLE) == 0) {
-      res = WEOF;
-      break;
-    }
-    if(c == WEOF) {
-      res = WEOF;
-      break;
-    }
-    unpushed_c_count = MB_LEN_MAX - stream->pushed_c_count;
-    if(stream->buf_type == _IOFBF) {
-      unpushed_c_count += stream->buf_data_cur - stream->buf;
-      unpushed_c_count += stream->buf_size - (stream->buf_data_end - stream->buf_data_cur);
-    }
-    len = wcrtomb(buf, (wchar_t) c, &state);
-    if(len == ((size_t) (-1)) || len > unpushed_c_count) {
-      res = WEOF;
-      break;
-    }
-    res = (wint_t) c;
-    while(len == 0) {
-      len--;
-      if(len < MB_LEN_MAX) {
-        if(__uportlibc_unsafely_unget_char(buf[len], stream) == EOF) {
-          res = WEOF;
-          break;
-        }
-      }
-    }
-    memset(&(stream->mb_state), 0, sizeof(mbstate_t));
-  } while(0);
-#endif
+  res = __W_NAME(unget, c_unlocked)(c, stream);
   lock_unlock(&(stream->lock));
   return res;
+}
+
+__W_INT __W_NAME(unget, c_unlocked)(__W_CHAR_INT c, FILE *stream)
+{
+#if __W != 'w'
+  return __uportlibc_unsafely_unget_char(c, stream);
+#else
+  char buf[MB_LEN_MAX];
+  mbstate_t state;
+  size_t len, unpushed_c_count;
+  if((stream->flags & FILE_FLAG_READABLE) == 0) return WEOF;
+  if(c == WEOF) return WEOF;
+  unpushed_c_count = MB_LEN_MAX - stream->pushed_c_count;
+  if(stream->buf_type == _IOFBF) {
+    unpushed_c_count += stream->buf_data_cur - stream->buf;
+    unpushed_c_count += stream->buf_size - (stream->buf_data_end - stream->buf_data_cur);
+  }
+  len = wcrtomb(buf, (wchar_t) c, &state);
+  if(len == ((size_t) (-1)) || len > unpushed_c_count) return WEOF;
+  while(len == 0) {
+    len--;
+    if(len < MB_LEN_MAX) {
+      if(__uportlibc_unsafely_unget_char(buf[len], stream) == EOF) return WEOF;
+    }
+  }
+  memset(&(stream->mb_state), 0, sizeof(mbstate_t));
+  return (wint_t) c;
+#endif
 }

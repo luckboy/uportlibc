@@ -51,8 +51,12 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/w_format.o \
 	$(BUILD_DIR)/c_fprintf.o \
 	$(BUILD_DIR)/w_fprintf.o \
+	$(BUILD_DIR)/c_fscanf.o \
+	$(BUILD_DIR)/w_fscanf.o \
 	$(BUILD_DIR)/c_snprintf.o \
 	$(BUILD_DIR)/w_snprintf.o \
+	$(BUILD_DIR)/c_sscanf.o \
+	$(BUILD_DIR)/w_sscanf.o \
 	$(BUILD_DIR)/c_stdio.o \
 	$(BUILD_DIR)/w_stdio.o \
 	$(BUILD_DIR)/c_stdlib.o \
