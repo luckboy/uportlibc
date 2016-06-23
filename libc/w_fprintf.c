@@ -58,7 +58,7 @@ int __W_NAME(vf, printf)(FILE *stream, __W_CONST_CHAR_PTR format, va_list ap)
   struct __W_NAME(vx, printf_stream) tmp_stream;
   int res;
   tmp_stream.put_char = __W_NAME(vx, printf_put_char);
-  tmp_stream.data = (FILE *) stream;
+  tmp_stream.data = (void *) stream;
   flockfile(stream);
   res = __W_NAME(__uportlibc_vx, printf)(&tmp_stream, format, ap);
   funlockfile(stream);
