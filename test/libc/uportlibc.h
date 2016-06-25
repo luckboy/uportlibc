@@ -30,7 +30,7 @@ void *uportlibc_bsearch(const void *key, const void *elems, size_t elem_count, s
 void uportlibc_qsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *));
 
 #ifdef UPORTLIBC_LOG_POW_DIV_FOR_CONV
-#define __uportlibc_pow_mul_for_conv uportlibc_pow_mul_for_conv
+#define __uportlibc_log_pow_div_for_conv uportlibc_log_pow_div_for_conv
 #endif
 #ifdef UPORTLIBC_POW_MUL_FOR_CONV
 #define __uportlibc_pow_mul_for_conv uportlibc_pow_mul_for_conv
