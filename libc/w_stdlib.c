@@ -33,7 +33,7 @@
 #ifndef TEST
 #include "conv.h"
 #else
-#define UPORTLIBC_POW_MUL_FOR_CONV
+#define UPORTLIBC_CONV
 #include "uportlibc.h"
 #endif
 #include "float_priv.h"
