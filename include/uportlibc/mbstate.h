@@ -28,7 +28,8 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct
+{
   size_t count;
   wchar_t wc;
 } __uportlibc_mbstate_t;
