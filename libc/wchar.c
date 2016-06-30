@@ -24,6 +24,9 @@
 #include <wchar.h>
 #include "stdio_priv.h"
 
+wint_t btowc(int c)
+{ return (c >= 0 && c <= 0x7f) ? c : WEOF; }
+
 int fwide(FILE *stream, int mode)
 {
   int res;
