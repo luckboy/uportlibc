@@ -56,9 +56,9 @@ wctype_t wctype(const char *name);
 
 wint_t btowc(int c);
 int fwide(FILE *stream, int mode);
-int mbsinit(const mbstate_t *state);
 size_t mbrlen(const char *str, size_t count, mbstate_t *state);
 size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state);
+int mbsinit(const mbstate_t *state);
 size_t mbsrtowcs(wchar_t *wcs, const char **str, size_t count, mbstate_t *state);
 size_t wcrtomb(char *str, wchar_t wc, mbstate_t *state);
 size_t wcsrtombs(char *str, const wchar_t **wcs, size_t count, mbstate_t *state);

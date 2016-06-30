@@ -40,9 +40,6 @@ int fwide(FILE *stream, int mode)
   return res;
 }
 
-int mbsinit(const mbstate_t *state)
-{ return state == NULL || (state->count == 0 && state->wc == 0); }
-
 size_t mbrlen(const char *str, size_t count, mbstate_t *state)
 { return mbrtowc(NULL, str, count, state); }
 
@@ -95,6 +92,9 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
   } else
     return (size_t) (-2);
 }
+
+int mbsinit(const mbstate_t *state)
+{ return state == NULL || (state->count == 0 && state->wc == 0); }
 
 size_t mbsrtowcs(wchar_t *wcs, const char **str, size_t count, mbstate_t *state)
 {
