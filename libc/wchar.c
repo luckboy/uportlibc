@@ -55,8 +55,8 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
     return (size_t) (-1);
   }
   if(state->count == 0) {
-    if((*str & 0xc0) == 0x00) {
-      state->wc = *str & 0x3f;
+    if((*str & 0x80) == 0x00) {
+      state->wc = *str & 0x7f;
     } else if((*str & 0xe0) == 0xc0) {
       state->count = 1;
       state->wc = *str & 0x1f;
@@ -88,7 +88,7 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
   if(state->count == 0) {
     if(wc != NULL) *wc = state->wc;
     state->wc = 0;
-    return len;
+    return state->wc != 0 ? len : 0;
   } else
     return (size_t) (-2);
 }
