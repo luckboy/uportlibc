@@ -25,7 +25,7 @@
 #include <unistd.h>
 #include "stdio_priv.h"
 
-static lock_t stdio_lock;
+static lock_t stdio_lock = LOCK;
 static FILE *stdio_first_stream = NULL;
 static FILE *stdio_last_stream = NULL;
 

@@ -22,17 +22,21 @@
 #ifndef _LOCK_H
 #define _LOCK_H
 
-#define LOCK                    { 0 }
+#define LOCK                    ((lock_t) { 0 })
 
 typedef struct
 {
   int lock;
 } lock_t;
 
+static inline int lock_init(lock_t *lock) { *lock = LOCK; return 0; }
+
 static inline int lock_lock(lock_t *lock) { return 0; }
 
 static inline int lock_try_lock(lock_t *lock) { return 0; }
 
 static inline int lock_unlock(lock_t *lock) { return 0; }
+
+static inline int lock_destroy(lock_t *lock) { return 0; }
 
 #endif

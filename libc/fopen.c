@@ -96,6 +96,7 @@ static int parse_mode(const char *mode, unsigned *stream_flags)
 
 static void init_stream(FILE *stream, int fd, unsigned flags, int buf_type, char *buf)
 {
+  lock_init(&(stream->lock));
   stream->fd = fd;
   stream->flags = flags;
   stream->buf_type = buf_type;
@@ -268,6 +269,7 @@ int fclose(FILE *stream)
   lock_lock(&(stream->lock));
   res = unsafely_close_stream(stream, &status, 1);
   lock_unlock(&(stream->lock));
+  lock_destroy(&(stream->lock));
   if(res != EOF) {
     __uportlibc_delete_stream(stream);
     if((stream->flags & FILE_FLAG_STATIC) == 0) free(stream);
@@ -291,6 +293,7 @@ int pclose(FILE *stream)
     }
   } while(0);
   lock_unlock(&(stream->lock));
+  lock_destroy(&(stream->lock));
   if(status != -1) {
     __uportlibc_delete_stream(stream);
     if((stream->flags & FILE_FLAG_STATIC) == 0) free(stream);
