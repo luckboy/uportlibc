@@ -35,6 +35,7 @@ int add_c_stdlib_suite(void);
 int add_w_stdlib_suite(void);
 int add_c_string_suite(void);
 int add_w_string_suite(void);
+int add_wchar_suite(void);
 
 int main(int argc, char **argv)
 {
@@ -63,6 +64,10 @@ int main(int argc, char **argv)
     return CU_get_error();
   }
   if(add_w_string_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_wchar_suite() == -1) {
     CU_cleanup_registry();
     return CU_get_error();
   }

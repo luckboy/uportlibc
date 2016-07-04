@@ -37,6 +37,12 @@
 #define FILE_FLAG_DATA_TO_WRITE (1 << 7)
 #define FILE_FLAG_CLOSED        (1 << 8)
 
+#ifdef TEST
+#ifndef UPORTLIBC_WCHAR
+#define __uportlibc_FILE uportlibc_FILE
+#endif
+#endif
+
 struct __uportlibc_FILE
 {
   struct __uportlibc_FILE *prev;
@@ -56,6 +62,14 @@ struct __uportlibc_FILE
   size_t pushed_c_count;
 };
 
+#ifdef TEST
+#ifndef UPORTLIBC_WCHAR
+#undef __uportlibc_FILE
+#endif
+#endif
+
+#ifndef TEST
+
 #ifndef _FILE
 #define _FILE
 typedef struct __uportlibc_FILE FILE;
@@ -71,5 +85,7 @@ int __uportlibc_unsafely_prepare_stream_to_write(FILE *stream, int wide_mode);
 int __uportlibc_unsafely_get_char(FILE *stream);
 int __uportlibc_unsafely_put_char(int c, FILE *stream);
 int __uportlibc_unsafely_unget_char(int c, FILE *stream);
+
+#endif
 
 #endif

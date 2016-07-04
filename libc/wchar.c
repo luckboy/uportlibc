@@ -21,7 +21,12 @@
  */
 #include <errno.h>
 #include <limits.h>
+#ifndef TEST
 #include <wchar.h>
+#else
+#define UPORTLIBC_WCHAR
+#include "uportlibc.h"
+#endif
 #include "stdio_priv.h"
 
 wint_t btowc(int c)
@@ -48,7 +53,11 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
   static mbstate_t static_state = { 0, 0 };
   const char *end = str + count;
   size_t len = 0;
-  if(str == NULL) str = "";
+  if(str == NULL) {
+    wc = NULL;
+    str = "";
+    count = 1;
+  }
   if(state == NULL) state = &static_state;
   if(state->count >= MB_LEN_MAX || state->wc < 0 || state->wc > (0x10ffff >> (state->count * 6))) {
     errno = EINVAL;
@@ -70,7 +79,7 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
       errno = EILSEQ;
       return (size_t) (-1);
     }
-    if(state->wc == 0 && state->count > 1) {
+    if(state->count == 1 && state->wc == 0) {
       errno = EILSEQ;
       return (size_t) (-1);
     }
@@ -83,12 +92,22 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
       return (size_t) (-1);
     }
     state->wc = (state->wc << 6) | (*str & 0x3f);
+    if(state->count == 2 && state->wc < 0x20) {
+      errno = EILSEQ;
+      return (size_t) (-1);
+    }
+    if(state->count == 3 && (state->wc < 0x10 || state->wc > 0x10f)) {
+      errno = EILSEQ;
+      return (size_t) (-1);
+    }
     state->count--;
   }
   if(state->count == 0) {
+    int is_zero = 0;
     if(wc != NULL) *wc = state->wc;
+    is_zero = (state->wc == 0);
     state->wc = 0;
-    return state->wc != 0 ? len : 0;
+    return !is_zero ? len : 0;
   } else
     return (size_t) (-2);
 }
@@ -100,18 +119,22 @@ size_t mbsrtowcs(wchar_t *wcs, const char **str, size_t count, mbstate_t *state)
 {
   const char *ptr = *str;
   size_t i;
-  for(i = 0; i < count; i++) {
+  for(i = 0; wcs == NULL || i < count; i++) {
     size_t res = mbrtowc((wcs != NULL ? wcs + i : NULL), ptr, ULONG_MAX, state);
-    if(res == ((size_t) (-1))) return (size_t) (-1);
+    if(res == ((size_t) (-1))) {
+      *str = (*ptr != 0 ? ptr : NULL);
+      return (size_t) (-1);
+    }
     if(*ptr == 0) break;
     ptr += res;
   }
-  if(wcs != NULL) *str = (*ptr != 0 ? ptr : NULL);
+  *str = (*ptr != 0 ? ptr : NULL);
   return i;
 }
 
 size_t wcrtomb(char *str, wchar_t wc, mbstate_t *state)
 {
+  if(str == NULL) wc = 0;
   if(wc >=0 && wc <= 0x7f) {
     if(str != NULL) str[0] = wc;
     return 1;
@@ -146,14 +169,21 @@ size_t wcsrtombs(char *str, const wchar_t **wcs, size_t count, mbstate_t *state)
 {
   const wchar_t *ptr = *wcs;
   size_t i;
-  for(i = 0; i < count; ptr++) {
-    size_t len = wcrtomb(NULL, *ptr, state);
-    if(len == ((size_t) (-1))) return (size_t) (-1);
-    if(i + len > count) break;
-    if(str != NULL) wcrtomb(str + i, *ptr, state);
+  for(i = 0; str == NULL || i < count; ptr++) {
+    char buf[MB_LEN_MAX];
+    size_t len = wcrtomb(buf, *ptr, state);
+    if(len == ((size_t) (-1))) {
+      *wcs = (*ptr != 0 ? ptr : NULL);
+      return (size_t) (-1);
+    }
+    if(str != NULL && i + len > count) break;
+    if(str != NULL) {
+      size_t j;
+      for(j = 0; j < len; j++) str[i + j] = buf[j];
+    }
     if(*ptr == 0) break;
     i += len;
   }
-  if(str != NULL) *wcs = (*ptr != 0 ? ptr : NULL);
+  *wcs = (*ptr != 0 ? ptr : NULL);
   return i;
 }

@@ -1,6 +1,6 @@
 BUILD_DIR = build/$(ARCH)
 
-CFLAGS = -g -DTEST=1 -I. -I$(BUILD_DIR)/gen_src
+CFLAGS = -g -DTEST=1 -I. -I$(BUILD_DIR)/gen_src -I../../libc
 LDFLAGS = -g
 LIBS = -lm -lcunit
 
@@ -17,7 +17,9 @@ OBJS = $(BUILD_DIR)/main.o \
 	$(BUILD_DIR)/c_string.o \
   	$(BUILD_DIR)/c_string_suite.o \
   	$(BUILD_DIR)/w_string.o \
-  	$(BUILD_DIR)/w_string_suite.o
+  	$(BUILD_DIR)/w_string_suite.o \
+  	$(BUILD_DIR)/wchar.o \
+  	$(BUILD_DIR)/wchar_suite.o
 
 TEST = build/$(ARCH)/test
 
@@ -31,13 +33,13 @@ $(BUILD_DIR)/%.o: ../../libc/%.c $(BUILD_DIR)/.empty
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/c_%.o: w_%.c $(BUILD_DIR)/.empty
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -DW="'c'" -c -o $@ $<
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -std=c99 -DW="'c'" -c -o $@ $<
 
 $(BUILD_DIR)/w_%.o: w_%.c $(BUILD_DIR)/.empty
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -DW="'w'" -c -o $@ $<
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -std=c99 -DW="'w'" -c -o $@ $<
 
 $(BUILD_DIR)/%.o: %.c $(BUILD_DIR)/.empty
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -std=c99 -c -o $@ $<
 
 all: $(TEST)
 

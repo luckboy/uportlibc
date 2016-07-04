@@ -23,6 +23,7 @@
 #define _UPORTLIBC_H
 
 #include <stddef.h>
+#include <wchar.h>
 
 /* Functions and macros for the bsearch.c file. */
 
@@ -48,6 +49,45 @@ void uportlibc_qsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp
 
 #ifdef UPORTLIBC_QSORT
 #define qsort uportlibc_qsort
+#endif
+
+/* Structures, types, functions and macros for the wchar.c file. */
+
+#define UPORTLIBC_MB_LEN_MAX    4
+
+typedef struct
+{
+  size_t count;
+  wchar_t wc;
+} uportlibc_mbstate_t;
+
+struct uportlibc_FILE;
+
+typedef struct uportlibc_FILE uportlibc_FILE;
+
+wint_t uportlinbc_btowc(int c);
+int uportlibc_fwide(uportlibc_FILE *stream, int mode);
+size_t uportlibc_mbrlen(const char *str, size_t count, uportlibc_mbstate_t *state);
+size_t uportlibc_mbrtowc(wchar_t *wc, const char *str, size_t count, uportlibc_mbstate_t *state);
+int uportlibc_mbsinit(const uportlibc_mbstate_t *state);
+size_t uportlibc_mbsrtowcs(wchar_t *wcs, const char **str, size_t count, uportlibc_mbstate_t *state);
+size_t uportlibc_wcrtomb(char *str, wchar_t wc, uportlibc_mbstate_t *state);
+size_t uportlibc_wcsrtombs(char *str, const wchar_t **wcs, size_t count, uportlibc_mbstate_t *state);
+
+#ifdef UPORTLIBC_WCHAR
+#undef MB_LEN_MAX
+#define MB_LEN_MAX UPORTLIBC_MB_LEN_MAX
+#define mbstate_t uportlibc_mbstate_t
+#define FILE uportlibc_FILE
+#define __uportlibc_FILE uportlibc_FILE
+#define btowc uportlinbc_btowc
+#define fwide uportlibc_fwide
+#define mbrlen uportlibc_mbrlen
+#define mbrtowc uportlibc_mbrtowc
+#define mbsinit uportlibc_mbsinit
+#define mbsrtowcs uportlibc_mbsrtowcs
+#define wcrtomb uportlibc_wcrtomb
+#define wcsrtombs uportlibc_wcsrtombs
 #endif
 
 #endif
