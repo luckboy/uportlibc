@@ -464,6 +464,7 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
     } else
       __W_NAME(, unget_char)(stream, c);
   }
+  x = 0;
   is_first = 1;
   is_overflow = 0;
   max_mul_x = ULLONG_MAX / base;
