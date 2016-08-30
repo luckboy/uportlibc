@@ -24,6 +24,16 @@
 #include <uportlibc/w_ctype.h>
 #define __W W
 #include <uportlibc/w_stdlib.h>
+#else
+#if W == 'c'
+#include <ctype.h>
+#else
+#if W == 'w'
+#include <wctype.h>
+#else
+#error "Incorrect macro W."
+#endif
+#endif
 #endif
 #include <errno.h>
 #include <float.h>
