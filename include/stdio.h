@@ -90,7 +90,7 @@ int fsetpos(FILE *stream, const fpos_t *pos);
 long ftell(FILE *stream);
 off_t ftello(FILE *stream);
 int ftrylockfile(FILE *stream);
-int funlockfile(FILE *stream);
+void funlockfile(FILE *stream);
 size_t fwrite(const void *ptr, size_t elem_size, size_t elem_count, FILE *stream);
 int getopt(int argc, char *const *argv, const char *options);
 char *gets(char *str);

@@ -239,8 +239,8 @@ off_t ftello(FILE *stream)
 int ftrylockfile(FILE *stream)
 { return lock_try_lock(&(stream->lock)); }
 
-int funlockfile(FILE *stream)
-{ return lock_unlock(&(stream->lock)); }
+void funlockfile(FILE *stream)
+{ lock_unlock(&(stream->lock)); }
 
 size_t fwrite(const void *ptr, size_t elem_size, size_t elem_count, FILE *stream)
 {
