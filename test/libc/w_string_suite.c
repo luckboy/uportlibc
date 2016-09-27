@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <CUnit/Basic.h>
 #include <stddef.h>
+#include <CUnit/Basic.h>
 #define __W W
 #include "w_cunit.h"
 #define __W W
@@ -812,7 +812,7 @@ void test_wcsxfrm_transforms_wide_character_string(void)
 {
   static wchar_t dst[100];
   wmemset(dst, L'x', 100);
-  CU_ASSERT_EQUAL(wcsxfrm(dst, L"a\u0105bc\u0107de\u0119fgh", 15U), 11U);
+  CU_ASSERT_EQUAL(uportlibc_wcsxfrm(dst, L"a\u0105bc\u0107de\u0119fgh", 15U), 11U);
   CU_ASSERT_EQUAL(wcscmp(dst, L"a\u0105bc\u0107de\u0119fgh"), 0);
 }
 #endif
