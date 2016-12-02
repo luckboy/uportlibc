@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <locale.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +32,9 @@ unsigned test_seed(void) { return static_test_seed; }
 
 int add_bsearch_suite(void);
 int add_qsort_suite(void);
+int add_stdio_suite(void);
+int add_c_stdio_suite(void);
+int add_w_stdio_suite(void);
 int add_c_stdlib_suite(void);
 int add_w_stdlib_suite(void);
 int add_c_string_suite(void);
@@ -42,12 +46,25 @@ int main(int argc, char **argv)
   static_test_seed = (argc >= 2 ? strtoul(argv[1], NULL, 16) : time(NULL));
   printf("test seed: 0x%x\n", test_seed());
   printf("\n");
+  setlocale(LC_ALL, "en_US.UTF-8");
   if(CU_initialize_registry() != CUE_SUCCESS) return CU_get_error();
   if(add_bsearch_suite() == -1) {
     CU_cleanup_registry();
     return CU_get_error();
   }
   if(add_qsort_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_stdio_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_c_stdio_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_w_stdio_suite() == -1) {
     CU_cleanup_registry();
     return CU_get_error();
   }

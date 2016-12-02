@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -27,6 +28,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#else
+#include <errno.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+#define SYS_MOCK_SYS_STAT
+#define SYS_MOCK_SYS_WAIT
+#define SYS_MOCK_FCNTL
+#define SYS_MOCK_UNISTD
+#include "sys_mock.h"
+#define UPORTLIBC_STDIO
+#define UPORTLIBC_W_STDIO
+#include "uportlibc.h"
+#endif
 #include "stdio_priv.h"
 
 union word
@@ -47,12 +62,19 @@ static off_t unsafely_get_stream_offset(FILE *stream)
 
 static int unsafely_set_stream_offset(FILE *stream, off_t offset, int whence)
 {
+  off_t min_offset = -((((((off_t) 1) << ((sizeof(off_t) * 8) - 2)) - 1) << 1) + 1) - 1;
   switch(whence) {
   case SEEK_SET:
     break;
   case SEEK_CUR:
-    if((stream->flags & FILE_FLAG_DATA_TO_WRITE) == 0)
-      offset -= stream->buf_data_end - stream->buf_data_cur;
+    if((stream->flags & FILE_FLAG_DATA_TO_WRITE) == 0) {
+      if(offset >= min_offset + stream->buf_data_end - stream->buf_data_cur) {
+        offset -= stream->buf_data_end - stream->buf_data_cur;
+      } else {
+        errno =  EINVAL;
+        return -1;
+      }
+    }
     break;
   case SEEK_END:
     break;
@@ -72,7 +94,7 @@ static int unsafely_set_stream_offset(FILE *stream, off_t offset, int whence)
 void clearerr(FILE *stream)
 {
   lock_lock(&(stream->lock));
-  stream->flags &= ~FILE_FLAG_ERROR;
+  stream->flags &= ~(FILE_FLAG_EOF | FILE_FLAG_ERROR);
   lock_unlock(&(stream->lock));
 }
 
@@ -80,7 +102,7 @@ int feof(FILE *stream)
 {
   int res;
   lock_lock(&(stream->lock));
-  res = ((stream->flags & ~FILE_FLAG_EOF) != 0);
+  res = ((stream->flags & FILE_FLAG_EOF) != 0);
   lock_unlock(&(stream->lock));
   return res;
 }
@@ -89,7 +111,7 @@ int ferror(FILE *stream)
 {
   int res;
   lock_lock(&(stream->lock));
-  res = ((stream->flags & ~FILE_FLAG_ERROR) != 0);
+  res = ((stream->flags & FILE_FLAG_ERROR) != 0);
   lock_unlock(&(stream->lock));
   return res;
 }
@@ -139,13 +161,14 @@ void flockfile(FILE *stream)
 size_t fread(void *ptr, size_t elem_size, size_t elem_count, FILE *stream)
 {
   char *buf = (char *) ptr;
-  size_t i, count, read_byte_count;
+  size_t count, read_byte_count;
   lock_lock(&(stream->lock));
   if(__uportlibc_unsafely_prepare_stream_to_read(stream, -1) == EOF) return 0;
   count = elem_size * elem_count;
   read_byte_count = 0;
-  for(i = 0; i < stream->pushed_c_count && count > 0; i++) {
-    *buf = stream->pushed_cs[i];
+  while(stream->pushed_c_count > 0 && count > 0) {
+    stream->pushed_c_count--;
+    *buf = stream->pushed_cs[stream->pushed_c_count];
     buf++;
     count--;
     read_byte_count++;
@@ -153,6 +176,7 @@ size_t fread(void *ptr, size_t elem_size, size_t elem_count, FILE *stream)
   if(stream->buf_type != _IONBF) {
     while(stream->buf_data_cur != stream->buf_data_end && count > 0) {
       *buf = *(stream->buf_data_cur);
+      buf++;
       stream->buf_data_cur++;
       count--;
       read_byte_count++;
@@ -294,25 +318,6 @@ void perror(const char *str)
   fputc('\n', stderr);
 }
 
-int putw(int w, FILE *stream)
-{
-  union word word_union;
-  size_t i;
-  int res;
-  word_union.word = w;
-  res = 0;
-  lock_lock(&(stream->lock));
-  for(i = 0; i < WORD_BIT / 8; i++) {
-    if(putc_unlocked(word_union.bytes[i], stream) == EOF) {
-      res = EOF;
-      break;
-    }
-  }
-  lock_unlock(&(stream->lock));
-  if(res != EOF) res = w;
-  return res;
-}
-
 int puts(const char *str)
 {
   int res;
@@ -333,6 +338,24 @@ int puts(const char *str)
   return res;
 }
 
+int putw(int w, FILE *stream)
+{
+  union word word_union;
+  size_t i;
+  int res;
+  word_union.word = w;
+  res = 0;
+  lock_lock(&(stream->lock));
+  for(i = 0; i < WORD_BIT / 8; i++) {
+    if(putc_unlocked(word_union.bytes[i], stream) == EOF) {
+      res = EOF;
+      break;
+    }
+  }
+  lock_unlock(&(stream->lock));
+  return res;
+}
+
 int remove(const char *path_name)
 {
   struct stat stat_buf;
@@ -344,4 +367,7 @@ int remove(const char *path_name)
 }
 
 void rewind(FILE *stream)
-{ fseek(stream, 0, SEEK_SET); }
+{
+  fseek(stream, 0, SEEK_SET);
+  clearerr(stream);
+}

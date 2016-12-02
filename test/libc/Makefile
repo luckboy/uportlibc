@@ -1,6 +1,6 @@
 BUILD_DIR = build/$(ARCH)
 
-CFLAGS = -g -DTEST=1 -I. -I$(BUILD_DIR)/gen_src -I../../libc
+CFLAGS = -g -DTEST=1 -D_XOPEN_SOURCE=500 -I. -I$(BUILD_DIR)/gen_src -I../../libc
 LDFLAGS = -g
 LIBS = -lm -lcunit
 
@@ -8,8 +8,22 @@ OBJS = $(BUILD_DIR)/main.o \
 	$(BUILD_DIR)/conv.o \
 	$(BUILD_DIR)/bsearch.o \
   	$(BUILD_DIR)/bsearch_suite.o \
+  	$(BUILD_DIR)/init_stdio.o \
+  	$(BUILD_DIR)/exit.o \
+  	$(BUILD_DIR)/fopen.o \
+  	$(BUILD_DIR)/gets.o \
 	$(BUILD_DIR)/qsort.o \
   	$(BUILD_DIR)/qsort_suite.o \
+  	$(BUILD_DIR)/setbuf.o \
+  	$(BUILD_DIR)/stdio.o \
+  	$(BUILD_DIR)/stdio_priv.o \
+  	$(BUILD_DIR)/stdio_suite.o \
+  	$(BUILD_DIR)/stdio_vars.o \
+  	$(BUILD_DIR)/sys_mock.o \
+	$(BUILD_DIR)/c_stdio.o \
+  	$(BUILD_DIR)/c_stdio_suite.o \
+	$(BUILD_DIR)/w_stdio.o \
+  	$(BUILD_DIR)/w_stdio_suite.o \
 	$(BUILD_DIR)/c_stdlib.o \
   	$(BUILD_DIR)/c_stdlib_suite.o \
   	$(BUILD_DIR)/w_stdlib.o \

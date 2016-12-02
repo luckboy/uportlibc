@@ -19,9 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#else
+#define SYS_MOCK_UNISTD
+#include "sys_mock.h"
+#define UPORTLIBC_EXIT
+#define UPORTLIBC_STDIO
+#include "uportlibc.h"
+#endif
 #include "exit.h"
 #include "stdio_priv.h"
 

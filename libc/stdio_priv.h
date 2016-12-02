@@ -38,7 +38,7 @@
 #define FILE_FLAG_CLOSED        (1 << 8)
 
 #ifdef TEST
-#ifndef UPORTLIBC_WCHAR
+#if !defined(UPORTLIBC_STDIO) && !defined(UPORTLIBC_WCHAR)
 #define __uportlibc_FILE uportlibc_FILE
 #endif
 #endif
@@ -63,8 +63,13 @@ struct __uportlibc_FILE
 };
 
 #ifdef TEST
-#ifndef UPORTLIBC_WCHAR
+#if !defined(UPORTLIBC_STDIO) && !defined(UPORTLIBC_WCHAR)
 #undef __uportlibc_FILE
+#endif
+#ifdef UPORTLIBC_WCHAR
+#undef MB_LEN_MAX
+#define MB_LEN_MAX UPORTLIBC_MB_LEN_MAX
+#define mbstate_t uportlibc_mbstate_t
 #endif
 #endif
 
@@ -82,6 +87,7 @@ int __uportlibc_for_each_stream(int (*fun)(FILE *));
 int __uportlibc_unsafely_flush_stream(FILE *stream);
 int __uportlibc_unsafely_prepare_stream_to_read(FILE *stream, int wide_mode);
 int __uportlibc_unsafely_prepare_stream_to_write(FILE *stream, int wide_mode);
+int __uportlibc_unsafely_prepare_stream_to_unread(FILE *stream, int wide_mode);
 int __uportlibc_unsafely_get_char(FILE *stream);
 int __uportlibc_unsafely_put_char(int c, FILE *stream);
 int __uportlibc_unsafely_unget_char(int c, FILE *stream);

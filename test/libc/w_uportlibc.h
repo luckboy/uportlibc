@@ -44,7 +44,90 @@
 #undef __W_UNDEF
 #include "w_uportlibc_name.h"
 
-/* Functions for the stdlib.h header. */
+/* Structures, types and macros. */
+
+#ifndef _UPORTLIBC_FILE
+#define _UPORTLIBC_FILE
+
+struct uportlibc_FILE;
+
+typedef struct uportlibc_FILE uportlibc_FILE;
+
+#if defined(UPORTLIBC_STDIO) || defined(UPORTLIBC_WCHAR)
+#define FILE uportlibc_FILE
+#define __uportlibc_FILE uportlibc_FILE
+#endif
+
+#endif
+
+/* Variables, functions and macros for the stdio.c file. */
+
+#ifndef UPORTLIBC_EOF
+#define UPORTLIBC_EOF           (-1)
+#endif
+#ifndef UPORTLIBC_WEOF
+#define UPORTLIBC_WEOF          ((wint_t) (-1))
+#endif
+
+#define UPORTLIBC__IONBF        0
+#define UPORTLIBC__IOFBF        1
+#define UPORTLIBC__IOLBF        2
+
+extern uportlibc_FILE *uportlibc_stdin;
+extern uportlibc_FILE *uportlibc_stdout;
+
+int uportlibc_unsafely_flush_stream(uportlibc_FILE *stream);
+int uportlibc_unsafely_prepare_stream_to_read(uportlibc_FILE *stream, int wide_mode);
+int uportlibc_unsafely_prepare_stream_to_write(uportlibc_FILE *stream, int wide_mode);
+int uportlibc_unsafely_prepare_stream_to_unread(uportlibc_FILE *stream, int wide_mode);
+int uportlibc_unsafely_get_char(uportlibc_FILE *stream);
+int uportlibc_unsafely_put_char(int c, uportlibc_FILE *stream);
+int uportlibc_unsafely_unget_char(int c, uportlibc_FILE *stream);
+
+#ifdef UPORTLIBC_STDIO
+#undef EOF
+#define EOF UPORTLIBC_EOF
+#undef WEOF
+#define WEOF UPORTLIBC_WEOF
+#undef _IONBF
+#define _IONBF UPORTLIBC__IONBF
+#undef _IOFBF
+#define _IOFBF UPORTLIBC__IOFBF
+#undef _IOLBF
+#define _IOLBF UPORTLIBC__IOLBF
+#undef stdin
+#define stdin uportlibc_stdin
+#undef stdout
+#define stdout uportlibc_stdout
+#define __uportlibc_unsafely_flush_stream uportlibc_unsafely_flush_stream
+#define __uportlibc_unsafely_prepare_stream_to_read uportlibc_unsafely_prepare_stream_to_read
+#define __uportlibc_unsafely_prepare_stream_to_write uportlibc_unsafely_prepare_stream_to_write
+#define __uportlibc_unsafely_prepare_stream_to_unread uportlibc_unsafely_prepare_stream_to_unread
+#define __uportlibc_unsafely_get_char uportlibc_unsafely_get_char
+#define __uportlibc_unsafely_put_char uportlibc_unsafely_put_char
+#define __uportlibc_unsafely_unget_char uportlibc_unsafely_unget_char
+#endif
+
+/* Functions for the w_stdio.c file. */
+
+__W_INT __W_NAME(fget, c)(uportlibc_FILE *stream);
+__W_CHAR_PTR __W_NAME(fget, s)(__W_CHAR_PTR str, int count, uportlibc_FILE *stream);
+__W_CHAR_PTR __W_NAME(fget, s_unlocked)(__W_CHAR_PTR str, int count, uportlibc_FILE *stream);
+__W_INT __W_NAME(fput, c)(__W_CHAR_INT c, uportlibc_FILE *stream);
+int __W_NAME(fput, s)(__W_CONST_CHAR_PTR str, uportlibc_FILE *stream);
+int __W_NAME(fput, s_unlocked)(__W_CONST_CHAR_PTR str, uportlibc_FILE *stream);
+__W_INT __W_NAME(get, c)(uportlibc_FILE *stream);
+__W_INT __W_NAME(get, c_unlocked)(uportlibc_FILE *stream);
+__W_INT __W_NAME(get, char)(void);
+__W_INT __W_NAME(get, char_unlocked)(void);
+__W_INT __W_NAME(put, c)(__W_CHAR_INT c, uportlibc_FILE *stream);
+__W_INT __W_NAME(put, c_unlocked)(__W_CHAR_INT c, uportlibc_FILE *stream);
+__W_INT __W_NAME(put, char)(__W_CHAR_INT c);
+__W_INT __W_NAME(put, char_unlocked)(__W_CHAR_INT c);
+__W_INT __W_NAME(unget, c)(__W_INT c, uportlibc_FILE *stream);
+__W_INT __W_NAME(unget, c_unlocked)(__W_INT c, uportlibc_FILE *stream);
+
+/* Functions for the w_stdlib.c file. */
 
 float __W_STR_NAME(tof)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
 double __W_STR_NAME(tod)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
@@ -54,7 +137,7 @@ long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int 
 unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
 unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
 
-/* Functions for the string.h header. */
+/* Functions for the w_string.c file. */
 
 __W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_CHAR_INT c, size_t count);
 int __W_MEM_NAME(cmp)(__W_CONST_VOID_PTR str1, __W_CONST_VOID_PTR str2, size_t count);

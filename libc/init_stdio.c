@@ -19,21 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <limits.h>
+#ifndef TEST
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#else
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+#define SYS_MOCK_SYS_STAT
+#define SYS_MOCK_SYS_WAIT
+#define SYS_MOCK_FCNTL
+#define SYS_MOCK_UNISTD
+#include "sys_mock.h"
+#define UPORTLIBC_STDIO
+#define UPORTLIBC_W_STDIO
+#include "uportlibc.h"
+#endif
 #include "stdio_priv.h"
 
-static lock_t stdio_lock = LOCK;
-static FILE *stdio_first_stream = NULL;
-static FILE *stdio_last_stream = NULL;
+#ifndef TEST
+#define STATIC                  static
+#else
+#define STATIC
+#endif
 
-static char static_stdin_buf[BUFSIZ];
-static char static_stdout_buf[BUFSIZ];
-static char static_stderr_buf[BUFSIZ];
+STATIC lock_t stdio_lock = LOCK;
+STATIC FILE *stdio_first_stream = NULL;
+STATIC FILE *stdio_last_stream = NULL;
 
-static FILE static_stdin = {
+STATIC char static_stdin_buf[BUFSIZ];
+STATIC char static_stdout_buf[BUFSIZ];
+STATIC char static_stderr_buf[BUFSIZ];
+
+STATIC FILE static_stdin = {
   .prev = NULL, 
   .next = NULL,
   .lock = LOCK,
@@ -49,7 +68,7 @@ static FILE static_stdin = {
   .pushed_c_count = 0
 };
 
-static FILE static_stdout = {
+STATIC FILE static_stdout = {
   .prev = NULL,
   .next = NULL,
   .lock = LOCK,
@@ -65,7 +84,7 @@ static FILE static_stdout = {
   .pushed_c_count = 0
 };
 
-static FILE static_stderr = {
+STATIC FILE static_stderr = {
   .prev = NULL,
   .next = NULL,
   .lock = LOCK,
@@ -108,7 +127,15 @@ void __uportlibc_add_stream(FILE *stream)
 {
   lock_lock(&stdio_lock);
   if(stdio_first_stream == NULL) stdio_first_stream = stream;
-  if(stdio_last_stream != NULL) stream->prev = stdio_last_stream;
+  if(stdio_last_stream != NULL) {
+    stdio_last_stream->prev = NULL;
+    stdio_last_stream->next = stream;
+    stream->prev = stdio_last_stream;
+    stream->next = NULL;
+  } else {
+    stream->prev = NULL;
+    stream->next = NULL;
+  }
   stdio_last_stream = stream;
   lock_unlock(&stdio_lock);
 }
@@ -164,10 +191,10 @@ int __uportlibc_unsafely_flush_stream(FILE *stream)
         }
         stream->buf_data_cur += res;
       }
+      stream->flags &= ~FILE_FLAG_DATA_TO_WRITE;
+      stream->buf_data_cur = stream->buf;
+      stream->buf_data_end = stream->buf;
     }
-    stream->flags &= ~FILE_FLAG_DATA_TO_WRITE;
-    stream->buf_data_cur = stream->buf;
-    stream->buf_data_end = stream->buf;
   }
   return 0;
 }

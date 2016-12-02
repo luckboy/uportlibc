@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <sys/types.h>
 #include <errno.h>
 #include <limits.h>
@@ -26,6 +27,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#else
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#define SYS_MOCK_SYS_STAT
+#define SYS_MOCK_SYS_WAIT
+#define SYS_MOCK_FCNTL
+#define SYS_MOCK_UNISTD
+#include "sys_mock.h"
+#define UPORTLIBC_STDIO
+#define UPORTLIBC_W_STDIO
+#include "uportlibc.h"
+#endif
 #include "stdio_priv.h"
 
 static int unsafely_check_and_set_stream_wide_mode(FILE *stream, int mode)
@@ -81,12 +95,26 @@ int __uportlibc_unsafely_prepare_stream_to_write(FILE *stream, int wide_mode)
         }
         errno = saved_errno;
       }
+      stream->flags |= FILE_FLAG_DATA_TO_WRITE;
+      stream->buf_data_cur = stream->buf;
+      stream->buf_data_end = stream->buf;
     }
-    stream->flags |= FILE_FLAG_DATA_TO_WRITE;
-    stream->buf_data_cur = stream->buf;
-    stream->buf_data_end = stream->buf;
   }
   stream->pushed_c_count = 0;
+  return 0;
+}
+
+int __uportlibc_unsafely_prepare_stream_to_unread(FILE *stream, int wide_mode)
+{
+  if(wide_mode == 0) return 0;
+  if(wide_mode < 0) {
+    if(stream->wide_mode > 0) return EOF;
+    if(stream->wide_mode == 0) stream->wide_mode = -1;
+  } else if(wide_mode > 0) {
+    if(stream->wide_mode < 0) return EOF;
+    if(stream->wide_mode == 0) stream->wide_mode = 1;
+  }
+  if((stream->flags & FILE_FLAG_READABLE) == 0 || (stream->flags & FILE_FLAG_CLOSED) != 0) return EOF;
   return 0;
 }
 
@@ -177,7 +205,7 @@ int __uportlibc_unsafely_unget_char(int c, FILE *stream)
     stream->pushed_c_count++;
   } else {
     int tmp_c;
-    if(stream->buf_type == _IONBF || (stream->flags & FILE_FLAG_DATA_TO_WRITE) != 0) 
+    if(stream->buf_type == _IONBF || (stream->flags & FILE_FLAG_DATA_TO_WRITE) != 0)
       return EOF;
     if(stream->buf == stream->buf_data_cur) {
       if(stream->buf_data_end == stream->buf + stream->buf_size) return EOF;
@@ -196,5 +224,5 @@ int __uportlibc_unsafely_unget_char(int c, FILE *stream)
     }
   }
   stream->flags &= ~FILE_FLAG_EOF;
-  return (int) ((unsigned char) c); 
+  return (int) ((unsigned char) c);
 }

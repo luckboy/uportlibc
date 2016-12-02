@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_stdio.h>
 #include <errno.h>
@@ -30,9 +31,26 @@
 #if W == 'w'
 #include <wchar.h>
 #endif
+#else
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#define SYS_MOCK_SYS_STAT
+#define SYS_MOCK_FCNTL
+#define SYS_MOCK_UNISTD
+#include "sys_mock.h"
+#define UPORTLIBC_STDIO
+#define __W W
+#include "w_uportlibc.h"
+#endif
 #include "stdio_priv.h"
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_name.h>
+#else
+#define __W W
+#include "w_uportlibc_name.h"
+#endif
 
 __W_INT __W_NAME(fget, c)(FILE *stream)
 { return __W_NAME(get, c)(stream); }
@@ -49,6 +67,7 @@ __W_CHAR_PTR __W_NAME(fget, s)(__W_CHAR_PTR str, int count, FILE *stream)
 __W_CHAR_PTR __W_NAME(fget, s_unlocked)(__W_CHAR_PTR str, int count, FILE *stream)
 {
   __W_CHAR_PTR res = str;
+  if(count <= 0) return res;
   if((stream->flags & FILE_FLAG_EOF) == 0) {
     __W_CHAR_PTR end = str + count - 1;
     int is_first = 1;
@@ -61,8 +80,8 @@ __W_CHAR_PTR __W_NAME(fget, s_unlocked)(__W_CHAR_PTR str, int count, FILE *strea
         break;
       }
       *str = (__W_CHAR) c;
-      if(c == '\n') break;
       str++;
+      if(c == '\n') break;
       is_first = 0;
     }
     stream->flags |= saved_error_flag;
@@ -88,7 +107,7 @@ int __W_NAME(fput, s_unlocked)(__W_CONST_CHAR_PTR str, FILE *stream)
 {
   int len;
   lock_lock(&(stream->lock));
-  for(len = 0; *str == 0; str++, len++) {
+  for(len = 0; *str != 0; str++, len++) {
     __W_INT c = __W_NAME(put, c_unlocked)(*str, stream);
     if(c == __W_EOF) {
 #if __W != 'w'
@@ -203,7 +222,7 @@ __W_INT __W_NAME(put, char)(__W_CHAR_INT c)
 __W_INT __W_NAME(put, char_unlocked)(__W_CHAR_INT c)
 { return __W_NAME(put, c_unlocked)(c, stdout); }
 
-__W_INT __W_NAME(unget, c)(__W_CHAR_INT c, FILE *stream)
+__W_INT __W_NAME(unget, c)(__W_INT c, FILE *stream)
 {
   __W_INT res;
   lock_lock(&(stream->lock));
@@ -212,24 +231,27 @@ __W_INT __W_NAME(unget, c)(__W_CHAR_INT c, FILE *stream)
   return res;
 }
 
-__W_INT __W_NAME(unget, c_unlocked)(__W_CHAR_INT c, FILE *stream)
+__W_INT __W_NAME(unget, c_unlocked)(__W_INT c, FILE *stream)
 {
 #if __W != 'w'
+  if(__uportlibc_unsafely_prepare_stream_to_unread(stream, -1) == EOF) return EOF;
   return __uportlibc_unsafely_unget_char(c, stream);
 #else
   char buf[MB_LEN_MAX];
   mbstate_t state;
   size_t len, unpushed_c_count;
+  if(__uportlibc_unsafely_prepare_stream_to_unread(stream, 1) == EOF) return WEOF;
   if((stream->flags & FILE_FLAG_READABLE) == 0) return WEOF;
   if(c == WEOF) return WEOF;
   unpushed_c_count = MB_LEN_MAX - stream->pushed_c_count;
-  if(stream->buf_type == _IOFBF) {
+  if(stream->buf_type != _IONBF && (stream->flags & FILE_FLAG_DATA_TO_WRITE) == 0) {
     unpushed_c_count += stream->buf_data_cur - stream->buf;
     unpushed_c_count += stream->buf_size - (stream->buf_data_end - stream->buf_data_cur);
   }
+  memset(&state, 0, sizeof(mbstate_t));
   len = wcrtomb(buf, (wchar_t) c, &state);
   if(len == ((size_t) (-1)) || len > unpushed_c_count) return WEOF;
-  while(len == 0) {
+  while(len > 0) {
     len--;
     if(len < MB_LEN_MAX) {
       if(__uportlibc_unsafely_unget_char(buf[len], stream) == EOF) return WEOF;

@@ -19,43 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef TEST
-#include <stdio.h>
-#else
-#define SYS_MOCK_SYS_STAT
-#define SYS_MOCK_SYS_WAIT
-#define SYS_MOCK_FCNTL
-#define SYS_MOCK_UNISTD
-#include "sys_mock.h"
-#define UPORTLIBC_STDIO
-#define UPORTLIBC_W_STDIO
-#include "uportlibc.h"
-#endif
-#include "stdio_priv.h"
+#ifndef _STDIO_VARS_H
+#define _STDIO_VARS_H
 
-char *gets(char *str)
-{
-  char *res = str;
-  lock_lock(&(stdin->lock));
-  if((stdin->flags & FILE_FLAG_EOF) == 0) {
-    int is_first = 1;
-    unsigned saved_error_flag = stdin->flags & FILE_FLAG_ERROR;
-    stdin->flags &= ~FILE_FLAG_ERROR;
-    while(1) {
-      int c = getchar_unlocked();
-      if(c == EOF) {
-        if((stdin->flags & FILE_FLAG_ERROR) != 0 || is_first) res = NULL;
-        break;
-      }
-      if(c == '\n') break;
-      *str = c;
-      str++;
-      is_first = 0;
-    }
-    stdin->flags |= saved_error_flag;
-  } else
-    res = NULL;
-  *str = 0;
-  lock_unlock(&(stdin->lock));
-  return res;
-}
+void save_stdio_vars(void);
+void restore_stdio_vars(void);
+
+#endif

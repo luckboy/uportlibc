@@ -19,9 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#else
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#define UPORTLIBC_STDIO
+#define UPORTLIBC_W_STDIO
+#include "uportlibc.h"
+#endif
 #include "stdio_priv.h"
 
 void setbuf(FILE *stream, char *buf)
@@ -53,10 +62,12 @@ int setvbuf(FILE *stream, char *buf, int type, size_t size)
     } else {
       stream->flags &= ~FILE_FLAG_STATIC_BUF;
       stream->buf = NULL;
+      buf = NULL;
+      size = 0;
     }
     stream->buf_size = size;
-    stream->buf_data_cur = buf;
-    stream->buf_data_end = buf;
+    stream->buf_data_cur = stream->buf;
+    stream->buf_data_end = stream->buf;
     res = 0;
   } while(0);
   lock_unlock(&(stream->lock));

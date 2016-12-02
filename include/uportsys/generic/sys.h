@@ -321,7 +321,7 @@ do {                                                                        \
 do {                                                                        \
   unsigned __i = 0;                                                         \
   for(__i = 0; __i < __UPORTSYS_FDS_BITS_LEN; __i++) {                      \
-    (set)->fds_bits[__i] = __UPORTSYS_FD_ZERO_MASK;                           \
+    (set)->fds_bits[__i] = __UPORTSYS_FD_ZERO_MASK;                         \
   }                                                                         \
 } while(0)
 

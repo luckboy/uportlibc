@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -26,8 +27,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#else
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#define SYS_MOCK_SYS_STAT
+#define SYS_MOCK_SYS_WAIT
+#define SYS_MOCK_FCNTL
+#define SYS_MOCK_UNISTD
+#define SYS_MOCK_ENVIRON
+#include "sys_mock.h"
+#define UPORTLIBC_EXIT
+#define UPORTLIBC_STDIO
+#define UPORTLIBC_W_STDIO
+#include "uportlibc.h"
+#endif
 #include "exit.h"
 #include "stdio_priv.h"
+
+#ifndef TEST
+#define AUTO
+#else
+#define AUTO                    static
+#endif
 
 extern char **environ;
 
@@ -94,13 +119,14 @@ static int parse_mode(const char *mode, unsigned *stream_flags)
   }
 }
 
-static void init_stream(FILE *stream, int fd, unsigned flags, int buf_type, char *buf)
+static void init_stream(FILE *stream, int fd, unsigned flags, int buf_type, char *buf, pid_t pid)
 {
   lock_init(&(stream->lock));
   stream->fd = fd;
   stream->flags = flags;
   stream->buf_type = buf_type;
   stream->wide_mode = 0;
+  stream->pid = pid;
   stream->buf = buf;
   stream->buf_size = BUFSIZ;
   stream->buf_data_cur = buf;
@@ -127,7 +153,7 @@ FILE *fdopen(int fd, const char *mode)
     free(buf);
     return NULL;
   }
-  init_stream(stream, fd, stream_flags, _IOFBF, buf);
+  init_stream(stream, fd, stream_flags, _IOFBF, buf, -1);
   set_stdio_exit_fun_and_add_stream(stream);
   return stream;
 }
@@ -156,7 +182,7 @@ FILE *fopen(const char *file_name, const char *mode)
     free(stream);
     return NULL;
   }
-  init_stream(stream, fd, stream_flags, (isatty(fd) ? _IOLBF : _IOFBF), buf);
+  init_stream(stream, fd, stream_flags, (isatty(fd) ? _IOLBF : _IOFBF), buf, -1);
   set_stdio_exit_fun_and_add_stream(stream);
   return stream;
 }
@@ -168,22 +194,29 @@ FILE *freopen(const char *file_name, const char *mode, FILE *stream)
   if(flags == -1) return NULL;
   lock_lock(&(stream->lock));
   do {
+    fd = open(file_name, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+    if(fd == -1) {
+      stream->flags |= FILE_FLAG_ERROR;
+      stream = NULL;
+      break;
+    }
     if((flags & FILE_FLAG_CLOSED) == 0) {
-      int status;
+      AUTO int status;
       if(unsafely_close_stream(stream, &status, 0) == EOF) {
+        int saved_errno = errno;
+        close(fd);
+        errno = saved_errno;
+        stream->flags |= FILE_FLAG_ERROR;
         stream = NULL;
         break;
       }
     }
-    fd = open(file_name, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-    if(fd == -1) {
-      stream = NULL;
-      break;
-    }
-    stream->flags &= ~(FILE_FLAG_READABLE | FILE_FLAG_WRITABLE);
-    stream->flags &= ~(FILE_FLAG_EOF | FILE_FLAG_ERROR | FILE_FLAG_DATA_TO_WRITE);
+    stream->flags &= ~(FILE_FLAG_READABLE | FILE_FLAG_WRITABLE | FILE_FLAG_PIPE);
+    stream->flags &= ~(FILE_FLAG_EOF | FILE_FLAG_ERROR | FILE_FLAG_DATA_TO_WRITE | FILE_FLAG_CLOSED);
     stream->flags |= stream_flags;
     stream->wide_mode = 0;
+    stream->fd = fd;
+    stream->pid = -1;
     stream->buf_data_cur = stream->buf;
     stream->buf_data_end = stream->buf;
     memset(&(stream->mb_state), 0, sizeof(mbstate_t));
@@ -199,7 +232,8 @@ FILE *popen(const char *command, const char *mode)
   char *buf;
   unsigned stream_flags;
   pid_t pid;
-  int fds[2], fd, saved_errno = errno;
+  AUTO int fds[2];
+  int fd, saved_errno = errno;
   if(strcmp("r", mode) == 0 || strcmp("rb", mode) == 0) {
     stream_flags = FILE_FLAG_READABLE | FILE_FLAG_PIPE;
   } else if(strcmp("w", mode) == 0 || strcmp("wb", mode) == 0) {
@@ -226,8 +260,8 @@ FILE *popen(const char *command, const char *mode)
   }
   pid = fork();
   if(pid == 0) {
-    char *argv[4];
-    if((stream->flags & FILE_FLAG_READABLE) != 0) {
+    AUTO char *argv[4];
+    if((stream_flags & FILE_FLAG_READABLE) != 0) {
       close(fds[0]);
       dup2(fds[1], STDOUT_FILENO);
     } else {
@@ -241,15 +275,15 @@ FILE *popen(const char *command, const char *mode)
     execve("/bin/sh", argv, environ);
     _exit(127);
     return NULL;
-  } else if(pid != 1) {
-    if((stream->flags & FILE_FLAG_READABLE) != 0) {
+  } else if(pid != -1) {
+    if((stream_flags & FILE_FLAG_READABLE) != 0) {
       fd = fds[0];
       close(fds[1]);
     } else {
       close(fds[0]);
       fd = fds[1];
     }
-    init_stream(stream, fd, stream_flags, _IOFBF, buf);
+    init_stream(stream, fd, stream_flags, _IOFBF, buf, pid);
     set_stdio_exit_fun_and_add_stream(stream);
     return stream;  
   } else {
@@ -265,7 +299,8 @@ FILE *popen(const char *command, const char *mode)
 
 int fclose(FILE *stream)
 {
-  int res, status;
+  int res;
+  AUTO int status;
   lock_lock(&(stream->lock));
   res = unsafely_close_stream(stream, &status, 1);
   lock_unlock(&(stream->lock));
@@ -279,7 +314,7 @@ int fclose(FILE *stream)
 
 int pclose(FILE *stream)
 {
-  int status;
+  AUTO int status;
   lock_lock(&(stream->lock));
   do {
     if((stream->flags & FILE_FLAG_PIPE) == 0) {
