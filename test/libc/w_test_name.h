@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,12 @@
 #define __W_TEST_STR_NAME(suffix, x)            test_str##suffix##x
 #define __W_TEST_MEM_NAME(suffix, x)            test_mem##suffix##x
 #define __W_TEST_STRTOK_R_NAME(x)               test_strtok_r##x
+#define __W_TEST_SNPRINTF_NAME(x)               test_snprintf##x
 #define __W_TEST_STRING(prefix, suffix, str)    #prefix #suffix str
 #define __W_TEST_STR_STRING(suffix, str)        "str" #suffix str
 #define __W_TEST_MEM_STRING(suffix, str)        "mem" #suffix str
 #define __W_TEST_STRTOK_R_STRING(str)           "strtok_r" str
+#define __W_TEST_SNPRINTF_STRING(str)           "snprintf" str
 #define __W_INITIALIZE_NAME(name)               initialize_c_##name
 #define __W_CLEANUP_NAME(name)                  cleanup_c_##name
 #define __W_ADD_SUITE_NAME(name)                add_c_##name##_suite
@@ -46,10 +48,12 @@
 #define __W_TEST_STR_NAME(suffix, x)            test_wcs##suffix##x
 #define __W_TEST_MEM_NAME(suffix, x)            test_wmem##suffix##x
 #define __W_TEST_STRTOK_R_NAME(x)               test_wcstok##x
+#define __W_TEST_SNPRINTF_NAME(x)               test_wsprintf##x
 #define __W_TEST_STRING(prefix, suffix, str)    #prefix "w" #suffix str
 #define __W_TEST_STR_STRING(suffix, str)        "wcs" #suffix str
 #define __W_TEST_MEM_STRING(suffix, str)        "wmem" #suffix str
 #define __W_TEST_STRTOK_R_STRING(str)           "wcstok" str
+#define __W_TEST_SNPRINTF_STRING(str)           "wsprintf" str
 #define __W_INITIALIZE_NAME(name)               initialize_w_##name
 #define __W_CLEANUP_NAME(name)                  cleanup_w_##name
 #define __W_ADD_SUITE_NAME(name)                add_w_##name##_suite

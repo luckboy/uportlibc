@@ -20,6 +20,15 @@ OBJS = $(BUILD_DIR)/main.o \
   	$(BUILD_DIR)/stdio_suite.o \
   	$(BUILD_DIR)/stdio_vars.o \
   	$(BUILD_DIR)/sys_mock.o \
+  	$(BUILD_DIR)/ulltostr.o \
+	$(BUILD_DIR)/c_format.o \
+	$(BUILD_DIR)/c_snprintf.o \
+  	$(BUILD_DIR)/c_snprintf_suite.o \
+	$(BUILD_DIR)/c_vxprintf.o \
+	$(BUILD_DIR)/w_format.o \
+	$(BUILD_DIR)/w_snprintf.o \
+  	$(BUILD_DIR)/w_snprintf_suite.o \
+	$(BUILD_DIR)/w_vxprintf.o \
 	$(BUILD_DIR)/c_stdio.o \
   	$(BUILD_DIR)/c_stdio_suite.o \
 	$(BUILD_DIR)/w_stdio.o \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,12 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_stdio.h>
 #define __W W
 #include "w_vxprintf.h"
 #define __W W
 #include <uportlibc/w_name.h>
+#else
+#define __W W
+#include "w_uportlibc.h"
+#define __W W
+#include "w_vxprintf.h"
+#define __W W
+#include "w_uportlibc_name.h"
+#endif
 
 struct __W_NAME(vx, printf_data)
 {
@@ -55,9 +64,12 @@ int __W_VSNPRINTF(__W_CHAR_PTR str, size_t count, __W_CONST_CHAR_PTR format, va_
 {
   struct __W_NAME(vx, printf_stream) stream;
   struct __W_NAME(vx, printf_data) data;
+  int res;
   data.ptr = str;
-  data.end = str + count;
+  data.end = (count != 0 ? str + (count - 1) : str);
   stream.put_char = __W_NAME(vx, printf_put_char);
   stream.data = &data;
-  return __W_NAME(__uportlibc_vx, printf)(&stream, format, ap);
+  res = __W_NAME(__uportlibc_vx, printf)(&stream, format, ap);
+  if(count != 0) *((__W_CHAR_PTR) (data.ptr)) = 0;
+  return res;
 }

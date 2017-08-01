@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +30,24 @@
 #define _W_FORMAT_H
 #endif
 
+#ifndef TEST
 #undef __W_UNDEF
 #include <uportlibc/w_name.h>
+#else
+#undef __W_UNDEF
+#include "w_uportlibc_name.h"
+#endif
 
-int __W_NAME(__uportlibc_, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr);
-int __W_NAME(__uportlibc_, parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr);
+int __W_UPORTLIBC_NAME(parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr);
+int __W_UPORTLIBC_NAME(parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr);
 
+#ifndef TEST
 #define __W_UNDEF
 #include <uportlibc/w_name.h>
+#else
+#define __W_UNDEF
+#include "w_uportlibc_name.h"
+#endif
 
 #endif
 #endif

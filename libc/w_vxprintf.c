@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,8 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_stdlib.h>
+#endif
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -28,14 +30,39 @@
 #include <stddef.h>
 #include <string.h>
 #include <wchar.h>
+#ifndef TEST
 #include "conv.h"
+#else
+#define UPORTLIBC_CONV
+#define UPORTLIBC_ULLTOSTR
+#include "uportlibc.h"
+#define __W W
+#include "w_uportlibc.h"
+#endif
 #include "float_priv.h"
 #define __W W
 #include "w_format.h"
 #define __W W
 #include "w_vxprintf.h"
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_name.h>
+#else
+#define __W W
+#include "w_uportlibc_name.h"
+#endif
+
+#ifndef LDBL_MAX
+#if __SIZEOF_LONG_DOUBLE__ == __SIZEOF_FLOAT__
+#define LDBL_MAX                3.40282346638528859812e38L
+#else
+#if __SIZEOF_LONG_DOUBLE__ == __SIZEOF_DOUBLE__
+#define LDBL_MAX                1.79769313486231570815e308L
+#else
+#define LDBL_MAX                1.18973149535723176502e4932L
+#endif
+#endif
+#endif
 
 #define FLAG_HASH                   (1 << 0)
 #define FLAG_ZERO                   (1 << 1)
@@ -118,9 +145,10 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
     if(*format != '%') {
       unsigned new_arg_type;
       int arg_idx, value, is_prec;
-      arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
-      if(arg_idx == -1) return -1;
-      spec->arg_idx = arg_idx;
+      __W_CONST_CHAR_PTR tmp_format = format;
+      __W_CONST_CHAR_PTR arg_pos_format = tmp_format;
+      for(; *tmp_format >= '0' && *tmp_format < '9'; tmp_format++);
+      if(*tmp_format == '$') format = tmp_format + 1;
       /* Parses flag characters. */
       spec->flags = 0;
       for(; *format != 0; format++) {
@@ -147,29 +175,30 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
           is_flag_c = 1;
           break;
         case '\'':
+          is_flag_c = 1;
           break;
         default:
           is_flag_c = 0;
           break;
         }
-        if(is_flag_c) break;
+        if(!is_flag_c) break;
       }
       /* Parses a width. */
       if(*format == '*') {
         spec->has_width_arg_idx = 1;
         format++;
-        arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+        arg_idx = __W_UPORTLIBC_NAME(parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
         if(arg_idx == -1) return -1;
         spec->width.arg_idx = arg_idx;
         if(arg_types != NULL) arg_types[spec->width.arg_idx] = ARG_TYPE_INT;
       } else {
         spec->has_width_arg_idx = 0;
         if(*format >= '0' && *format <= '9') {
-          value = __W_NAME(__uportlibc_, parse_conv_spec_num)(&format);
+          value = __W_UPORTLIBC_NAME(parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->width.value = value;
         } else
-          spec->width.value = -1;
+          spec->width.value = 0;
       }
       /* Parses a precision. */
       if(*format == '.') {
@@ -178,18 +207,25 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         if(*format == '*') {
           spec->has_prec_arg_idx = 1;
           format++;
-          arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+          arg_idx = __W_UPORTLIBC_NAME(parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
           if(arg_idx == -1) return -1;
           spec->prec.arg_idx = arg_idx;
           if(arg_types != NULL) arg_types[spec->prec.arg_idx] = ARG_TYPE_INT;
         } else {
           spec->has_prec_arg_idx = 0;
-          value = __W_NAME(__uportlibc_, parse_conv_spec_num)(&format);
+          value = __W_UPORTLIBC_NAME(parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->prec.value = value;
         }
-      } else
+      } else {
         is_prec = 0;
+        spec->has_prec_arg_idx = 0;
+        spec->prec.value = -1;
+      }
+      /* Parses argument position. */
+      arg_idx = __W_UPORTLIBC_NAME(parse_arg_pos)(&arg_pos_format, &curr_arg_idx, &arg_count);
+      if(arg_idx == -1) return -1;
+      spec->arg_idx = arg_idx;
       /* Parses a length. */
       spec->length = 0;
       switch(*format) {
@@ -435,12 +471,12 @@ static int __W_NAME(, convert_int)(struct __W_NAME(vx, printf_stream) *stream, c
   if(prec >= 0) {
     is_prec = 1;
   } else {
-    prec = 1;
+    prec = 0;
     is_prec = 0;
   }
   if((spec->flags & FLAG_MINUS) != 0 && width >= 0) width = -width;
   spaces = (width >= 0 ? width : -width) - len;
-  zeros = prec - len;
+  zeros = (prec - len >= 0 ? prec - len : 0);
   spaces -= zeros;
   if(!is_unsigned) {
     if((spec->flags & FLAG_PLUS) != 0 || (spec->flags & FLAG_SPACE) != 0) {
@@ -450,9 +486,9 @@ static int __W_NAME(, convert_int)(struct __W_NAME(vx, printf_stream) *stream, c
     }
   }
   if(spec->flags & FLAG_HASH && zeros + len > 0) {
-    if(base == 8)
-      spaces--;
-    else if(base == 16)
+    if(base == 8) {
+      if(buf[0] != '0' || buf[1] != 0) spaces--;
+    } else if(base == 16)
       spaces -= 2;
   }
   if((spec->flags & FLAG_ZERO) != 0 && !is_prec) {
@@ -471,7 +507,7 @@ static int __W_NAME(, convert_int)(struct __W_NAME(vx, printf_stream) *stream, c
     if((spec->flags & FLAG_PLUS) != 0) {
       sign_c = (arg_values[spec->arg_idx].i >= 0 ? '+' : '-');
       is_sign_c = 1;
-    } else if((spec->flags & FLAG_PLUS) != 0) {
+    } else if((spec->flags & FLAG_SPACE) != 0) {
       sign_c = (arg_values[spec->arg_idx].i >= 0 ? ' ' : '-');
       is_sign_c = 1;
     } else {
@@ -487,7 +523,9 @@ static int __W_NAME(, convert_int)(struct __W_NAME(vx, printf_stream) *stream, c
   }
   if((spec->flags & FLAG_HASH) != 0 && zeros + len > 0) {
     if(base == 8) {
-      if(__W_NAME(, print_char)(stream, '0', counter) == -1) return -1;
+      if(buf[0] != '0' || buf[1] != 0) {
+        if(__W_NAME(, print_char)(stream, '0', counter) == -1) return -1;
+      }
     } else if(base == 16) {
       if(__W_NAME(, print_char)(stream, '0', counter) == -1) return -1;
       if(__W_NAME(, print_char)(stream, (is_uppercase ? 'X' : 'x'), counter) == -1) return -1;
@@ -579,31 +617,48 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
   width = (spec->has_width_arg_idx ? arg_values[spec->width.arg_idx].i : spec->width.value);
   prec = (spec->has_prec_arg_idx ? arg_values[spec->prec.arg_idx].i : spec->prec.value);
   if((spec->flags & FLAG_MINUS) != 0 && width >= 0) width = -width;
-  if(prec < 0) prec = (is_hex ? LDBL_MAX_HEX_MANT_DIG : 6);
+  if(prec < 0) {
+#ifndef TEST
+    prec = (is_hex ? LDBL_MAX_HEX_MANT_DIG : 6);
+#else
+    prec = 6;
+#endif
+  }
   if(is_g && prec == 0) prec = 1;
   if(str == NULL) {
     /* Prepares for a floating-point number that isn't NaN and infinity. */
-    if(is_g && !is_e) is_e = (exp >= prec || exp <= -prec);
     do {
+      if(is_g && !is_e) is_e = (exp >= prec || exp <= -5);
       if(is_e) {
         last_int_digit_idx = 0;
         digits = prec + 1;
-        if(is_g) digits--;
+        if(is_g && digits > 1) digits--;
       } else {
         last_int_digit_idx = exp;
-        digits = (prec + exp >= 0 ? prec + exp : 0);
+        if(is_g)
+          digits = (prec >= 0 ? prec : 1);
+        else
+          digits = (prec + exp + 1 >= 0 ? prec + exp + 1 : 0);
       }
       tmp_x = x;
       carry_idx = last_zero_idx = -1;
       for(i = 0; i < digits; i++) {
         unsigned digit = floorl(tmp_x);
+        unsigned tmp_digit;
         if(digit < 0) digit = 0;
         if(digit >= digit_base) digit = digit_base - 1;
-        if(digit >= base - 1)
+        if(digit >= digit_base - 1)
           carry_idx = (carry_idx == -1 ? i : carry_idx);
         else
           carry_idx = -1;
-        if(digit == 0)
+        tmp_digit = digit;
+        if(carry_idx != -1) {
+          if(i + 1 == carry_idx)
+            tmp_digit += 1;
+          else if(i + 1 >= carry_idx)
+            tmp_digit = 0;
+        }
+        if(tmp_digit == 0)
           last_zero_idx = (last_zero_idx == -1 ? i : last_zero_idx);
         else
           last_zero_idx = -1;
@@ -614,11 +669,11 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
       } else
         carry_idx = -1;
       if(carry_idx == 0) {
-        x = 1.0;
+        x = (is_hex ? 8.0 : 1.0);
         exp++;
-        continue;
-      }
-    } while(0);
+      } else
+        break;
+    } while(1);
     if(is_g) {
       int64_t int_digits = (last_int_digit_idx >= 0 ? last_int_digit_idx + 1 : 0);
       if(carry_idx != -1) digits = (int_digits < carry_idx ? carry_idx : int_digits);
@@ -626,7 +681,7 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
     }
     len = digits;
     if(last_int_digit_idx < 0) len -= last_int_digit_idx;
-    if(last_int_digit_idx < digits || (spec->flags & FLAG_HASH) != 0) len++;
+    if(last_int_digit_idx + 1 < digits || (spec->flags & FLAG_HASH) != 0) len++;
     if(is_e) {
       unsigned long long abs_exp = (unsigned long long) (exp > 0 ? exp : -exp);
       __uportlibc_ulltostr(abs_exp, 10, exp_buf, 0);
@@ -647,7 +702,7 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
     if(is_sign) spaces--;
   }
   if(is_hex) spaces -= 2;
-  if((spec->flags & FLAG_ZERO) != 0 && str != NULL) {
+  if((spec->flags & FLAG_ZERO) != 0 && str == NULL) {
     zeros = spaces;
     spaces = 0;
   }
@@ -660,12 +715,12 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
   if((spec->flags & FLAG_PLUS) != 0) {
     sign_c = (!is_sign ? '+' : '-');
     is_sign_c = 1;
-  } else if((spec->flags & FLAG_PLUS) != 0) {
+  } else if((spec->flags & FLAG_SPACE) != 0) {
     sign_c = (!is_sign ? ' ' : '-');
     is_sign_c = 1;
   } else {
     is_sign_c = 0;
-    if(!is_sign) {
+    if(is_sign) {
       sign_c = '-';
       is_sign_c = 1;
     }
@@ -690,19 +745,21 @@ static int __W_NAME(, convert_float)(struct __W_NAME(vx, printf_stream) *stream,
     }
     for(i = 0; i < digits; i++) {
       unsigned digit = floorl(x);
+      unsigned tmp_digit;
       __W_CHAR c;
       if(digit < 0) digit = 0;
       if(digit >= digit_base) digit = digit_base - 1;
+      tmp_digit = digit;
       if(carry_idx != -1) {
         if(i + 1 == carry_idx)
-          digit += 1;
-        else if(i >= carry_idx)
-          digit = '0';
+          tmp_digit += 1;
+        else if(i + 1 >= carry_idx)
+          tmp_digit = 0;
       }
-      c = (digit < 10 ? digit + '0' : digit + a_c - 10);
+      c = (tmp_digit < 10 ? tmp_digit + '0' : tmp_digit + a_c - 10);
       if(__W_NAME(, print_char)(stream, c, counter) == -1) return -1;
       if(last_int_digit_idx == i) {
-        if(i < digits || (spec->flags & FLAG_HASH) != 0) {
+        if(i + 1 < digits || (spec->flags & FLAG_HASH) != 0) {
           if(__W_NAME(, print_char)(stream, '.', counter) == -1) return -1;
         }
       }
@@ -808,12 +865,13 @@ static int __W_NAME(, convert_str)(struct __W_NAME(vx, printf_stream) *stream, c
   if(spec->length != LENGTH_LONG) {
     for(len = 0; len < count && str[len] != 0; len++);
   } else {
+    char buf[MB_LEN_MAX];
     mbstate_t state;
     size_t i;
     memset(&state, 0, sizeof(mbstate_t));
     len = 0;
     for(i = 0; wstr[i] != 0; i++) {
-      size_t mb_len = wcrtomb(NULL, wstr[i], &state);
+      size_t mb_len = wcrtomb(buf, wstr[i], &state);
       if(mb_len == ((size_t) (-1))) return -1;
       len += mb_len;
       if(len >= count) {
@@ -828,10 +886,13 @@ static int __W_NAME(, convert_str)(struct __W_NAME(vx, printf_stream) *stream, c
     size_t i;
     memset(&state, 0, sizeof(mbstate_t));
     len = 0;
-    for(i = 0; str[i] != 0; i++) {
-      size_t res = mbrlen(str + i, 1, &state);
+    for(i = 0; str[i] != 0; ) {
+      size_t res = mbrlen(str + i, MB_LEN_MAX, &state);
       if(res == ((size_t) (-1))) return -1;
-      if(res != ((size_t) (-2))) len++;
+      if(res != ((size_t) (-2))) {
+        i += res;
+        len++;
+      }
       if(len >= count) break;
     }
   } else {
@@ -858,11 +919,11 @@ static int __W_NAME(, convert_str)(struct __W_NAME(vx, printf_stream) *stream, c
     size_t i, j;
     memset(&state, 0, sizeof(mbstate_t));
     i = 0;
-    for(j = 0; str[j] != 0; j++) {
-      size_t k, mb_len = wcrtomb(NULL, wstr[j], &state);
+    for(j = 0; i < len && wstr[j] != 0; j++) {
+      size_t k, mb_len = wcrtomb(buf, wstr[j], &state);
       if(mb_len == ((size_t) (-1))) return -1;
       i += mb_len;
-      if(i >= len) break;
+      if(i > len) break;
       for(k = 0; k < mb_len; k++) {
         if(__W_NAME(, print_char)(stream, buf[k], counter) == -1) return -1;
       }
@@ -874,12 +935,14 @@ static int __W_NAME(, convert_str)(struct __W_NAME(vx, printf_stream) *stream, c
     size_t i, j;
     memset(&state, 0, sizeof(mbstate_t));
     i = 0;
-    for(j = 0; str[j] != 0; j++) {
+    for(j = 0; i < len && str[j] != 0; ) {
       wchar_t wc;
-      size_t res = mbrtowc(&wc, str + j, 1, &state);
+      size_t res = mbrtowc(&wc, str + j, MB_LEN_MAX, &state);
       if(res == ((size_t) (-1))) return -1;
-      if(res != ((size_t) (-2))) len++;
-      if(i >= len) break;
+      if(res != ((size_t) (-2))) {
+        j += res;
+        i++;
+      }
       if(__W_NAME(, print_char)(stream, wc, counter) == -1) return -1;
     }
   } else {
@@ -988,6 +1051,7 @@ int __W_NAME(__uportlibc_vx, printf)(struct __W_NAME(vx, printf_stream) *stream,
   counter.count = 0;
   counter.has_overflow = 0;
   curr_arg_idx = 0;
+  arg_count = 0;
   while(*format != 0) {
     struct conv_spec spec;
     int res = __W_NAME(, parse_conv_spec)(&format, &spec, NULL, &curr_arg_idx, &arg_count);

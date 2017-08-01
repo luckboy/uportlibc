@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,11 @@
 
 #include <stdarg.h>
 #undef __W_UNDEF
+#ifndef TEST
 #include <uportlibc/w_name.h>
+#else
+#include "w_uportlibc_name.h"
+#endif
 
 struct __W_NAME(vx, printf_stream)
 {
@@ -43,7 +47,11 @@ struct __W_NAME(vx, printf_stream)
 int __W_NAME(__uportlibc_vx, printf)(struct __W_NAME(vx, printf_stream) *stream, __W_CONST_CHAR_PTR format, va_list ap);
 
 #define __W_UNDEF
+#ifndef TEST
 #include <uportlibc/w_name.h>
+#else
+#include "w_uportlibc_name.h"
+#endif
 
 #endif
 #endif

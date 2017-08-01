@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -3639,7 +3639,7 @@ int __W_ADD_SUITE_NAME(stdio)(void)
     __W_TEST_STRING(fput, s_unlocked, " sets error flag and errno when error occurs"),
     __W_TEST_NAME(fput, s_unlocked, _sets_error_flag_and_errno_when_error_occurs)) == NULL) return -1;
   if(CU_add_test(suite,
-    __W_TEST_STRING(unget, c, " pushes characte to stream"),
+    __W_TEST_STRING(unget, c, " pushes character to stream"),
     __W_TEST_NAME(unget, c, _pushes_character_to_stream)) == NULL) return -1;
   if(CU_add_test(suite,
     __W_TEST_STRING(unget, c, " pushes character to stream after MB_LEN_MAX pushed characters"),
@@ -3662,7 +3662,7 @@ int __W_ADD_SUITE_NAME(stdio)(void)
     test_ungetwc_pushes_wide_character_to_stream) == NULL) return -1;
 #endif
   if(CU_add_test(suite,
-    __W_TEST_STRING(unget, c_unlocked, " pushes characte to stream"),
+    __W_TEST_STRING(unget, c_unlocked, " pushes character to stream"),
     __W_TEST_NAME(unget, c_unlocked, _pushes_character_to_stream)) == NULL) return -1;
   if(CU_add_test(suite,
     __W_TEST_STRING(get, c, " reads character"),

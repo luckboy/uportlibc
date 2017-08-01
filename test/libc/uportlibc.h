@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,6 +51,16 @@ void *uportlibc_bsearch(const void *key, const void *elems, size_t elem_count, s
 #define bsearch uportlibc_bsearch
 #endif
 
+/* Functions for the conv.c file. */
+
+long double __uportlibc_log_pow_div_for_conv(long double x, long *exp, int is_hex);
+long double __uportlibc_pow_mul_for_conv(long double x, long exp, long fract_digit_exp, int is_hex);
+
+#ifdef UPORTLIBC_CONV
+#define __uportlibc_log_pow_div_for_conv uportlibc_log_pow_div_for_conv
+#define __uportlibc_pow_mul_for_conv uportlibc_pow_mul_for_conv
+#endif
+
 /* Functions and macros for the conv.c file. */
 
 long double uportlibc_log_pow_div_for_conv(long double x, long *exp, int is_hex);
@@ -84,6 +94,12 @@ void uportlibc_qsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp
 
 #ifdef UPORTLIBC_QSORT
 #define qsort uportlibc_qsort
+#endif
+
+/* Fucntions for the ulltostr.c file. */
+
+#ifdef UPORTLIBC_ULLTOSTR
+#define __uportlibc_ulltostr uportlibc_ulltostr
 #endif
 
 /* Types, variables, functions and macros for the fopen.c file, the init_stdio.c file, the stdio.c file and the stdio_priv.c file. */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,30 @@
  * THE SOFTWARE.
  */
 #include <stddef.h>
+#ifdef TEST
+#define UPORTLIBC_ULLTOSTR
+#include "uportlibc.h"
+#endif
 
 char *__uportlibc_ulltostr(unsigned long long x, int base, char *str, int is_uppercase)
 {
   size_t i, len; 
-  char a_c = (is_uppercase ? 'A' : 'a');
-  for(i = 0; x != 0 && i != 0; i++) {
-    unsigned digit = x % base;
-    x /= base;
-    str[i] = (digit < 10 ? digit + '0' : digit + a_c - 10);
+  if(x != 0) {
+    char a_c = (is_uppercase ? 'A' : 'a');
+    for(i = 0; x != 0; i++) {
+      unsigned digit = x % base;
+      x /= base;
+      str[i] = (digit < 10 ? digit + '0' : digit + a_c - 10);
+    }
+    len = i;
+  } else {
+    str[0] = '0';
+    len = 1;
   }
-  len = i;
   for(i = 0; i < len >> 1; i++) {
-    char tmp_c = str[len - i - 1];
-    str[i] = tmp_c;
-    str[len - i - 1] = str[i];
+    char tmp_c = str[i];
+    str[i] = str[len - i - 1];
+    str[len - i - 1] = tmp_c;
   }
   str[len] = 0;
   return str;

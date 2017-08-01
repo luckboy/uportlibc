@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,10 @@ long double __uportlibc_log_pow_div_for_conv(long double x, long *exp, int is_he
   } else {
     x /= powl(base, *exp + 2);
     x *= base * base;
+  }
+  if(is_hex) {
+    x *= 8;
+    *exp -=3;
   }
   return x;
 }

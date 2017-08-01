@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,10 @@
 #define __W_NAME(prefix, suffix)    uportlibc_##prefix##suffix
 #define __W_STR_NAME(suffix)        uportlibc_str##suffix
 #define __W_MEM_NAME(suffix)        uportlibc_mem##suffix
+#define __W_UPORTLIBC_NAME(suffix)  uportlibc_##suffix
 #define __W_STRTOK_R                uportlibc_strtok_r
+#define __W_SNPRINTF                uportlibc_snprintf
+#define __W_VSNPRINTF               uporllibc_vsnprintf
 #else
 #if __W == 'w'
 #define __W_EOF                     ((wint_t) (-1))
@@ -53,7 +56,10 @@
 #define __W_NAME(prefix, suffix)    uportlibc_##prefix##w##suffix
 #define __W_STR_NAME(suffix)        uportlibc_wcs##suffix
 #define __W_MEM_NAME(suffix)        uportlibc_wmem##suffix
+#define __W_UPORTLIBC_NAME(suffix)  uportlibc_w##suffix
 #define __W_STRTOK_R                uportlibc_wcstok
+#define __W_SNPRINTF                uportlibc_swprintf
+#define __W_VSNPRINTF               uporllibc_vswprintf
 #else
 #error "Incorrect macro __W."
 #endif
@@ -77,5 +83,8 @@
 #undef __W_NAME
 #undef __W_STR_NAME
 #undef __W_MEM_NAME
+#undef __W_UPORTLIBC_NAME
 #undef __W_STRTOK_R
+#undef __W_SNPRINTF
+#undef __W_VSNPRINTF
 #endif

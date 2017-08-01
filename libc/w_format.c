@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,16 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_stdlib.h>
+#else
+#define __W W
+#include "w_uportlibc.h"
+#endif
 #include <errno.h>
 #include <limits.h>
 #define __W W
 #include "w_format.h"
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_name.h>
+#else
+#define __W W
+#include "w_uportlibc_name.h"
+#endif
 
-int __W_NAME(__uportlibc_, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
+int __W_UPORTLIBC_NAME(parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
 {
   unsigned long res;
   int saved_errno = errno;
@@ -38,7 +48,7 @@ int __W_NAME(__uportlibc_, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
     errno = EOVERFLOW;
     return -1;
   }
-  if(res <= INT_MAX) {
+  if(res > INT_MAX) {
     errno = EOVERFLOW;
     return -1;
   }
@@ -46,25 +56,26 @@ int __W_NAME(__uportlibc_, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
   return res;
 }
 
-int __W_NAME(__uportlibc_, parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr)
+int __W_UPORTLIBC_NAME(parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr)
 {
   __W_CONST_CHAR_PTR ptr;
   unsigned arg_idx;
   for(ptr = *format_ptr; *ptr >= '0' && *ptr <= '9'; ptr++);
   if(*ptr == '$') {
     __W_CONST_CHAR_PTR format = *format_ptr;
-    int res = __W_NAME(__uportlibc_, parse_conv_spec_num)(&format);
+    int res = __W_UPORTLIBC_NAME(parse_conv_spec_num)(&format);
     if(res == -1) return -1;
     if(res == 0) {
       errno = EOVERFLOW;
       return -1;
     }
     arg_idx = res - 1;
-    *format_ptr = ptr;
+    *arg_count_ptr = (arg_idx + 1 < *arg_count_ptr ? *arg_count_ptr : arg_idx + 1);
+    *format_ptr = ptr + 1;
   } else {
-    arg_idx = *curr_arg_idx_ptr;
-    (*curr_arg_idx_ptr)++;
-    if(*curr_arg_idx_ptr + 1 > *arg_count_ptr) *arg_count_ptr = *curr_arg_idx_ptr + 1;
+    arg_idx = *arg_count_ptr;
+    (*arg_count_ptr)++;
+    *curr_arg_idx_ptr = arg_idx;
   }
   if(arg_idx >= NL_ARGMAX) {
     errno = EINVAL;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,10 @@ int sprintf(char *str, const char *format, ...)
 int vsprintf(char *str, const char *format, va_list ap)
 {
   struct vxprintf_stream stream;
+  int res;
   stream.put_char = vxprintf_put_char;
   stream.data = &str;
-  return __uportlibc_vxprintf(&stream, format, ap);
+  res = __uportlibc_vxprintf(&stream, format, ap);
+  *((char *) (stream.data)) = 0;
+  return res;
 }

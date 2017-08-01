@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,7 @@
 #define __SAVED_W 'w'
 #endif
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <wchar.h>
 #undef __W
@@ -136,6 +137,11 @@ long double __W_STR_NAME(told)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr);
 long long __W_STR_NAME(toll)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
 unsigned long __W_STR_NAME(toul)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
 unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end_ptr, int base);
+
+/* Functions for the w_snprintf.c file. */
+
+int __W_SNPRINTF(__W_CHAR_PTR str, size_t count, __W_CONST_CHAR_PTR format, ...);
+int __W_VSNPRINTF(__W_CHAR_PTR str, size_t count, __W_CONST_CHAR_PTR format, va_list ap);
 
 /* Functions for the w_string.c file. */
 

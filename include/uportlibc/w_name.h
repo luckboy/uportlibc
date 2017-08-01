@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 #define __W_NAME(prefix, suffix)    prefix##suffix
 #define __W_STR_NAME(suffix)        str##suffix
 #define __W_MEM_NAME(suffix)        mem##suffix
+#define __W_UPORTLIBC_NAME(suffix)  __uportlibc_##suffix
 #define __W_STRTOK_R                strtok_r
 #define __W_SNPRINTF                snprintf
 #define __W_VSNPRINTF               vsnprintf
@@ -55,6 +56,7 @@
 #define __W_NAME(prefix, suffix)    prefix##w##suffix
 #define __W_STR_NAME(suffix)        wcs##suffix
 #define __W_MEM_NAME(suffix)        wmem##suffix
+#define __W_UPORTLIBC_NAME(suffix)  __uportlibc_w##suffix
 #define __W_STRTOK_R                wcstok
 #define __W_SNPRINTF                swprintf
 #define __W_VSNPRINTF               vswprintf
@@ -82,6 +84,7 @@
 #undef __W_NAME
 #undef __W_STR_NAME
 #undef __W_MEM_NAME
+#undef __W_UPORTLIBC_NAME
 #undef __W_STRTOK_R
 #undef __W_SNPRINTF
 #undef __W_VSNPRINTF
