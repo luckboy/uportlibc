@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +79,7 @@ size_t mbrtowc(wchar_t *wc, const char *str, size_t count, mbstate_t *state)
       errno = EILSEQ;
       return (size_t) (-1);
     }
-    if(state->count == 1 && state->wc == 0) {
+    if(state->count == 1 && state->wc < 2) {
       errno = EILSEQ;
       return (size_t) (-1);
     }
@@ -135,7 +135,7 @@ size_t mbsrtowcs(wchar_t *wcs, const char **str, size_t count, mbstate_t *state)
 size_t wcrtomb(char *str, wchar_t wc, mbstate_t *state)
 {
   if(str == NULL) wc = 0;
-  if(wc >=0 && wc <= 0x7f) {
+  if(wc >= 0 && wc <= 0x7f) {
     if(str != NULL) str[0] = wc;
     return 1;
   } else if(wc >= 0x80 && wc <= 0x7ff) {

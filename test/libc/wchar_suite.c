@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -199,6 +199,16 @@ void test_mbrtowc_converts_for_wide_character_pointer_that_is_null_pointer(void)
   memset(&state, 0, sizeof(uportlibc_mbstate_t));
   CU_ASSERT_EQUAL(uportlibc_mbrtowc(NULL, "\342\224\205", 3, &state), 3);
   CU_ASSERT_EQUAL(errno, 0);
+}
+
+void test_mbrtowc_returns_minus_one_and_sets_errno_for_0301_0200_sequence(void)
+{
+  uportlibc_mbstate_t state;
+  wchar_t wc;
+  errno = 0;
+  memset(&state, 0, sizeof(uportlibc_mbstate_t));
+  CU_ASSERT_EQUAL(uportlibc_mbrtowc(&wc, "\301\200", 3, &state), ((size_t) (-1)));
+  CU_ASSERT_EQUAL(errno, EILSEQ);
 }
 
 void test_mbsinit_returns_non_zero_for_state_pointer_that_is_null_pointer(void)
@@ -583,6 +593,9 @@ int add_wchar_suite(void)
   if(CU_add_test(suite,
     "mbrtowc converts for wide character pointer that is null pointer",
     test_mbrtowc_converts_for_wide_character_pointer_that_is_null_pointer) == NULL) return -1;
+  if(CU_add_test(suite,
+    "mbrtowc returns -1 and sets errno for 0301 0200 sequence",
+    test_mbrtowc_returns_minus_one_and_sets_errno_for_0301_0200_sequence) == NULL) return -1;
   if(CU_add_test(suite,
     "mbsinit returns non zero for state pointer that is null pointer",
     test_mbsinit_returns_non_zero_for_state_pointer_that_is_null_pointer) == NULL) return -1;
