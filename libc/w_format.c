@@ -38,7 +38,7 @@
 #include "w_uportlibc_name.h"
 #endif
 
-int __W_UPORTLIBC_NAME(parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
+int __W_UPORTLIBC_NAME(, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
 {
   unsigned long res;
   int saved_errno = errno;
@@ -56,14 +56,14 @@ int __W_UPORTLIBC_NAME(parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr)
   return res;
 }
 
-int __W_UPORTLIBC_NAME(parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr)
+int __W_UPORTLIBC_NAME(, parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr)
 {
   __W_CONST_CHAR_PTR ptr;
   unsigned arg_idx;
   for(ptr = *format_ptr; *ptr >= '0' && *ptr <= '9'; ptr++);
   if(*ptr == '$') {
     __W_CONST_CHAR_PTR format = *format_ptr;
-    int res = __W_UPORTLIBC_NAME(parse_conv_spec_num)(&format);
+    int res = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
     if(res == -1) return -1;
     if(res == 0) {
       errno = EOVERFLOW;

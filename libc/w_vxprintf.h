@@ -44,7 +44,7 @@ struct __W_NAME(vx, printf_stream)
   void *data;
 };
 
-int __W_NAME(__uportlibc_vx, printf)(struct __W_NAME(vx, printf_stream) *stream, __W_CONST_CHAR_PTR format, va_list ap);
+int __W_UPORTLIBC_NAME(vx, printf)(struct __W_NAME(vx, printf_stream) *stream, __W_CONST_CHAR_PTR format, va_list ap);
 
 #define __W_UNDEF
 #ifndef TEST

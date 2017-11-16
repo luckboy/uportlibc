@@ -187,14 +187,14 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
       if(*format == '*') {
         spec->has_width_arg_idx = 1;
         format++;
-        arg_idx = __W_UPORTLIBC_NAME(parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+        arg_idx = __W_UPORTLIBC_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
         if(arg_idx == -1) return -1;
         spec->width.arg_idx = arg_idx;
         if(arg_types != NULL) arg_types[spec->width.arg_idx] = ARG_TYPE_INT;
       } else {
         spec->has_width_arg_idx = 0;
         if(*format >= '0' && *format <= '9') {
-          value = __W_UPORTLIBC_NAME(parse_conv_spec_num)(&format);
+          value = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->width.value = value;
         } else
@@ -207,13 +207,13 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         if(*format == '*') {
           spec->has_prec_arg_idx = 1;
           format++;
-          arg_idx = __W_UPORTLIBC_NAME(parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
+          arg_idx = __W_UPORTLIBC_NAME(, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
           if(arg_idx == -1) return -1;
           spec->prec.arg_idx = arg_idx;
           if(arg_types != NULL) arg_types[spec->prec.arg_idx] = ARG_TYPE_INT;
         } else {
           spec->has_prec_arg_idx = 0;
-          value = __W_UPORTLIBC_NAME(parse_conv_spec_num)(&format);
+          value = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
           if(value == -1) return -1;
           spec->prec.value = value;
         }
@@ -223,7 +223,7 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         spec->prec.value = -1;
       }
       /* Parses argument position. */
-      arg_idx = __W_UPORTLIBC_NAME(parse_arg_pos)(&arg_pos_format, &curr_arg_idx, &arg_count);
+      arg_idx = __W_UPORTLIBC_NAME(, parse_arg_pos)(&arg_pos_format, &curr_arg_idx, &arg_count);
       if(arg_idx == -1) return -1;
       spec->arg_idx = arg_idx;
       /* Parses a length. */
@@ -969,7 +969,7 @@ static int __W_NAME(, convert_ptr)(struct __W_NAME(vx, printf_stream) *stream, c
   return __W_NAME(, convert_int)(stream, &new_spec, arg_values, &new_value, counter);
 }
 
-int __W_NAME(__uportlibc_vx, printf)(struct __W_NAME(vx, printf_stream) *stream, __W_CONST_CHAR_PTR format, va_list ap)
+int __W_UPORTLIBC_NAME(vx, printf)(struct __W_NAME(vx, printf_stream) *stream, __W_CONST_CHAR_PTR format, va_list ap)
 {
   __W_CONST_CHAR_PTR tmp_format = format;
   unsigned char arg_types[NL_ARGMAX];

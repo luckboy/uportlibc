@@ -69,7 +69,7 @@ int __W_VSNPRINTF(__W_CHAR_PTR str, size_t count, __W_CONST_CHAR_PTR format, va_
   data.end = (count != 0 ? str + (count - 1) : str);
   stream.put_char = __W_NAME(vx, printf_put_char);
   stream.data = &data;
-  res = __W_NAME(__uportlibc_vx, printf)(&stream, format, ap);
+  res = __W_UPORTLIBC_NAME(vx, printf)(&stream, format, ap);
   if(count != 0) *((__W_CHAR_PTR) (data.ptr)) = 0;
   return res;
 }

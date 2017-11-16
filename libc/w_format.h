@@ -38,8 +38,8 @@
 #include "w_uportlibc_name.h"
 #endif
 
-int __W_UPORTLIBC_NAME(parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr);
-int __W_UPORTLIBC_NAME(parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr);
+int __W_UPORTLIBC_NAME(, parse_conv_spec_num)(__W_CONST_CHAR_PTR *format_ptr);
+int __W_UPORTLIBC_NAME(, parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned *curr_arg_idx_ptr, unsigned *arg_count_ptr);
 
 #ifndef TEST
 #define __W_UNDEF

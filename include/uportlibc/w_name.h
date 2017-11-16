@@ -22,44 +22,44 @@
 #ifndef __W_UNDEF
 #ifdef __W
 #if __W == 'c'
-#define __W_EOF                     (-1)
-#define __W_CHAR                    char
-#define __W_UCHAR                   unsigned char
-#define __W_CHAR_INT                int
-#define __W_INT                     int
-#define __W_CHAR_PTR                char *
-#define __W_UCHAR_PTR               unsigned char *
-#define __W_VOID_PTR                void *
-#define __W_CONST_CHAR_PTR          const char *
-#define __W_CONST_UCHAR_PTR         const unsigned char *
-#define __W_CONST_VOID_PTR          const void *
-#define __W_NAME(prefix, suffix)    prefix##suffix
-#define __W_STR_NAME(suffix)        str##suffix
-#define __W_MEM_NAME(suffix)        mem##suffix
-#define __W_UPORTLIBC_NAME(suffix)  __uportlibc_##suffix
-#define __W_STRTOK_R                strtok_r
-#define __W_SNPRINTF                snprintf
-#define __W_VSNPRINTF               vsnprintf
+#define __W_EOF                             (-1)
+#define __W_CHAR                            char
+#define __W_UCHAR                           unsigned char
+#define __W_CHAR_INT                        int
+#define __W_INT                             int
+#define __W_CHAR_PTR                        char *
+#define __W_UCHAR_PTR                       unsigned char *
+#define __W_VOID_PTR                        void *
+#define __W_CONST_CHAR_PTR                  const char *
+#define __W_CONST_UCHAR_PTR                 const unsigned char *
+#define __W_CONST_VOID_PTR                  const void *
+#define __W_NAME(prefix, suffix)            prefix##suffix
+#define __W_STR_NAME(suffix)                str##suffix
+#define __W_MEM_NAME(suffix)                mem##suffix
+#define __W_UPORTLIBC_NAME(prefix, suffix)  __uportlibc_##prefix##suffix
+#define __W_STRTOK_R                        strtok_r
+#define __W_SNPRINTF                        snprintf
+#define __W_VSNPRINTF                       vsnprintf
 #else
 #if __W == 'w'
-#define __W_EOF                     ((wint_t) (-1))
-#define __W_CHAR                    wchar_t
-#define __W_UCHAR                   wchar_t
-#define __W_CHAR_INT                wchar_t
-#define __W_INT                     wint_t
-#define __W_CHAR_PTR                wchar_t *
-#define __W_UCHAR_PTR               wchar_t *
-#define __W_VOID_PTR                wchar_t *
-#define __W_CONST_CHAR_PTR          const wchar_t *
-#define __W_CONST_UCHAR_PTR         const wchar_t *
-#define __W_CONST_VOID_PTR          const wchar_t *
-#define __W_NAME(prefix, suffix)    prefix##w##suffix
-#define __W_STR_NAME(suffix)        wcs##suffix
-#define __W_MEM_NAME(suffix)        wmem##suffix
-#define __W_UPORTLIBC_NAME(suffix)  __uportlibc_w##suffix
-#define __W_STRTOK_R                wcstok
-#define __W_SNPRINTF                swprintf
-#define __W_VSNPRINTF               vswprintf
+#define __W_EOF                             ((wint_t) (-1))
+#define __W_CHAR                            wchar_t
+#define __W_UCHAR                           wchar_t
+#define __W_CHAR_INT                        wchar_t
+#define __W_INT                             wint_t
+#define __W_CHAR_PTR                        wchar_t *
+#define __W_UCHAR_PTR                       wchar_t *
+#define __W_VOID_PTR                        wchar_t *
+#define __W_CONST_CHAR_PTR                  const wchar_t *
+#define __W_CONST_UCHAR_PTR                 const wchar_t *
+#define __W_CONST_VOID_PTR                  const wchar_t *
+#define __W_NAME(prefix, suffix)            prefix##w##suffix
+#define __W_STR_NAME(suffix)                wcs##suffix
+#define __W_MEM_NAME(suffix)                wmem##suffix
+#define __W_UPORTLIBC_NAME(prefix, suffix)  __uportlibc_##prefix##w##suffix
+#define __W_STRTOK_R                        wcstok
+#define __W_SNPRINTF                        swprintf
+#define __W_VSNPRINTF                       vswprintf
 #else
 #error "Incorrect macro __W."
 #endif
