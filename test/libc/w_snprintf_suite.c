@@ -658,10 +658,10 @@ void __W_TEST_SNPRINTF_NAME(_converts_wide_character_for_uppercase_c_conversion)
 
 void __W_TEST_SNPRINTF_NAME(_converts_string_for_s_conversion)(void)
 {
-  static __W_CHAR buf[10];
-  CU_ASSERT_EQUAL(__W_SNPRINTF(buf, 10, __W_L("%s"), "abcdef"), 6);
+  static __W_CHAR buf[20];
+  CU_ASSERT_EQUAL(__W_SNPRINTF(buf, 20, __W_L("%s"), "abcdef"), 6);
   __W_CU_ASSERT_STRING_EQUAL(buf, __W_L("abcdef"));
-  CU_ASSERT_EQUAL(__W_SNPRINTF(buf, 10, __W_L("%s"), "ABCDEFGH"), 8);
+  CU_ASSERT_EQUAL(__W_SNPRINTF(buf, 20, __W_L("%s"), "ABCDEFGH"), 8);
   __W_CU_ASSERT_STRING_EQUAL(buf, __W_L("ABCDEFGH"));
 #if __W != 'w'
   CU_ASSERT_EQUAL(uportlibc_snprintf(buf, 20, "%s", "A\304\204BC\304\206DE\304\230F"), 12);
