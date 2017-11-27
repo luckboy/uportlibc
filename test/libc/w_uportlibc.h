@@ -143,6 +143,11 @@ unsigned long long __W_STR_NAME(toull)(__W_CONST_CHAR_PTR str, __W_CHAR_PTR *end
 int __W_SNPRINTF(__W_CHAR_PTR str, size_t count, __W_CONST_CHAR_PTR format, ...);
 int __W_VSNPRINTF(__W_CHAR_PTR str, size_t count, __W_CONST_CHAR_PTR format, va_list ap);
 
+/* Functions for the w_snprintf.c file. */
+
+int __W_NAME(s, scanf)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR format, ...);
+int __W_NAME(vs, scanf)(__W_CONST_CHAR_PTR str, __W_CONST_CHAR_PTR format, va_list ap);
+
 /* Functions for the w_string.c file. */
 
 __W_VOID_PTR __W_MEM_NAME(chr)(__W_CONST_VOID_PTR str, __W_CHAR_INT c, size_t count);

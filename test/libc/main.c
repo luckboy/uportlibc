@@ -35,6 +35,8 @@ int add_qsort_suite(void);
 int add_stdio_suite(void);
 int add_c_snprintf_suite(void);
 int add_w_snprintf_suite(void);
+int add_c_sscanf_suite(void);
+int add_w_sscanf_suite(void);
 int add_c_stdio_suite(void);
 int add_w_stdio_suite(void);
 int add_c_stdlib_suite(void);
@@ -71,6 +73,14 @@ int main(int argc, char **argv)
     return CU_get_error();
   }
   if(add_w_snprintf_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_c_sscanf_suite() == -1) {
+    CU_cleanup_registry();
+    return CU_get_error();
+  }
+  if(add_w_sscanf_suite() == -1) {
     CU_cleanup_registry();
     return CU_get_error();
   }

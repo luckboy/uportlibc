@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -68,7 +68,7 @@ int __W_NAME(vf, scanf)(FILE *stream, __W_CONST_CHAR_PTR format, va_list ap)
   tmp_stream.pushed_c_count = 0;
   tmp_stream.has_error = 0;
   flockfile(stream);
-  res = __W_NAME(__uportlibc_vx, scanf)(&tmp_stream, format, ap);
+  res = __W_UPORTLIBC_NAME(vx, scanf)(&tmp_stream, format, ap);
   funlockfile(stream);
   return res;
 }

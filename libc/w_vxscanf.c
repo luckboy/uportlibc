@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,10 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_ctype.h>
+#else
+#include <ctype.h>
+#include <wctype.h>
+#endif
 #include <ctype.h>
 #include <errno.h>
+#include <float.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
@@ -31,14 +37,38 @@
 #include <string.h>
 #include <strings.h>
 #include <wchar.h>
+#ifndef TEST
 #include "conv.h"
+#else
+#define UPORTLIBC_CONV
+#include "uportlibc.h"
+#define __W W
+#include "w_uportlibc.h"
+#endif
 #include "float_priv.h"
 #define __W W
 #include "w_format.h"
 #define __W W
 #include "w_vxscanf.h"
+#ifndef TEST
 #define __W W
 #include <uportlibc/w_name.h>
+#else
+#define __W W
+#include "w_uportlibc_name.h"
+#endif
+
+#ifndef LDBL_MAX
+#if __SIZEOF_LONG_DOUBLE__ == __SIZEOF_FLOAT__
+#define LDBL_MAX                3.40282346638528859812e38L
+#else
+#if __SIZEOF_LONG_DOUBLE__ == __SIZEOF_DOUBLE__
+#define LDBL_MAX                1.79769313486231570815e308L
+#else
+#define LDBL_MAX                1.18973149535723176502e4932L
+#endif
+#endif
+#endif
 
 #if __W == 'c'
 #define __W_ISSPACE             isspace
@@ -113,18 +143,20 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
     format++;
     if(*format != '%') {
       unsigned new_arg_type;
-      int arg_idx, value;
-      arg_idx = __W_NAME(__uportlibc_, parse_arg_pos)(&format, &curr_arg_idx, &arg_count);
-      if(arg_idx == -1) return -1;
+      int value;
+      __W_CONST_CHAR_PTR tmp_format = format;
+      __W_CONST_CHAR_PTR arg_pos_format = tmp_format;
+      for(; *tmp_format >= '0' && *tmp_format < '9'; tmp_format++);
+      if(*tmp_format == '$') format = tmp_format + 1;
       /* Parses a star. */
       if(*format == '*') {
         spec->arg_idx = -1;
         format++;
       } else
-        spec->arg_idx = arg_idx;
+        spec->arg_idx = __W_UPORTLIBC_NAME(, parse_arg_pos)(&arg_pos_format, &curr_arg_idx, &arg_count);
       /* Parses a maximum width. */
       if(*format >= '0' && *format <= '9') {
-        value = __W_NAME(__uportlibc_, parse_conv_spec_num)(&format);
+        value = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
         if(value == -1) return -1;
         spec->max_width = value;
       } else
@@ -266,7 +298,10 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         }
         format++;
         spec->set = format;
-        if(*format == '^') format++;
+        if(*format == '^') {
+          spec->set_size++;
+          format++;
+        }
         if(*format == 0) {
           errno = EINVAL;
           return -1;
@@ -320,7 +355,8 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
         errno = EINVAL;
         return -1;
       }
-      if(arg_types != NULL) arg_types[spec->arg_idx] = new_arg_type;
+      if(arg_types != NULL && spec->arg_idx != -1)
+        arg_types[spec->arg_idx] = new_arg_type;
       format++;
       *format_ptr = format;
       *curr_arg_idx_ptr = curr_arg_idx;
@@ -335,21 +371,32 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
 static __W_INT __W_NAME(, get_char)(struct __W_NAME(vx, scanf_stream) *stream, int *count)
 { 
   if(stream->pushed_c_count == 0) {
+    int saved_errno = errno;
+    errno = 0;
     __W_INT c = (stream->get_char)(stream->data);
-    if(c == __W_EOF) return -1;
+    if(c == __W_EOF) {
+      if(errno != 0)
+        stream->has_error = 1;
+      else
+        errno = saved_errno;
+      return __W_EOF;
+    }
+    errno = saved_errno;
     if(*count < INT_MAX) (*count)++;
     return c;
   } else {
     stream->pushed_c_count--;
+    if(*count < INT_MAX) (*count)++;
     return stream->pushed_cs[stream->pushed_c_count];
   }
 }
 
-static void __W_NAME(, unget_char)(struct __W_NAME(vx, scanf_stream) *stream, __W_INT c)
+static void __W_NAME(, unget_char)(struct __W_NAME(vx, scanf_stream) *stream, __W_INT c, int *count)
 {
   if(c != __W_EOF) {
     stream->pushed_cs[stream->pushed_c_count] = c;
     stream->pushed_c_count++;
+    if(*count != 0) (*count)--;
   }
 }
 
@@ -359,7 +406,7 @@ static int __W_NAME(, skip_spaces)(struct __W_NAME(vx, scanf_stream) *stream, in
     __W_INT c = __W_NAME(, get_char)(stream, count);
     if(c == __W_EOF) return -1;
     if(!__W_ISSPACE(c)) {
-      __W_NAME(, unget_char)(stream, c);
+      __W_NAME(, unget_char)(stream, c, count);
       break;
     }
   }
@@ -371,9 +418,12 @@ static char *__W_NAME(, get_field)(struct __W_NAME(vx, scanf_stream) *stream, ch
   size_t i;
   for(i = 0; i < max_len; i++) {
     __W_INT c = __W_NAME(, get_char)(stream, count);
-    if(c == __W_EOF) break;
+    if(c == __W_EOF) {
+      if(stream->has_error) return NULL;
+      break;
+    }
     if(__W_ISSPACE(c) || !isascii(c)) {
-      __W_NAME(, unget_char)(stream, c);
+      __W_NAME(, unget_char)(stream, c, count);
       break;
     }
     str[i] = c;
@@ -428,7 +478,7 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
     is_minus = 1;
     break;
   default:
-    __W_NAME(, unget_char)(stream, c);
+    __W_NAME(, unget_char)(stream, c, count);
     is_minus = 0;
     break;
   }
@@ -442,13 +492,19 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
         base = 16;
       } else {
         base = 8;
-        __W_NAME(, unget_char)(stream, c);
+        if(max_width == -1 || i < max_width) {
+          if(c == __W_EOF && stream->has_error) return -1;
+          __W_NAME(, unget_char)(stream, c, count);
+        }
       }
     } else {
       base = 10;
-      __W_NAME(, unget_char)(stream, c);
+      if(max_width == -1 || i < max_width) {
+        if(c == __W_EOF && stream->has_error) return -1;
+        __W_NAME(, unget_char)(stream, c, count);
+      }
     }
-  } else {
+  } else if(base == 16) {
     c = ((max_width == -1 || i < max_width) ? __W_NAME(, get_char)(stream, count) : __W_EOF);
     if(c == '0') {
       i++;
@@ -457,12 +513,20 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
       if(c2 == 'X' || c2 == 'x') {
         i++;
       } else {
+        if(max_width == -1 || i < max_width) {
+          if(c2 == __W_EOF && stream->has_error) return -1;
+          __W_NAME(, unget_char)(stream, c2, count);
+        }
         i--;
-        __W_NAME(, unget_char)(stream, c2);
-        __W_NAME(, unget_char)(stream, c);
+        if(max_width == -1 || i < max_width)
+          __W_NAME(, unget_char)(stream, c, count);
       }
-    } else
-      __W_NAME(, unget_char)(stream, c);
+    } else {
+      if(max_width == -1 || i < max_width) {
+        if(c == __W_EOF && stream->has_error) return -1;
+        __W_NAME(, unget_char)(stream, c, count);
+      }
+    }
   }
   x = 0;
   is_first = 1;
@@ -472,7 +536,10 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
     unsigned digit;
     if(max_width != -1 && i >= max_width) break;
     c = __W_NAME(, get_char)(stream, count);
-    if(c == __W_EOF) break;
+    if(c == __W_EOF) {
+      if(stream->has_error) return -1;
+      break;
+    }
     if(c >= '0' && c <= (base > 10 ? '9' : base - 1 + '0')) {
       i++;
       digit = c - '0';
@@ -480,7 +547,7 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
       i++;
       digit = (c & ~0x20) - 'A' + 10;
     } else {
-      __W_NAME(, unget_char)(stream, c);
+      __W_NAME(, unget_char)(stream, c, count);
       break;
     }
     if(!is_overflow) {
@@ -495,7 +562,9 @@ static int __W_NAME(, convert_to_int)(struct __W_NAME(vx, scanf_stream) *stream,
     }
     is_first = 0;
   }
-  if(is_first) return -1;
+  if(is_first) {
+    if(spec->conv_c != 'i' || base != 8) return -1;
+  }
   switch(spec->length) {
   case 0:
     abs_min_i = ((unsigned long long) (-(INT_MIN + 1))) + 1ULL;
@@ -626,7 +695,7 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
     break;
   default:
     sign = 1.0;
-    __W_NAME(, unget_char)(stream, c);
+    __W_NAME(, unget_char)(stream, c, count);
     break;
   }
   c = ((max_width == -1 || i < max_width) ? __W_NAME(, get_char)(stream, count) : __W_EOF);
@@ -637,13 +706,20 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
       i++;
       is_hex = 1;
     } else {
+      if(max_width == -1 || i < max_width) {
+        if(c2 == __W_EOF && stream->has_error) return -1;
+        __W_NAME(, unget_char)(stream, c2, count);
+      }
       i--;
-      __W_NAME(, unget_char)(stream, c2);
-      __W_NAME(, unget_char)(stream, c);
+      if(max_width == -1 || i < max_width)
+        __W_NAME(, unget_char)(stream, c, count);
       is_hex = 0;
     }
   } else {
-    __W_NAME(, unget_char)(stream, c);
+    if(max_width == -1 || i < max_width) {
+      if(c == __W_EOF && stream->has_error) return -1;
+      __W_NAME(, unget_char)(stream, c, count);
+    }
     is_hex = 0;
   }
   if(is_hex) {
@@ -663,6 +739,10 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
     long double digit;
     if(max_width != -1 && i >= max_width) break;
     c = __W_NAME(, get_char)(stream, count);
+    if(c == __W_EOF) {
+      if(stream->has_error) return -1;
+      break;
+    }
     if(c != '.') {
       if(c >= '0' && c <= '9') {
         i++;
@@ -671,7 +751,7 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
         i++;
         digit = (c & ~0x20) - 'A' + 10;
       } else {
-        __W_NAME(, unget_char)(stream, c);
+        __W_NAME(, unget_char)(stream, c, count);
         break;
       }
       if(digits <= max_digits + 1) {
@@ -683,7 +763,11 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
       } else
         digits++;
     } else {
-      if(is_dot) break;
+      if(is_dot) {
+        __W_NAME(, unget_char)(stream, c, count);
+        break;
+      }
+      i++;
       if(x == 0.0) {
         digits = 1;
         significant_digits = 1;
@@ -698,7 +782,8 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
     if(!is_hex) {
       char buf[9];
       can_parse_exp = 0;
-      __W_NAME(, get_field)(stream, buf, (max_width - i < 8 ? max_width - i : 8), count);
+      if(__W_NAME(, get_field)(stream, buf, (max_width - i < 8 ? max_width - i : 8), count) == NULL)
+        return -1;
       if(strcasecmp(buf, "inf") == 0 || strcasecmp(buf, "infinity") == 0)
         x = HUGE_VALL;
       else if(strncasecmp(buf, "nan", 3) == 0)
@@ -711,12 +796,13 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
   if(can_parse_exp) {
     long exp;
     unsigned long abs_exp;
-    int is_exp_overflow;
+    int is_exp_first, is_exp_overflow;
     if(!is_dot) int_digits = digits;
     c = ((max_width == -1 || i < max_width) ? __W_NAME(, get_char)(stream, count) : __W_EOF);
     if(is_hex ? (c == 'P' || c == 'p') : (c == 'E' || c == 'e')) {
       int is_exp_minus;
       i++;
+      if(max_width != -1 && i >= max_width) return -1;
       c = __W_NAME(, get_char)(stream, count);
       if(c == __W_EOF) return -1;
       switch(c) {
@@ -729,27 +815,31 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
         is_exp_minus = 1;
         break;
       default:
-        __W_NAME(, unget_char)(stream, c);
+        __W_NAME(, unget_char)(stream, c, count);
         is_exp_minus = 0;
         break;
       }
       abs_exp = 0;
       is_exp_overflow = 0;
+      is_exp_first = 1;
       while(1) {
         unsigned digit;
         if(max_width != -1 && i >= max_width) break;
         c = __W_NAME(, get_char)(stream, count);
-        if(c == __W_EOF) break;
+        if(c == __W_EOF) {
+          if(stream->has_error) return -1;
+          break;
+        }
         if(c >= '0' && c <= (base > 10 ? '9' : base - 1 + '0')) {
           i++;
           digit = c - '0';
         } else {
-          __W_NAME(, unget_char)(stream, c);
+          __W_NAME(, unget_char)(stream, c, count);
           break;
         }
         if(!is_exp_overflow) {
           if(abs_exp <= ULONG_MAX / 10) {
-            abs_exp *= base;
+            abs_exp *= 10;
             if(abs_exp <= ULONG_MAX - digit)
               abs_exp += digit;
             else
@@ -757,7 +847,9 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
           } else
             is_exp_overflow = 1;
         }
+        is_exp_first = 0;
       }
+      if(is_exp_first) return -1;
       if(is_exp_overflow) abs_exp = ULONG_MAX;
       if(is_exp_minus) {
         if(abs_exp <= ((unsigned long long) (-(LONG_MIN + 1))) + 1UL)
@@ -771,7 +863,10 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
           exp = LONG_MAX;
       }
     } else {
-      __W_NAME(, unget_char)(stream, c);
+      if(max_width == -1 || i < max_width) {
+        if(c == __W_EOF && stream->has_error) return -1;
+        __W_NAME(, unget_char)(stream, c, count);
+      }
       exp = 0;
       is_exp_overflow = 0;
     }
@@ -784,12 +879,19 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
           exp -= fract_digit_exp;
           exp += unsignificant_digit_exp;
           x = __uportlibc_pow_mul_for_conv(x, exp, fract_digit_exp, is_hex);
-          errno = saved_errno;
+          if(HUGE_VALL != LDBL_MAX) errno = saved_errno;
         }
-      } else
-        x = (exp >= LONG_MAX ? HUGE_VALL : 0.0);
-    } else
+      } else {
+        if(exp >= LONG_MAX) {
+          x = HUGE_VALL;
+          if(HUGE_VALL == LDBL_MAX) errno = ERANGE;
+        } else
+          x = 0.0;
+      }
+    } else {
       x = HUGE_VALL;
+      if(HUGE_VALL == LDBL_MAX) errno = ERANGE;
+    }
   }
   x *= sign;
   switch(spec->length) {
@@ -839,6 +941,7 @@ static int __W_NAME(, convert_to_float)(struct __W_NAME(vx, scanf_stream) *strea
 static int __W_NAME(, convert_to_char)(struct __W_NAME(vx, scanf_stream) *stream, const struct conv_spec *spec, const union arg_value *value, int *count)
 {
 #if __W != 'w'
+  int max_width = (spec->max_width != 0 ? spec->max_width : -1);
   if(spec->length != LENGTH_LONG) {
     int c = __W_NAME(, get_char)(stream, count);
     if(c == EOF) return -1;
@@ -846,17 +949,24 @@ static int __W_NAME(, convert_to_char)(struct __W_NAME(vx, scanf_stream) *stream
   } else {
     wchar_t c;
     mbstate_t state;
-    int is_first;
+    int i, is_first;
     memset(&state, 0, sizeof(mbstate_t));
     is_first = 1;
+    i = 0;
     while(1) {
       char tmp_b;
       size_t res;
-      int b = __W_NAME(, get_char)(stream, count);
-      if(b == EOF) {
+      if(max_width != -1 && i >= max_width) {
         if(!is_first) errno = EILSEQ;
         return -1;
       }
+      int b = __W_NAME(, get_char)(stream, count);
+      if(b == EOF) {
+        if(stream->has_error) return -1;
+        if(!is_first) errno = EILSEQ;
+        return -1;
+      }
+      i++;
       tmp_b = b;
       res = mbrtowc(&c, &tmp_b, 1, &state);
       if(res == ((size_t) (-1))) return -1;
@@ -868,10 +978,11 @@ static int __W_NAME(, convert_to_char)(struct __W_NAME(vx, scanf_stream) *stream
 #else
   if(spec->length != LENGTH_LONG) {
     mbstate_t state;
+    char buf[MB_LEN_MAX];
     wint_t c = __W_NAME(, get_char)(stream, count);
     if(c == WEOF) return -1;
     memset(&state, 0, sizeof(mbstate_t));
-    if(wcrtomb((value != NULL ? value->cp : NULL), c, &state) == ((size_t) (-1))) return -1;
+    if(wcrtomb((value != NULL ? value->cp : buf), c, &state) == ((size_t) (-1))) return -1;
   } else {
     wint_t c = __W_NAME(, get_char)(stream, count);
     if(c == WEOF) return -1;
@@ -916,7 +1027,9 @@ static int __W_NAME(, convert_to_str)(struct __W_NAME(vx, scanf_stream) *stream,
   case '[':
     break;
   case 's':
-    if(__W_NAME(, skip_spaces)(stream, count) == -1) return -1;
+    if(__W_NAME(, skip_spaces)(stream, count) == -1) {
+      if(stream->has_error) return -1;
+    }
     break;
   default:
     errno = EINVAL;
@@ -928,44 +1041,74 @@ static int __W_NAME(, convert_to_str)(struct __W_NAME(vx, scanf_stream) *stream,
     int i;
     for(i = 0; max_width == -1 || i < max_width; i++) {
       int c = __W_NAME(, get_char)(stream, count);
-      if(c == EOF) break;
-      if(!__W_NAME(, check_str_char)(spec, (int) ((unsigned char) c))) break;
+      if(c == EOF) {
+        if(stream->has_error) return -1;
+        break;
+      }
+      if(!__W_NAME(, check_str_char)(spec, (int) ((unsigned char) c))) {
+        __W_NAME(, unget_char)(stream, c, count);
+        break;
+      }
       if(str != NULL) {
         *str = c;
         str++;
       }
     }
+    if(str != NULL) *str = 0;
   } else {
     wchar_t *str = (value != NULL ? value->wcp : NULL);
     mbstate_t state;
     int i;
     memset(&state, 0, sizeof(mbstate_t));
-    for(i = 0; max_width == -1 || i < max_width; i++) {
+    for(i = 0; max_width == -1 || i < max_width; ) {
       wchar_t c;
-      int is_first;
+      int is_first = 1;
+      char buf[MB_LEN_MAX];
+      int j = 0;
       while(1) {
         char tmp_b;
         size_t res;
-        int b = __W_NAME(, get_char)(stream, count);
-        if(b == EOF) {
+        if(max_width != -1 && i >= max_width) {
           if(!is_first) {
             errno = EILSEQ;
             return -1;
           }
+          c = WEOF;
           break;
         }
+        int b = __W_NAME(, get_char)(stream, count);
+        if(b == EOF) {
+          if(stream->has_error) return -1;
+          if(!is_first) {
+            errno = EILSEQ;
+            return -1;
+          }
+          c = WEOF;
+          break;
+        }
+        buf[j] = b;
+        j++;
+        i++;
         tmp_b = b;
+        if(!__W_NAME(, check_str_char)(spec, (int) ((unsigned char) b))) {
+          for(j--; j >= 0; j--) {
+            __W_NAME(, unget_char)(stream, buf[j], count);
+          }
+          c = WEOF;
+          break;
+        }
         res = mbrtowc(&c, &tmp_b, 1, &state);
         if(res == ((size_t) (-1))) return -1;
         if(res != ((size_t) (-2))) break;
         is_first = 0;
       }
-      if(!__W_NAME(, check_str_char)(spec, (wchar_t) c)) break;
+      if(c == WEOF) break;
       if(str != NULL) {
         *str = c;
         str++;
       }
     }
+    if(str != NULL) *str = 0;
   }
 #else
   if(spec->length != LENGTH_LONG) {
@@ -974,26 +1117,41 @@ static int __W_NAME(, convert_to_str)(struct __W_NAME(vx, scanf_stream) *stream,
     int i;
     memset(&state, 0, sizeof(mbstate_t));
     for(i = 0; max_width == -1 || i < max_width; i++) {
+      char buf[MB_LEN_MAX];
       size_t len;
       int c = __W_NAME(, get_char)(stream, count);
-      if(c == WEOF) break;
-      if(!__W_NAME(, check_str_char)(spec, (int) ((unsigned char) c))) break;
-      len = wcrtomb(str, c, &state);
+      if(c == WEOF) {
+        if(stream->has_error) return -1;
+        break;
+      }
+      if(!__W_NAME(, check_str_char)(spec, c)) {
+        __W_NAME(, unget_char)(stream, c, count);
+        break;
+      }
+      len = wcrtomb((str != NULL ? str : buf), c, &state);
       if(len == ((size_t) (-1))) return -1;
       if(str != NULL) str += len;
     }
+    if(str != NULL) *str = 0;
   } else {
     wchar_t *str = (value != NULL ? value->wcp : NULL);
     int i;
     for(i = 0; max_width == -1 || i < max_width; i++) {
       wint_t c = __W_NAME(, get_char)(stream, count);
-      if(c == WEOF) break;
-      if(!__W_NAME(, check_str_char)(spec, ((wchar_t) c))) break;
+      if(c == WEOF) {
+        if(stream->has_error) return -1;
+        break;
+      }
+      if(!__W_NAME(, check_str_char)(spec, ((wchar_t) c))) {
+        __W_NAME(, unget_char)(stream, c, count);
+        break;
+      }
       if(str != NULL) {
         *str = c;
         str++;
       }
     }
+    if(str != NULL) *str = 0;
   }
 #endif
   return 0;
@@ -1012,13 +1170,13 @@ static int __W_NAME(, convert_to_ptr)(struct __W_NAME(vx, scanf_stream) *stream,
   return 0;
 }
 
-int __W_NAME(__uportlibc_vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, const __W_CHAR_PTR format, va_list ap)
+int __W_UPORTLIBC_NAME(vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, const __W_CHAR_PTR format, va_list ap)
 {
   __W_CONST_CHAR_PTR tmp_format = format;
   unsigned char arg_types[NL_ARGMAX];
   union arg_value arg_values[NL_ARGMAX];
   unsigned i, curr_arg_idx = 0, arg_count = 0;
-  int count, item_count, is_overflow;
+  int count, item_count, is_overflow, is_first;
   for(i = 0; i < NL_ARGMAX; i++) arg_types[i] = ARG_TYPE_UNDEF;
   while(*tmp_format != 0) {
     struct conv_spec spec;
@@ -1083,11 +1241,12 @@ int __W_NAME(__uportlibc_vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, c
   }
   count = item_count = 0;
   is_overflow = 0;
+  is_first = 1;
   curr_arg_idx = 0;
+  arg_count = 0;
   while(*format != 0) {
     struct conv_spec spec;
     union arg_value *value;
-    int old_count = count;
     int res = __W_NAME(, parse_conv_spec)(&format, &spec, arg_types, &curr_arg_idx, &arg_count);
     if(res == -1) return -1;
     value = (spec.arg_idx != -1 ? &(arg_values[spec.arg_idx]) : NULL);
@@ -1100,7 +1259,7 @@ int __W_NAME(__uportlibc_vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, c
       case 'X':
       case 'x':
         if(__W_NAME(, convert_to_int)(stream, &spec, value, &count) == -1)
-          return (count != old_count && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
         break;
       case 'F':
       case 'f':
@@ -1111,39 +1270,43 @@ int __W_NAME(__uportlibc_vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, c
       case 'A':
       case 'a':
         if(__W_NAME(, convert_to_float)(stream, &spec, value, &count) == -1)
-          return (count != old_count && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
         break;
       case 'c':
         if(__W_NAME(, convert_to_char)(stream, &spec, value, &count) == -1)
-          return (count != old_count && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
         break;
+      case '[':
       case 's':
         if(__W_NAME(, convert_to_str)(stream, &spec, value, &count) == -1)
-          return (count != 0 && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
         break;
       case 'p':
         if(__W_NAME(, convert_to_ptr)(stream, &spec, value, &count) == -1)
-          return (count != old_count && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
         break;
       case 'n':
         if(value != NULL) *(value->ip) = count;
         break;
       }
-      if(item_count < INT_MAX)
-        item_count++;
-      else
-        is_overflow = 1;
+      if(spec.arg_idx != -1 && spec.conv_c != 'n') {
+        if(item_count < INT_MAX)
+          item_count++;
+        else
+          is_overflow = 1;
+      }
     } else {
       if(__W_ISSPACE(*format)) {
         if(__W_NAME(, skip_spaces)(stream, &count) == -1)
-          return (count != old_count && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
       } else {
         __W_INT c = __W_NAME(, get_char)(stream, &count);
         if(c == __W_EOF || c != *format)
-          return (count != old_count && !stream->has_error) ? item_count : EOF;
+          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
       }
       format++;
     }
+    is_first = 0;
   }
   for(i = 0; i < stream->pushed_c_count; i++) {
     stream->unget_char(stream->data, stream->pushed_cs[i]);
@@ -1152,6 +1315,6 @@ int __W_NAME(__uportlibc_vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, c
     return item_count;
   } else {
     errno = EOVERFLOW;
-    return -1;
+    return EOF;
   }
 }

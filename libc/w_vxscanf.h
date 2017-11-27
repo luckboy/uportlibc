@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,24 +30,39 @@
 #define _W_VXSCANF_H
 #endif
 
+#if __W != 'w'
+#include <limits.h>
+#endif
 #include <stdarg.h>
 #undef __W_UNDEF
+#ifndef TEST
 #include <uportlibc/w_name.h>
+#else
+#include "w_uportlibc_name.h"
+#endif
 
 struct __W_NAME(vx, scanf_stream)
 {
   __W_INT (*get_char)(void *data);
   void (*unget_char)(void *data, __W_CHAR_INT c);
   void *data;
-  __W_CHAR pushed_cs[2];
+#if __W != 'w'
+  char pushed_cs[MB_LEN_MAX];
+#else
+  wchar_t pushed_cs[2];
+#endif
   unsigned pushed_c_count;
   int has_error;
 };
 
-int __W_NAME(__uportlibc_vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, const __W_CHAR_PTR format, va_list ap);
+int __W_UPORTLIBC_NAME(vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, const __W_CHAR_PTR format, va_list ap);
 
 #define __W_UNDEF
+#ifndef TEST
 #include <uportlibc/w_name.h>
+#else
+#include "w_uportlibc_name.h"
+#endif
 
 #endif
 #endif
