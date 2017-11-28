@@ -1181,7 +1181,7 @@ int __W_UPORTLIBC_NAME(vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, con
   while(*tmp_format != 0) {
     struct conv_spec spec;
     int res = __W_NAME(, parse_conv_spec)(&tmp_format, &spec, arg_types, &curr_arg_idx, &arg_count);
-    if(res == -1) return -1;
+    if(res == -1) return EOF;
     if(res == 0) tmp_format++;
   }
   for(i = 0; i < arg_count; i++) {

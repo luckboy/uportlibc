@@ -1433,10 +1433,10 @@ void __W_TEST_NAME(s, scanf, _gets_number_of_characters_for_n_conversion)(void)
 void __W_TEST_NAME(s, scanf, _returns_minus_one_and_sets_errno_for_unsupported_conversion)(void)
 {
   int x = -1;
-  CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L("1234"), __W_L("%z"), &x), -1);
+  CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L("1234"), __W_L("%z"), &x), EOF);
   CU_ASSERT_EQUAL(x, -1);
   CU_ASSERT_EQUAL(errno, EINVAL);
-  CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L("2345"), __W_L("%y"), &x), -1);
+  CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L("2345"), __W_L("%y"), &x), EOF);
   CU_ASSERT_EQUAL(x, -1);
   CU_ASSERT_EQUAL(errno, EINVAL);
 }
