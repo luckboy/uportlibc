@@ -1297,8 +1297,9 @@ int __W_UPORTLIBC_NAME(vx, scanf)(struct __W_NAME(vx, scanf_stream) *stream, con
       }
     } else {
       if(__W_ISSPACE(*format)) {
-        if(__W_NAME(, skip_spaces)(stream, &count) == -1)
-          return ((!is_first || count + stream->pushed_c_count != 0) && !stream->has_error) ? item_count : EOF;
+        if(__W_NAME(, skip_spaces)(stream, &count) == -1) {
+          if(stream->has_error) return EOF;
+        }
       } else {
         __W_INT c = __W_NAME(, get_char)(stream, &count);
         if(c == __W_EOF || c != *format)

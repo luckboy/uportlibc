@@ -1333,6 +1333,17 @@ void __W_TEST_NAME(s, scanf, _matches_spaces_from_format)(void)
   CU_ASSERT_EQUAL(errno, 0);
 }
 
+void __W_TEST_NAME(s, scanf, _matches_space_from_format_for_empty_string)(void)
+{
+  static char str[10];
+  memset(str, (char) (-1), 9);
+  str[9] = 0;
+  errno = 0;
+  CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L(""), __W_L(" %[abc]"), str), 1);
+  CU_ASSERT_STRING_EQUAL(str, "");
+  CU_ASSERT_EQUAL(errno, 0);  
+}
+
 void __W_TEST_NAME(s, scanf, _does_not_match_characters_from_format_for_incorrect_string)(void)
 {
   int x = -1;
@@ -1704,6 +1715,9 @@ int __W_ADD_SUITE_NAME(sscanf)(void)
   if(CU_add_test(suite,
     __W_TEST_STRING(s, scanf, " matches spaces from format"),
     __W_TEST_NAME(s, scanf, _matches_spaces_from_format)) == NULL) return -1;
+  if(CU_add_test(suite,
+    __W_TEST_STRING(s, scanf, " matches space from format for empty string"),
+    __W_TEST_NAME(s, scanf, _matches_space_from_format_for_empty_string)) == NULL) return -1;
   if(CU_add_test(suite,
     __W_TEST_STRING(s, scanf, " does not match characters from format for incorrect string"),
     __W_TEST_NAME(s, scanf, _does_not_match_characters_from_format_for_incorrect_string)) == NULL) return -1;
