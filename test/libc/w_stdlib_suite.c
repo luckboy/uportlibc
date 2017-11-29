@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016-2017 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -835,6 +835,32 @@ void __W_TEST_STR_NAME(told, _returns_number_for_string_with_spaces_and_sign)(vo
   CU_ASSERT_EQUAL(errno, 0);
 }
 
+void __W_TEST_STR_NAME(told, _returns_huge_vall_and_sets_errno_for_overflow_and_string_with_sign)(void)
+{
+#if FLT_RADIX == 2
+  double logr_log10 = 0.30102999566398119521;
+#else
+  double logr_log10 = log(FLT_RADIX) / log(10.0);
+#endif
+  static __W_CHAR str[1000];
+  __W_CHAR_PTR end;
+  long double res;
+#if __W == 'c'
+  sprintf(str, "+1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
+#else
+  swprintf(str, 1000, L"+1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
+#endif
+  errno = 0;
+  res = __W_STR_NAME(told)(str, &end);
+  CU_ASSERT_EQUAL(res, HUGE_VALL);
+#if __W == 'c'
+  CU_ASSERT_PTR_EQUAL(end, str + strlen(str));
+#else
+  CU_ASSERT_PTR_EQUAL(end, str + wcslen(str));
+#endif
+  CU_ASSERT_EQUAL(errno, ERANGE);
+}
+
 void __W_TEST_STR_NAME(told, _returns_minus_huge_vall_and_sets_errno_for_overflow_and_string_with_sign)(void)
 {
 #if FLT_RADIX == 2
@@ -842,35 +868,21 @@ void __W_TEST_STR_NAME(told, _returns_minus_huge_vall_and_sets_errno_for_overflo
 #else
   double logr_log10 = log(FLT_RADIX) / log(10.0);
 #endif
-  static __W_CHAR str1[1000];
-  static __W_CHAR str2[1000];
-  __W_CHAR_PTR end1;
-  long double res1;
-  __W_CHAR_PTR end2;
-  long double res2;
+  static __W_CHAR str[1000];
+  __W_CHAR_PTR end;
+  long double res;
 #if __W == 'c'
-  sprintf(str1, "+1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
-  sprintf(str2, "-1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
+  sprintf(str, "-1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
 #else
-  swprintf(str1, 1000, L"+1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
-  swprintf(str2, 1000, L"-1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
+  swprintf(str, 1000, L"-1e%d", (int) (ceil(LDBL_MAX_EXP * logr_log10) + 1.0));
 #endif
   errno = 0;
-  res1 = __W_STR_NAME(told)(str1, &end1);
-  CU_ASSERT_EQUAL(res1, HUGE_VALL);
+  res = __W_STR_NAME(told)(str, &end);
+  CU_ASSERT_EQUAL(res, -HUGE_VALL);
 #if __W == 'c'
-  CU_ASSERT_PTR_EQUAL(end1, str1 + strlen(str1));
+  CU_ASSERT_PTR_EQUAL(end, str + strlen(str));
 #else
-  CU_ASSERT_PTR_EQUAL(end1, str1 + wcslen(str1));
-#endif
-  CU_ASSERT_EQUAL(errno, ERANGE);
-  errno = 0;
-  res2 = __W_STR_NAME(told)(str2, &end2);
-  CU_ASSERT_EQUAL(res2, -HUGE_VALL);
-#if __W == 'c'
-  CU_ASSERT_PTR_EQUAL(end2, str2 + strlen(str2));
-#else
-  CU_ASSERT_PTR_EQUAL(end2, str2 + wcslen(str2));
+  CU_ASSERT_PTR_EQUAL(end, str + wcslen(str));
 #endif
   CU_ASSERT_EQUAL(errno, ERANGE);
 }
@@ -1858,6 +1870,9 @@ int __W_ADD_SUITE_NAME(stdlib)(void)
   if(CU_add_test(suite,
     __W_TEST_STR_STRING(told, " returns number for string with sign"),
     __W_TEST_STR_NAME(told, _returns_number_for_string_with_sign)) == NULL) return -1;
+  if(CU_add_test(suite,
+    __W_TEST_STR_STRING(told, " returns HUGE_VALL and sets errno for overflow and string with sign"),
+    __W_TEST_STR_NAME(told, _returns_huge_vall_and_sets_errno_for_overflow_and_string_with_sign)) == NULL) return -1;
   if(CU_add_test(suite,
     __W_TEST_STR_STRING(told, " returns -HUGE_VALL and sets errno for overflow and string with sign"),
     __W_TEST_STR_NAME(told, _returns_minus_huge_vall_and_sets_errno_for_overflow_and_string_with_sign)) == NULL) return -1;
