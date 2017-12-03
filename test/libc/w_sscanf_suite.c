@@ -370,6 +370,11 @@ void __W_TEST_NAME(s, scanf, _converts_to_floating_point_zero_for_f_conversion)(
   CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L("0.0"), __W_L("%f"), &x), 1);
   CU_ASSERT_DOUBLE_EQUAL(x, 0.0, FLOAT_EPS * 1.0);
   CU_ASSERT_EQUAL(errno, 0);
+  x = -1.0;
+  errno = 0;
+  CU_ASSERT_EQUAL(__W_NAME(s, scanf)(__W_L("0"), __W_L("%f"), &x), 1);
+  CU_ASSERT_DOUBLE_EQUAL(x, 0.0, FLOAT_EPS * 1.0);
+  CU_ASSERT_EQUAL(errno, 0);
 }
 
 void __W_TEST_NAME(s, scanf, _converts_to_floating_point_number_for_f_conversion_and_string_with_plus)(void)
