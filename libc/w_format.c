@@ -66,7 +66,7 @@ int __W_UPORTLIBC_NAME(, parse_arg_pos)(__W_CONST_CHAR_PTR *format_ptr, unsigned
     int res = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
     if(res == -1) return -1;
     if(res == 0) {
-      errno = EOVERFLOW;
+      errno = EINVAL;
       return -1;
     }
     arg_idx = res - 1;
