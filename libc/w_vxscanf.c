@@ -161,6 +161,10 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
       if(*format >= '0' && *format <= '9') {
         value = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
         if(value == -1) return -1;
+        if(value == 0) {
+          errno = EINVAL;
+          return -1;
+        }
         spec->max_width = value;
       } else
         spec->max_width = -1;
