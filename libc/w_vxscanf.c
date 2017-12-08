@@ -152,8 +152,11 @@ static int __W_NAME(, parse_conv_spec)(__W_CONST_CHAR_PTR *format_ptr, struct co
       if(*format == '*') {
         spec->arg_idx = -1;
         format++;
-      } else
-        spec->arg_idx = __W_UPORTLIBC_NAME(, parse_arg_pos)(&arg_pos_format, &curr_arg_idx, &arg_count);
+      } else {
+        int arg_idx = __W_UPORTLIBC_NAME(, parse_arg_pos)(&arg_pos_format, &curr_arg_idx, &arg_count);
+        if(arg_idx == -1) return -1;
+        spec->arg_idx = arg_idx;
+      }
       /* Parses a maximum width. */
       if(*format >= '0' && *format <= '9') {
         value = __W_UPORTLIBC_NAME(, parse_conv_spec_num)(&format);
