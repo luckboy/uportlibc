@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,13 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
 void *calloc(size_t elem_count, size_t elem_size)
 {
-  void *ptr = malloc(elem_count * elem_size);
+  void *ptr;
+  size_t size = elem_count * elem_size;
+  if(elem_count != 0 && size / elem_count != elem_size) {
+    errno = ENOMEM;
+    return NULL;
+  }
+  ptr = malloc(size);
   if(ptr == NULL) return NULL;
-  memset(ptr, 0, elem_count * elem_size);
+  memset(ptr, 0, size);
   return ptr;
 }
