@@ -30,6 +30,7 @@ OBJS = $(BUILD_DIR)/sys_fcntl.o \
 	$(BUILD_DIR)/fopen.o \
 	$(BUILD_DIR)/gets.o \
 	$(BUILD_DIR)/init_stdio.o \
+	$(BUILD_DIR)/malloc.o \
 	$(BUILD_DIR)/qsort.o \
 	$(BUILD_DIR)/realpath.o \
 	$(BUILD_DIR)/setbuf.o \
