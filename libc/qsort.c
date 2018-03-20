@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -86,7 +86,7 @@ static void heapify(void *elems, size_t elem_count, size_t elem_size, int (*cmp)
 STATIC void heapsort(void *elems, size_t elem_count, size_t elem_size, int (*cmp)(const void *, const void *))
 {
   heapify(elems, elem_count, elem_size, cmp);
-  for(; elem_count != 0; elem_count--) {
+  for(; elem_count >= 2; elem_count--) {
     swap(array_elem(elems, 0, elem_size), array_elem(elems, elem_count - 1, elem_size), elem_size);
     shift_down(elems, elem_count - 1, 0, elem_size, cmp);
   }
