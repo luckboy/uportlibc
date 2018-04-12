@@ -316,7 +316,7 @@ void *malloc(size_t size)
   size = align_up(size);
   if(size == 0) return NULL;
   lock_lock(&malloc_lock);
-#if defined(___UPORTSYS_MXXX_MEMORY_MANAGEMENT) || defined(MAP_ANON)
+#if defined(___UPORTSYS_MXXX_MEMORY_MANAGEMENT) && defined(MAP_ANON)
   if(size >= MMAP_THRESHOLD) {
     size_t page_size = getpagesize();
     size_t len;
@@ -411,7 +411,7 @@ void *realloc(void *ptr, size_t size)
     lock_unlock(&malloc_lock);
     return ptr;
   }
-#if defined(___UPORTSYS_MXXX_MEMORY_MANAGEMENT) || defined(MAP_ANON)
+#if defined(___UPORTSYS_MXXX_MEMORY_MANAGEMENT) && defined(MAP_ANON)
   if((hdr->flags & MALLOC_FLAG_MMAP) != 0) {
     size_t page_size = getpagesize();
     size_t old_len = ((align_up(sizeof(struct malloc_header)) + old_size + page_size - 1) / page_size) * page_size;
@@ -505,7 +505,7 @@ void free(void *ptr)
   lock_lock(&malloc_lock);
   hdr = (struct malloc_header *) (((char*) ptr) - align_up(sizeof(struct malloc_header)));
   tmp_hdr = hdr;
-#if defined(___UPORTSYS_MXXX_MEMORY_MANAGEMENT) || defined(MAP_ANON)
+#if defined(___UPORTSYS_MXXX_MEMORY_MANAGEMENT) && defined(MAP_ANON)
   if((hdr->flags & MALLOC_FLAG_MMAP) != 0) {
     size_t page_size = getpagesize();
     size_t len = ((align_up(sizeof(struct malloc_header)) + hdr->size + page_size - 1) / page_size) * page_size;
