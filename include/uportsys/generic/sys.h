@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,8 +52,8 @@ extern "C" {
 #define __UPORTSYS_MAP_FIXED            (1 << 4)
 #endif
 
-#ifndef __UPORTSYS_MAP_FAILURE
-#define __UPORTSYS_MAP_FAILURE          ((void *) (-1))
+#ifndef __UPORTSYS_MAP_FAILED
+#define __UPORTSYS_MAP_FAILED           ((void *) (-1))
 #endif
 
 #ifndef ___UPORTSYS_MS_XXX

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <sys/mman.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -36,6 +37,15 @@ int sys_mock_last_opened_fd;
 size_t sys_mock_file_buf_size;
 int sys_mock_file_is_tty;
 struct sys_mock_file *sys_mock_files[MAX_SYS_MOCK_FILE_COUNT];
+char sys_mock_data_seg[MAX_SYS_MOCK_DATA_SEG_SIZE];
+char *sys_mock_break;
+struct sys_mock_mem_area sys_mock_mem_areas[MAX_SYS_MOCK_MEM_AREA_COUNT];
+
+void *sys_mock_mmap_res;
+int sys_mock_mmap_err_num;
+
+int sys_mock_munmap_res;
+int sys_mock_munmap_err_num;
 
 int sys_mock_lstat_res;
 int sys_mock_lstat_err_num;
@@ -62,11 +72,14 @@ int sys_mock_lseek_err_num;
 int sys_mock_pipe_res;
 int sys_mock_pipe_err_num;
 
+ssize_t sys_mock_read_res;
+int sys_mock_read_err_num;
+
 int sys_mock_rmdir_res;
 int sys_mock_rmdir_err_num;
 
-ssize_t sys_mock_read_res;
-int sys_mock_read_err_num;
+void *sys_mock_sbrk_res;
+int sys_mock_sbrk_err_num;
 
 ssize_t sys_mock_write_res;
 int sys_mock_write_err_num;
@@ -142,14 +155,24 @@ void init_sys_mock(void)
     } else
       sys_mock_files[fd] = NULL;
   }
-  sys_mock_open_res = 0 ;
-  sys_mock_open_err_num = 0;
+  sys_mock_break = sys_mock_data_seg;
+  for(i = 0; i < MAX_SYS_MOCK_MEM_AREA_COUNT; i++) {
+    sys_mock_mem_areas[i].ptr = NULL;
+    sys_mock_mem_areas[i].ptr_to_free = NULL;
+    sys_mock_mem_areas[i].len = 0;
+  }
+  sys_mock_mmap_res = (void *) 0;      
+  sys_mock_mmap_err_num = 0;
+  sys_mock_munmap_res = 0;
+  sys_mock_munmap_err_num = 0;
   sys_mock_lstat_res = 0;
   sys_mock_lstat_err_num = 0;
   memset(&sys_mock_lstat_buf, 0, sizeof(struct stat));
   sys_mock_waitpid_res = 0;
   sys_mock_waitpid_err_num = 0;
   sys_mock_waitpid_status = 0;
+  sys_mock_open_res = 0 ;
+  sys_mock_open_err_num = 0;
   sys_mock_close_res = 0;
   sys_mock_close_err_num = 0;
   sys_mock_execve_err_num = 0;
@@ -163,6 +186,8 @@ void init_sys_mock(void)
   sys_mock_read_err_num = 0;
   sys_mock_rmdir_res = 0;
   sys_mock_rmdir_err_num = 0;
+  sys_mock_sbrk_res = (void *) 0;
+  sys_mock_sbrk_err_num = 0;
   sys_mock_write_res = 0;
   sys_mock_write_err_num = 0;
   sys_mock_unlink_res = 0;
@@ -173,7 +198,7 @@ void init_sys_mock(void)
 
 void final_sys_mock(void)
 {
-  int fd;
+  int fd, i;
   for(fd = 0; fd < MAX_SYS_MOCK_FILE_COUNT; fd++) {
     if(sys_mock_files[fd] != NULL) {
       sys_mock_files[fd]->count--;
@@ -182,6 +207,10 @@ void final_sys_mock(void)
         if(!sys_mock_files[fd]->is_static) free(sys_mock_files[fd]);
       }
     }
+  }
+  for(i = 0; i < MAX_SYS_MOCK_MEM_AREA_COUNT; i++) {
+    if(sys_mock_mem_areas[i].ptr_to_free != NULL)
+      free(sys_mock_mem_areas[i].ptr_to_free);
   }
 }
 
@@ -270,6 +299,86 @@ int dup_sys_mock_file(int old_fd, int new_fd)
 
 int is_opened_sys_mock_file(int fd)
 { return fd >= 0 && fd < MAX_SYS_MOCK_FILE_COUNT && sys_mock_files[fd] != NULL; }
+
+void *uportlibc_sys_mock_mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
+{
+  struct sys_mock_op op;
+  void *res;
+  op.fun_name = "mmap";
+  op.args[0].vp = addr;
+  op.args[1].u = len;
+  op.args[2].i = prot;
+  op.args[3].i = flags;
+  op.args[4].i = fd;
+  op.args[5].o = offset;
+  if(sys_mock_mmap_res != MAP_FAILED) {
+    int i, page_size = getpagesize();
+    len = ((len + page_size - 1) / page_size) * page_size;
+    for(i = 0; i < MAX_SYS_MOCK_MEM_AREA_COUNT; i++) {
+      if(sys_mock_mem_areas[i].ptr == NULL) break;
+    }
+    if(i < MAX_SYS_MOCK_MEM_AREA_COUNT) {
+      void *ptr = malloc(len + page_size);
+      if(ptr != NULL) {
+        sys_mock_mem_areas[i].ptr = (char *) (((((unsigned long) ptr) + page_size - 1) / page_size) * page_size);
+        sys_mock_mem_areas[i].ptr_to_free = ptr;
+        sys_mock_mem_areas[i].len = len;
+        res = sys_mock_mem_areas[i].ptr;
+        op.err_num = 0;
+      } else {
+        errno = ENOMEM;
+        res = MAP_FAILED;
+        op.err_num = errno;
+      }
+    } else {
+      errno = ENOMEM;
+      res = MAP_FAILED;
+      op.err_num = errno;
+    }
+  } else {
+    errno = sys_mock_mmap_err_num;
+    res = sys_mock_mmap_res;
+    op.err_num = errno;
+  }
+  op.res.vp = res;
+  if(add_sys_mock_op(&op) == -1) return MAP_FAILED;
+  return res;
+}
+
+int uportlibc_sys_mock_munmap(void *addr, size_t len)
+{
+  struct sys_mock_op op;
+  int res;
+  op.fun_name = "munmap";
+  op.args[0].vp = addr;
+  op.args[1].u = len;
+  if(sys_mock_munmap_res != -1) {
+    int i, page_size = getpagesize();
+    len = ((len + page_size - 1) / page_size) * page_size;
+    for(i = 0; i < MAX_SYS_MOCK_MEM_AREA_COUNT; i++) {
+      if(sys_mock_mem_areas[i].ptr == ((char *) addr)) {
+        break;
+      }
+    }
+    if(i < MAX_SYS_MOCK_MEM_AREA_COUNT) {
+      if(sys_mock_mem_areas[i].len == len) {
+        free(sys_mock_mem_areas[i].ptr_to_free);
+        sys_mock_mem_areas[i].ptr = NULL;
+        sys_mock_mem_areas[i].ptr_to_free = NULL;
+        sys_mock_mem_areas[i].len = 0;
+      }
+    }
+    res = 0;
+    op.err_num = 0;
+  } else {
+    errno = sys_mock_munmap_err_num;
+    res = sys_mock_munmap_res;
+    op.err_num = errno;
+  }
+  op.res.i = res;
+  if(add_sys_mock_op(&op) == -1) return -1;
+  return res;
+}
 
 int uportlibc_sys_mock_lstat(const char *path_name, struct stat *buf)
 {
@@ -420,6 +529,17 @@ pid_t uportlibc_sys_mock_fork(void)
   return res;
 }
 
+int uportlibc_sys_mock_getpagesize(void)
+{
+  struct sys_mock_op op;
+  int res = getpagesize();
+  op.fun_name = "getpagesize";
+  op.res.i = res;
+  op.err_num = 0;
+  if(add_sys_mock_op(&op) == -1) return -1;
+  return res;  
+}
+
 int uportlibc_sys_mock_isatty(int fd)
 {
   struct sys_mock_op op;
@@ -561,6 +681,37 @@ int uportlibc_sys_mock_rmdir(const char *dir_name)
   }
   op.res.i = res;
   if(add_sys_mock_op(&op) == -1) return -1;
+  return res;
+}
+
+void *uportlibc_sys_mock_sbrk(intptr_t incr)
+{
+  struct sys_mock_op op;
+  void *res;
+  op.fun_name = "sbrk";
+  op.args[0].i = incr;
+  if(incr != 0) {
+    if(sys_mock_sbrk_res != ((void *) (-1))) {
+      if(sys_mock_break + incr <= sys_mock_data_seg + MAX_SYS_MOCK_DATA_SEG_SIZE) {
+        res = (void *) sys_mock_break;
+        op.err_num = 0;
+        sys_mock_break += incr;
+      } else {
+        res = (void *) (-1);
+        errno = ENOMEM;
+        op.err_num = errno;
+      }
+    } else {
+      res = sys_mock_sbrk_res;
+      errno = sys_mock_sbrk_err_num;
+      op.err_num = errno;
+    }
+  } else {
+    res = (void *) sys_mock_break;
+    op.err_num = 0;
+  }
+  op.res.vp = res;
+  if(add_sys_mock_op(&op) == -1) return (void *) (-1);
   return res;
 }
 

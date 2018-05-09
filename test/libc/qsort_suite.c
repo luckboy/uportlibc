@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -131,8 +131,8 @@ void test_heapsort_sorts_random_array(void)
 {
   static int array1[1000], expected_array1[1000];
   static int array2[1000], expected_array2[1000];
-  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
-  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
+  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
+  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
   set_rand_qsort_arrays(array1, expected_array1, len1);
   set_rand_qsort_arrays(array2, expected_array2, len2);
   heapsort(array1, len1, sizeof(int), compare);
@@ -190,8 +190,8 @@ void test_introsort_sorts_random_array_for_depth_that_is_uint_max(void)
 {
   static int array1[1000], expected_array1[1000];
   static int array2[1000], expected_array2[1000];
-  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
-  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
+  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
+  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
   set_rand_qsort_arrays(array1, expected_array1, len1);
   set_rand_qsort_arrays(array2, expected_array2, len2);
   introsort(array1, 0, len1 - 1, sizeof(int), compare, UINT_MAX);
@@ -259,8 +259,8 @@ void test_qsort_sorts_random_array(void)
 {
   static int array1[1000], expected_array1[1000];
   static int array2[1000], expected_array2[1000];
-  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
-  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
+  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
+  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
   set_rand_qsort_arrays(array1, expected_array1, len1);
   set_rand_qsort_arrays(array2, expected_array2, len2);
   uportlibc_qsort(array1, len1, sizeof(int), compare);

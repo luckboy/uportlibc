@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@
 #define MAP_PRIVATE             __UPORTSYS_MAP_PRIVATE
 #define MAP_FIXED               __UPORTSYS_MAP_FIXED
 
-#define MAP_FAILURE             __UPORTSYS_MAP_FAILURE
+#define MAP_FAILED              __UPORTSYS_MAP_FAILED
 
 #define MS_ASYNC                __UPORTSYS_MS_ASYNC
 #define MS_INVALIDATE           __UPORTSYS_MS_INVALIDATE

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -156,10 +156,10 @@ void test_bsearch_returns_pointer_to_found_element_for_random_array_with_key(voi
   static int array1[1000], array2[1000];
   int key1, key2;
   void *res1, *res2;
-  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900) + 101;
-  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900) + 101;
-  size_t i1 = floor((rand() / (RAND_MAX * 1.0)) * len1);
-  size_t i2 = floor((rand() / (RAND_MAX * 1.0)) * len2);
+  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900) + 100;
+  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900) + 100;
+  size_t i1 = floor((rand() / (RAND_MAX * 1.0)) * (len1 - 1));
+  size_t i2 = floor((rand() / (RAND_MAX * 1.0)) * (len2 - 1));
   set_rand_bsearch_array(array1, len1);
   set_rand_bsearch_array(array2, len2);
   key1 = array1[i1];
@@ -175,10 +175,10 @@ void test_bsearch_returns_null_pointer_for_random_array_without_key(void)
   static int array1[1000], array2[1000];
   int key1, key2;
   void *res1, *res2;
-  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
-  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 101;
-  size_t i1 = floor((rand() / (RAND_MAX * 1.0)) * (len1 + 1));
-  size_t i2 = floor((rand() / (RAND_MAX * 1.0)) * (len2 + 1));
+  size_t len1 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
+  size_t len2 = floor(rand() / (RAND_MAX * 1.0) * 900.0) + 100;
+  size_t i1 = floor((rand() / (RAND_MAX * 1.0)) * len1);
+  size_t i2 = floor((rand() / (RAND_MAX * 1.0)) * len2);
   set_rand_bsearch_array_without_key(array1, len1, i1, &key1);
   set_rand_bsearch_array_without_key(array2, len2, i2, &key2);
   res1 = uportlibc_bsearch(&key1, array1, len1, sizeof(int), compare);

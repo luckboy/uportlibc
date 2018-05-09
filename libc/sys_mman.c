@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ int mlockall(int flags)
 { errno = ENOSYS; return -1; }
 
 void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
-{ errno = ENOSYS; return MAP_FAILURE; }
+{ errno = ENOSYS; return MAP_FAILED; }
 
 int mprotect(void *addr, size_t len, int prot)
 { errno = ENOSYS; return -1; }

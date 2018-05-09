@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#ifndef TEST
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <uportsys/sys.h>
@@ -28,7 +29,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#else
+#include <sys/mman.h>
+#include <errno.h>
+#include <limits.h>
+#include <stddef.h>
+#include <string.h>
+#define SYS_MOCK_SYS_MMAN
+#define SYS_MOCK_UNISTD
+#include "sys_mock.h"
+#define UPORTLIBC_MALLOC
+#include "uportlibc.h"
+#endif
 #include "lock.h"
+#include "malloc_priv.h"
+
+#ifndef TEST
+#define STATIC                  static
+#else
+#define STATIC
+#endif
 
 #ifndef MAP_ANON
 #ifdef MAP_ANONYMOUS
@@ -36,30 +56,14 @@
 #endif
 #endif
 
-#define MMAP_THRESHOLD          (1024 * 1024)
-
-#define MALLOC_FLAG_FREE        (1 << 0)
-#define MALLOC_FLAG_MMAP        (1 << 1)
-
-struct malloc_header
-{
-  struct malloc_header *prev;
-  size_t size;
-  unsigned short flags;
-  short height;
-  struct malloc_header *left;
-  struct malloc_header *right;
-  struct malloc_header *parent;
-};
-
-static lock_t malloc_lock = LOCK;
-static struct malloc_header *heap_root = NULL;
-static struct malloc_header *last_header = NULL;
+STATIC lock_t malloc_lock = LOCK;
+STATIC struct malloc_header *heap_root = NULL;
+STATIC struct malloc_header *last_header = NULL;
 
 static inline size_t align_up(size_t size)
-{ return (size + 7) & ~7; }
+{ return (size + 7) & ~7UL; }
 
-static inline void * align_up_ptr(void *ptr)
+static inline void *align_up_ptr(void *ptr)
 { return (void *) (align_up((size_t) ptr)); }
 
 static inline struct malloc_header *next_header(struct malloc_header *hdr)
@@ -98,7 +102,7 @@ static int compare_header_with_size(struct malloc_header *hdr, size_t size)
 
 static void avl_update_height(struct malloc_header *node)
 {
-  int max_height = 0;
+  int max_height = 1;
   if(node->left != NULL && node->left->height + 1 > max_height)
     max_height = node->left->height + 1;
   if(node->right != NULL && node->right->height + 1 > max_height)
@@ -108,7 +112,7 @@ static void avl_update_height(struct malloc_header *node)
 
 static void avl_update_heights(struct malloc_header *node)
 {
-  while(node == NULL) {
+  while(node != NULL) {
     avl_update_height(node);
     node = node->parent;
   }
@@ -132,7 +136,7 @@ static struct malloc_header *avl_left_rotate(struct malloc_header *node)
   right->left = node;
   node->parent = right;
   node->right = tmp_node;
-  tmp_node->parent = node;
+  if(tmp_node != NULL) tmp_node->parent = node;
   avl_update_height(node);
   avl_update_height(right);
   return right;
@@ -140,7 +144,7 @@ static struct malloc_header *avl_left_rotate(struct malloc_header *node)
 
 static struct malloc_header *avl_right_rotate(struct malloc_header *node)
 {
-  struct malloc_header *left = node->right;
+  struct malloc_header *left = node->left;
   struct malloc_header *tmp_node;
   if(node->parent != NULL) {
     left->parent = node->parent;
@@ -156,7 +160,7 @@ static struct malloc_header *avl_right_rotate(struct malloc_header *node)
   left->right = node;
   node->parent = left;
   node->left = tmp_node;
-  tmp_node->parent = node;
+  if(tmp_node != NULL) tmp_node->parent = node;
   avl_update_height(node);
   avl_update_height(left);
   return left;
@@ -175,7 +179,7 @@ static void avl_balance(struct malloc_header *node)
         node = avl_right_rotate(node);
       }
     } else if(balance_factor(node) > 1) {
-      if(balance_factor(node->left) <= 0) {
+      if(balance_factor(node->right) >= 0) {
         /* Right-right case. */
         node = avl_left_rotate(node);
       } else {
@@ -189,19 +193,19 @@ static void avl_balance(struct malloc_header *node)
   }
 }
 
-static struct malloc_header *find_best_header(size_t size)
+STATIC struct malloc_header *find_best_header(size_t size)
 {
   struct malloc_header *node = heap_root;
   struct malloc_header *tmp_node = NULL;
   while(node != NULL) {
     int res = compare_header_with_size(node, size);
-    if(res < 0) {
+    if(res > 0) {
       tmp_node = node;
       if(node->left == NULL)
         break;
       else
         node = node->left;
-    } else if(res > 0) {
+    } else if(res < 0) {
       if(node->right == NULL) {
         node = tmp_node;
         break;
@@ -213,7 +217,7 @@ static struct malloc_header *find_best_header(size_t size)
   return node;
 }
 
-static void insert_header(struct malloc_header *hdr)
+STATIC void insert_header(struct malloc_header *hdr)
 {
   struct malloc_header *node = heap_root;
   hdr->flags |= MALLOC_FLAG_FREE;
@@ -223,20 +227,20 @@ static void insert_header(struct malloc_header *hdr)
   hdr->parent = NULL;
   while(node != NULL) {
     int res = compare_headers(node, hdr);
-    if(res < 0) {
+    if(res > 0) {
       if(node->left == NULL) {
         node->left = hdr;
         hdr->parent = node;
         break;
       } else
         node = node->left;
-    } else if(res > 0) {
-      if(node->left == NULL) {
+    } else if(res < 0) {
+      if(node->right == NULL) {
         node->right = hdr;
         hdr->parent = node;
         break;
       } else
-        node = node->left;
+        node = node->right;
     } else
       return;
   }
@@ -245,7 +249,7 @@ static void insert_header(struct malloc_header *hdr)
   avl_balance(hdr);
 }
 
-void delete_header(struct malloc_header *hdr)
+STATIC void delete_header(struct malloc_header *hdr)
 {
   struct malloc_header *node;
   struct malloc_header *tmp_node = NULL;
@@ -262,7 +266,7 @@ void delete_header(struct malloc_header *hdr)
     }
   }
   if(hdr->right != NULL) {
-    right = hdr->left;
+    right = hdr->right;
     j++;
     while(right->left != NULL) {
       right = right->left;
@@ -285,10 +289,14 @@ void delete_header(struct malloc_header *hdr)
     } else
       tmp_node = node;
     node->parent = hdr->parent;
-    if(hdr->left != node)
+    if(hdr->left != node) {
       node->left = hdr->left;
-    if(hdr->right != node)
+      if(hdr->left != NULL) hdr->left->parent = node;
+    }
+    if(hdr->right != node) {
       node->right = hdr->right;
+      if(hdr->right != NULL) hdr->right->parent = node;
+    }
   } else
     tmp_node = hdr->parent;
   if(hdr->parent != NULL) {
@@ -327,7 +335,7 @@ void *malloc(size_t size)
     }
     len = ((align_up(sizeof(struct malloc_header)) + size + page_size - 1) / page_size) * page_size;
     ptr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-    if(ptr == MAP_FAILURE) {
+    if(ptr == MAP_FAILED) {
       lock_unlock(&malloc_lock);
       errno = ENOMEM;
       return NULL;
@@ -432,9 +440,10 @@ void *realloc(void *ptr, size_t size)
       }
     }
     must_alloc = 1;
-  }
-  if(size >= MMAP_THRESHOLD) {
-    must_alloc = 1;
+  } else {
+    if(size >= MMAP_THRESHOLD) {
+      must_alloc = 1;
+    }
   }
 #endif
   if(!must_alloc) {
@@ -450,25 +459,47 @@ void *realloc(void *ptr, size_t size)
          *  ... | hdr | ~ | next_hdr | ~ | ...
          * -----+-----+---+----------+---+-----
          */
-        delete_header(next_hdr);
-        if(old_size + align_up(sizeof(struct malloc_header)) + next_hdr->size > size + align_up(sizeof(struct malloc_header))) {
-          struct malloc_header *new_next_hdr = (struct malloc_header *) (((char *) align_up_ptr(hdr)) + size);
-          new_next_hdr->prev = hdr;
-          new_next_hdr->size = old_size + align_up(sizeof(struct malloc_header)) + next_hdr->size - (size + align_up(sizeof(struct malloc_header)));
-          new_next_hdr->flags = 0;
-          new_next_hdr->height = 0;
-          new_next_hdr->left = NULL;
-          new_next_hdr->right = NULL;
-          new_next_hdr->parent = NULL;
-          next_header(new_next_hdr)->prev = new_next_hdr;
-          hdr->size = size;
-        } else {
-          next_header(next_hdr)->prev = hdr;
-          hdr->size = old_size + align_up(sizeof(struct malloc_header)) + next_hdr->size;
-        }
-        new_ptr = ptr;
-      } else
-        must_alloc = 1;
+        if(old_size + align_up(sizeof(struct malloc_header)) + next_hdr->size >= size) {
+          delete_header(next_hdr);
+          if(old_size + align_up(sizeof(struct malloc_header)) + next_hdr->size > size + align_up(sizeof(struct malloc_header))) {
+            struct malloc_header *new_next_hdr = (struct malloc_header *) (((char *) align_up_ptr(hdr + 1)) + size);
+            size_t next_size = next_hdr->size;
+            new_next_hdr->prev = hdr;
+            new_next_hdr->size = old_size + align_up(sizeof(struct malloc_header)) + next_size - (size + align_up(sizeof(struct malloc_header)));
+            new_next_hdr->flags = 0;
+            new_next_hdr->height = 0;
+            new_next_hdr->left = NULL;
+            new_next_hdr->right = NULL;
+            new_next_hdr->parent = NULL;
+            next_header(new_next_hdr)->prev = new_next_hdr;
+            hdr->size = size;
+            insert_header(new_next_hdr);
+          } else {
+            next_header(next_hdr)->prev = hdr;
+            hdr->size = old_size + align_up(sizeof(struct malloc_header)) + next_hdr->size;
+          }
+          new_ptr = ptr;
+        } else
+          must_alloc = 1;
+      } else {
+        if(old_size >= size) {
+          if(old_size > size + align_up(sizeof(struct malloc_header))) {
+            struct malloc_header *new_next_hdr = (struct malloc_header *) (((char *) align_up_ptr(hdr + 1)) + size);
+            new_next_hdr->prev = hdr;
+            new_next_hdr->size = old_size - (size + align_up(sizeof(struct malloc_header)));
+            new_next_hdr->flags = 0;
+            new_next_hdr->height = 0;
+            new_next_hdr->left = NULL;
+            new_next_hdr->right = NULL;
+            new_next_hdr->parent = NULL;
+            next_header(new_next_hdr)->prev = new_next_hdr;
+            hdr->size = size;
+            insert_header(new_next_hdr);
+          }
+          new_ptr = ptr;
+        } else
+          must_alloc = 1;
+      }
     } else {
       /* -----+-----+---+
        *  ... | hdr | ~ |

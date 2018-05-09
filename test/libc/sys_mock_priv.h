@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,19 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define MAX_SYS_MOCK_ARG_COUNT  8
-#define MAX_SYS_MOCK_OP_COUNT   1024
-#define MAX_SYS_MOCK_FILE_COUNT 256
-#define SYS_MOCK_FILE_BUF_SIZE  (16 * 1024)
-#define MAX_SYS_MOCK_ENV_COUNT  1024
+#define MAX_SYS_MOCK_ARG_COUNT       8
+#define MAX_SYS_MOCK_OP_COUNT        1024
+#define MAX_SYS_MOCK_FILE_COUNT      256
+#define SYS_MOCK_FILE_BUF_SIZE       (16 * 1024)
+#define MAX_SYS_MOCK_ENV_COUNT       1024
+#define MAX_SYS_MOCK_DATA_SEG_SIZE   (512 * 1024)
+#define MAX_SYS_MOCK_MEM_AREA_COUNT  256
 
 union sys_mock_value
 {
   long i;
   unsigned long u;
+  off_t o;
   char *cp;
   int *ip;
   void *vp;
@@ -63,6 +66,13 @@ struct sys_mock_file
   off_t buf_data_size;
 };
 
+struct sys_mock_mem_area
+{
+  char *ptr;
+  void *ptr_to_free;
+  size_t len;
+};
+
 extern unsigned sys_mock_op_count;
 extern struct sys_mock_op sys_mock_ops[MAX_SYS_MOCK_OP_COUNT];
 
@@ -70,6 +80,15 @@ extern int sys_mock_last_opened_fd;
 extern size_t sys_mock_file_buf_size;
 extern int sys_mock_file_is_tty;
 extern struct sys_mock_file *sys_mock_files[MAX_SYS_MOCK_FILE_COUNT];
+extern char sys_mock_data_seg[MAX_SYS_MOCK_DATA_SEG_SIZE];
+extern char *sys_mock_break;
+extern struct sys_mock_mem_area sys_mock_mem_areas[MAX_SYS_MOCK_MEM_AREA_COUNT];
+
+extern void *sys_mock_mmap_res;
+extern int sys_mock_mmap_err_num;
+
+extern int sys_mock_munmap_res;
+extern int sys_mock_munmap_err_num;
 
 extern int sys_mock_lstat_res;
 extern int sys_mock_lstat_err_num;
@@ -101,6 +120,9 @@ extern int sys_mock_read_err_num;
 
 extern int sys_mock_rmdir_res;
 extern int sys_mock_rmdir_err_num;
+
+extern void *sys_mock_sbrk_res;
+extern int sys_mock_sbrk_err_num;
 
 extern ssize_t sys_mock_write_res;
 extern int sys_mock_write_err_num;

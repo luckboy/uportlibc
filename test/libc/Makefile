@@ -12,6 +12,9 @@ OBJS = $(BUILD_DIR)/main.o \
   	$(BUILD_DIR)/exit.o \
   	$(BUILD_DIR)/fopen.o \
   	$(BUILD_DIR)/gets.o \
+  	$(BUILD_DIR)/malloc.o \
+  	$(BUILD_DIR)/malloc_suite.o \
+  	$(BUILD_DIR)/malloc_vars.o \
 	$(BUILD_DIR)/qsort.o \
   	$(BUILD_DIR)/qsort_suite.o \
   	$(BUILD_DIR)/setbuf.o \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 Łukasz Szpakowski
+ * Copyright (c) 2016-2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -86,6 +86,18 @@ void uportlibc_exit(int status);
 #define __uportlibc_environ_exit_fun uportlibc_environ_exit_fun
 #define __uportlibc_stdio_exit_fun uportlibc_stdio_exit_fun
 #define exit uportlibc_exit
+#endif
+
+/* Functions and macros for malloc.c file. */
+
+void *uportlibc_malloc(size_t size);
+void *uportlibc_realloc(void *ptr, size_t size);
+void uportlibc_free(void *ptr);
+
+#ifdef UPORTLIBC_MALLOC
+#define malloc uportlibc_malloc
+#define realloc uportlibc_realloc
+#define free uportlibc_free
 #endif
 
 /* Functions and macros for the qsort.c file. */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Łukasz Szpakowski
+ * Copyright (c) 2016, 2018 Łukasz Szpakowski
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,34 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <inttypes.h>
 #include <stddef.h>
+
+/* Functions and macros for the sys/mman.h header. */
+
+#define SYS_MOCK_MAP_SHARED     (1 << 0)
+#define SYS_MOCK_MAP_PRIVATE    (1 << 1)
+#define SYS_MOCK_MAP_FIXED      (1 << 2)
+#define SYS_MOCK_MAP_ANON       (1 << 3)
+
+void *uportlibc_sys_mock_mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset);
+int uportlibc_sys_mock_munmap(void *addr, size_t len);
+
+#ifdef SYS_MOCK_SYS_MMAN
+#undef MAP_SHARED
+#define MAP_SHARED SYS_MOCK_MAP_SHARED
+#undef MAP_PRIVATE
+#define MAP_PRIVATE SYS_MOCK_MAP_PRIVATE
+#undef MAP_FIXED
+#define MAP_FIXED SYS_MOCK_MAP_FIXED
+#undef MAP_ANON
+#undef MAP_ANONYMOUS
+#define MAP_ANON SYS_MOCK_MAP_ANON
+#undef ___UPORTSYS_MXXX_MEMORY_MANAGEMENT
+#define ___UPORTSYS_MXXX_MEMORY_MANAGEMENT
+#define mmap uportlibc_sys_mock_mmap
+#define munmap uportlibc_sys_mock_munmap
+#endif
 
 /* Functions and macros for the sys/stat.h header. */
 
@@ -70,11 +97,13 @@ int uportlibc_sys_mock_close(int fd);
 int uportlibc_sys_mock_dup2(int old_fd, int new_fd);
 int uportlibc_sys_mock_execve(const char *file_name, char *const *argv, char *const *env);
 pid_t uportlibc_sys_mock_fork(void);
+int uportlibc_sys_mock_getpagesize(void);
 int uportlibc_sys_mock_isatty(int fd);
 off_t uportlibc_sys_mock_lseek(int fd, off_t offset, int whence);
 int uportlibc_sys_mock_pipe(int *fds);
 ssize_t uportlibc_sys_mock_read(int fd, void *buf, size_t count);
 int uportlibc_sys_mock_rmdir(const char *dir_name);
+void *uportlibc_sys_mock_sbrk(intptr_t incr);
 ssize_t uportlibc_sys_mock_write(int fd, const void *buf, size_t count);
 int uportlibc_sys_mock_unlink(const char *file_name);
 
@@ -90,11 +119,13 @@ int uportlibc_sys_mock_unlink(const char *file_name);
 #define dup2 uportlibc_sys_mock_dup2
 #define execve uportlibc_sys_mock_execve
 #define fork uportlibc_sys_mock_fork
+#define getpagesize uportlibc_sys_mock_getpagesize
 #define isatty uportlibc_sys_mock_isatty
 #define lseek uportlibc_sys_mock_lseek
 #define pipe uportlibc_sys_mock_pipe
 #define read uportlibc_sys_mock_read
 #define rmdir uportlibc_sys_mock_rmdir
+#define sbrk uportlibc_sys_mock_sbrk
 #define write uportlibc_sys_mock_write
 #define unlink uportlibc_sys_mock_unlink
 #endif
